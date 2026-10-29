@@ -18,3 +18,7 @@ If the local source files are present, run `python scripts/check_raw_sources.py`
 ## Current source-to-claim route
 
 `data/reference/aoi_metrics.csv` → `scripts/check_data.py` → `scripts/generate_reference_figures.py` → `figures/generated/`. Its event definition is the union of supplied water and flood-trace observations, clipped to mapped EMS areas of interest. This union combines observations across dates; it is not a simultaneous flood snapshot.
+
+## Shelter-alert policy tool
+
+`scripts/build_shelter_alert_data.py` writes, per EMS area (`be_01`, `nl_01`, `de_08`, `de_09`, `de_10`, `de_18`, and `de_15` as an out-of-region comparison), `shelter_alert_<area>_summary.json` (residents in the mapped flood, shelter capacity and the default matching result, with reference checks against `aoi_metrics.csv`) and `shelter_alert_<area>_shelters.csv` (one row per OSM shelter candidate with country, OBAT floor area, distance to the 2021 flood and EFAS depth). See `policy-tool/README.md`.
