@@ -21,9 +21,9 @@ import rasterio
 import shapely
 from affine import Affine
 from rasterio.windows import Window
-from shapely.geometry import MultiPoint, Point, Polygon, mapping
+from shapely.geometry import LineString, MultiPoint, Point, Polygon, mapping
 from shapely.geometry.base import BaseGeometry
-from shapely.ops import unary_union
+from shapely.ops import polygonize, unary_union
 
 os.environ.setdefault("GS_NO_SIGN_REQUEST", "YES")
 
@@ -135,10 +135,13 @@ def allocate_residents(grid: Grid, lon: np.ndarray, lat: np.ndarray, weight: np.
     rows, cols = cell_index(grid, lon, lat)
     height, width = grid.values.shape
     cells = rows * width + cols
+    weight = np.nan_to_num(weight)
     weight_sum = np.bincount(cells, weights=weight, minlength=height * width)
     population = np.nan_to_num(grid.values.astype(float)).ravel()
-    residents = population[cells] * weight / weight_sum[cells]
-    unallocated = float(population[(weight_sum == 0) & (population > 0)].sum())
+    shared = weight_sum[cells] > 0
+    residents = np.zeros(weight.shape)
+    residents[shared] = population[cells[shared]] * weight[shared] / weight_sum[cells[shared]]
+    unallocated = float(population[(weight_sum <= 0) & (population > 0)].sum())
     return residents, unallocated
 
 
@@ -207,13 +210,18 @@ def element_geometry(element: dict[str, Json]) -> BaseGeometry | None:
     members = element.get("members")
     if not isinstance(members, list):
         return None
-    rings = [
-        ring_geometry(coordinates(member.get("geometry")))
+    lines = [
+        coordinates(member.get("geometry"))
         for member in members
         if isinstance(member, dict) and member.get("role") in ("outer", "")
     ]
-    parts = [ring for ring in rings if ring is not None and not ring.is_empty]
-    return unary_union(parts) if parts else None
+    lines = [line for line in lines if len(line) >= 2]
+    if not lines:
+        return None
+    polygons = list(polygonize(unary_union([LineString(line) for line in lines])))
+    if polygons:
+        return unary_union(polygons)
+    return MultiPoint([point for line in lines for point in line]).convex_hull
 
 
 def classify(tags: dict[str, str]) -> str | None:
@@ -264,13 +272,37 @@ def attach_buildings(features: gpd.GeoDataFrame, buildings: gpd.GeoDataFrame) ->
     hits = hits.sort_values("feature_area", ascending=False)
     owner = hits[~hits.index.duplicated(keep="first")]["index_right"]
     points = features[features.geom_type == "Point"]
-    points = points[~points.within(unary_union(polygons.geometry.to_list()))]
+    points = points[~points.within(unary_union(polygons.geometry.to_list()).buffer(NODE_MATCH_M))]
     free = buildings.drop(index=owner.index)
     if not points.empty and not free.empty:
         nearest = gpd.sjoin_nearest(points[["geometry"]], free[["geometry"]], max_distance=NODE_MATCH_M)
         nearest = nearest[~nearest["index_right"].duplicated(keep="first")]
         owner = pd.concat([owner, pd.Series(nearest.index, index=nearest["index_right"].to_numpy())])
     return pd.DataFrame({"feature": owner.to_numpy()}, index=owner.index)
+
+
+def distinct_sites(sites: gpd.GeoDataFrame, event: BaseGeometry) -> list[dict[str, str | float | bool]]:
+    candidates = sites[sites["kind"].isin(["care", "school"])].copy()
+    candidates["size"] = candidates.area
+    kept: dict[str, list[BaseGeometry]] = {"care": [], "school": []}
+    result: list[dict[str, str | float | bool]] = []
+    for _, site in candidates.sort_values("size", ascending=False, kind="stable").iterrows():
+        spot = site.geometry.representative_point()
+        same_kind = kept[str(site["kind"])]
+        if any(other.distance(spot) <= NODE_MATCH_M for other in same_kind):
+            continue
+        same_kind.append(site.geometry)
+        location = to_wgs84(spot)
+        result.append(
+            {
+                "name": site["name"] or f"Unnamed {site['kind']}",
+                "kind": site["kind"],
+                "lon": round(location.x, 5),
+                "lat": round(location.y, 5),
+                "in_flood": bool(site.geometry.intersects(event)),
+            }
+        )
+    return result
 
 
 def project_xy(lon: np.ndarray, lat: np.ndarray, lat0: float) -> tuple[np.ndarray, np.ndarray]:
@@ -317,8 +349,8 @@ def main() -> None:
     margin = args.buffer_deg
     bbox = (west - margin * 1.5, south - margin, east + margin * 1.5, north + margin)
 
-    buildings = read_obat(area.country, bbox, REPO / "data" / "processed" / f"obat_{args.aoi}_bbox.parquet")
-    buildings = buildings.to_crs(4326)
+    buildings = read_obat(area.country, bbox, REPO / "data" / "processed" / f"obat_{args.aoi}_{margin:g}.parquet")
+    buildings = buildings.to_crs(4326).reset_index(drop=True)
     lon = buildings.geometry.x.to_numpy()
     lat = buildings.geometry.y.to_numpy()
     floors = np.maximum(1.0, np.nan_to_num(buildings["height"].to_numpy(dtype=float), nan=STOREY_M) / STOREY_M)
@@ -340,7 +372,7 @@ def main() -> None:
     in_event = buildings_laea.within(area.event).to_numpy()
     homes = np.flatnonzero(in_event & residential)
 
-    overpass_cache = REPO / "data" / "raw" / "osm" / f"overpass_{args.aoi}.json"
+    overpass_cache = REPO / "data" / "raw" / "osm" / f"overpass_{args.aoi}_{margin:g}.json"
     features = osm_features(fetch_overpass(bbox, overpass_cache))
     places = features[(features["kind"] == "place") & (features["name"] != "")].to_crs(4326)
     sites = features[features["kind"] != "place"]
@@ -355,20 +387,9 @@ def main() -> None:
     home_place = np.argmin(np.hypot(hx[:, None] - px[None, :], hy[:, None] - py[None, :]), axis=1)
 
     shelters: list[dict[str, str | float | int | None]] = []
-    critical: list[dict[str, str | float | bool]] = []
+    critical = distinct_sites(sites, area.event)
     for feature_id, site in sites.iterrows():
         members = owner.index[owner["feature"] == feature_id].to_numpy()
-        if site["kind"] == "care" or site["kind"] == "school":
-            spot = to_wgs84(site.geometry.representative_point())
-            critical.append(
-                {
-                    "name": site["name"] or f"Unnamed {site['kind']}",
-                    "kind": site["kind"],
-                    "lon": round(spot.x, 5),
-                    "lat": round(spot.y, 5),
-                    "in_flood": bool(site.geometry.intersects(area.event)),
-                }
-            )
         if site["kind"] == "care" or members.size == 0:
             continue
         total_floor = float(floor_area[members].sum())
@@ -421,6 +442,8 @@ def main() -> None:
     johan_matches = places.index[places["name"] == args.johan_place]
     johan_place = int(places.index.get_loc(johan_matches[0])) if len(johan_matches) else int(np.bincount(home_place).argmax())
     candidates = np.flatnonzero(home_place == johan_place)
+    if candidates.size == 0:
+        candidates = np.arange(homes.size)
     johan = int(candidates[np.argmin(np.hypot(hx[candidates] - px[johan_place], hy[candidates] - py[johan_place]))])
 
     reference = pd.read_csv(REPO / "data" / "reference" / "aoi_metrics.csv").set_index("aoi_id").loc[area.aoi_id]
