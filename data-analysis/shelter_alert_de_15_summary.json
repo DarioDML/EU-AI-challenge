@@ -17,6 +17,9 @@
   },
   "homes_in_flood": 6975,
   "homes_in_flood_height_missing": 0,
+  "homes_in_flood_by_country": {
+    "de": 6975
+  },
   "residents_in_flood_building_weighted": 20894.9,
   "residents_in_flood_area_weighted_reference": 15336.5,
   "residents_unallocated_in_bbox_cells_without_homes": 3436.4,
@@ -24,6 +27,9 @@
   "homes_in_flood_with_rp100_depth": 2968,
   "shelters_found": 384,
   "shelters_eligible": 289,
+  "shelters_eligible_by_country": {
+    "de": 289
+  },
   "shelter_capacity": 87910,
   "residents_placed": 11124.0,
   "residents_placed_within_walk": 6102.4,

@@ -1,4 +1,4 @@
-"""Inline the policy-tool data into one HTML file for submission (Leaflet and map tiles still load online)."""
+"""Inline all policy-tool data files into one HTML file for submission (Leaflet and map tiles still load online)."""
 
 from __future__ import annotations
 
@@ -17,11 +17,14 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=REPO / "deliverables" / "shelter-alert-tool.html")
     args = parser.parse_args()
     page = (TOOL / "index.html").read_text(encoding="utf-8")
-    match = DATA_TAG.search(page)
-    if match is None:
+    if not DATA_TAG.search(page):
         raise SystemExit("No data <script> tag found in policy-tool/index.html")
-    data = (TOOL / match.group(1)).read_text(encoding="utf-8").replace("</script", "<\\/script")
-    bundled = page[: match.start()] + f"<script>\n{data}</script>" + page[match.end() :]
+
+    def inline(match: re.Match[str]) -> str:
+        data = (TOOL / match.group(1)).read_text(encoding="utf-8").replace("</script", "<\\/script")
+        return f"<script>\n{data}</script>"
+
+    bundled = DATA_TAG.sub(inline, page)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(bundled, encoding="utf-8")
     print(f"Wrote {args.output} ({args.output.stat().st_size:,} bytes)")

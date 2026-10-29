@@ -1,0 +1,46 @@
+{
+  "aoi_id": "de_10",
+  "locality": "Wassenberg",
+  "generated": "2026-10-29",
+  "scenario": {
+    "m2_per_person": 3.5,
+    "usable_share": 0.5,
+    "max_distance_m": 5000.0,
+    "walk_distance_m": 2000.0,
+    "flood_buffer_m": 50.0,
+    "exclude_rp500": true,
+    "kinds": [
+      "school",
+      "sports",
+      "community"
+    ]
+  },
+  "homes_in_flood": 83,
+  "homes_in_flood_height_missing": 0,
+  "homes_in_flood_by_country": {
+    "de": 83
+  },
+  "residents_in_flood_building_weighted": 86.2,
+  "residents_in_flood_area_weighted_reference": 904.5,
+  "residents_unallocated_in_bbox_cells_without_homes": 136.3,
+  "homes_in_flood_with_rp500_depth": 31,
+  "homes_in_flood_with_rp100_depth": 30,
+  "shelters_found": 128,
+  "shelters_eligible": 124,
+  "shelters_eligible_by_country": {
+    "de": 113,
+    "nl": 11
+  },
+  "shelter_capacity": 43247,
+  "residents_placed": 86.2,
+  "residents_placed_within_walk": 86.2,
+  "residents_unplaced": 0.0,
+  "median_distance_m": 1101,
+  "vulnerable_sites_in_flood": 0,
+  "osm_retrieved": "2026-10-29",
+  "checks": {
+    "homes_in_flood_vs_reference_residential_event": true,
+    "homes_rp500_vs_reference_rp500_positive_residential": true,
+    "homes_rp100_vs_reference_rp100_positive_residential": true
+  }
+}

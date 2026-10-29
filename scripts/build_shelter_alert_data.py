@@ -1,11 +1,13 @@
-"""Build the shelter-alert policy-tool data for one EMS area: residents inside the mapped 2021 flood, candidate shelters and their capacity."""
+"""Build the shelter-alert policy-tool data for EMS areas: residents inside the mapped 2021 flood, candidate shelters and their capacity."""
 
 from __future__ import annotations
 
 import argparse
+import http.client
 import json
 import math
 import os
+import time
 import urllib.parse
 import urllib.request
 from dataclasses import asdict, dataclass
@@ -30,9 +32,19 @@ os.environ.setdefault("GS_NO_SIGN_REQUEST", "YES")
 REPO = Path(__file__).resolve().parents[1]
 BUCKET = "/vsigs/datasets_challenge/working_data"
 ISO3 = {"be": "BEL", "de": "DEU", "nl": "NLD"}
+COUNTRY_EXTENT = {"be": (2.5, 49.4, 6.45, 51.55), "de": (5.8, 47.2, 15.1, 55.1), "nl": (3.3, 50.7, 7.3, 53.6)}
+REGION_AOIS = ("be_01", "nl_01", "de_08", "de_09", "de_10", "de_18")
+COMPARISON_AOIS = ("de_15",)
+SITE_SEARCH_M = 1000.0
 POP_PATH = f"{BUCKET}/ghs_pop/GHS_POP_E2020_GLOBE_R2023A_4326_30ss_V1_0/GHS_POP_E2020_GLOBE_R2023A_4326_30ss_V1_0.tif"
 EFAS_PATH = BUCKET + "/cems-efas/Europe_RP{}_filled_depth.tif"
-OVERPASS_URL = os.environ.get("OVERPASS_URL", "https://z.overpass-api.de/api/interpreter")
+OVERPASS_URLS = os.environ.get(
+    "OVERPASS_URL", "https://z.overpass-api.de/api/interpreter,https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+).split(",")
+OVERPASS_TILE_DEG = 0.2
+OVERPASS_PAUSE_S = 2.0
+OVERPASS_ATTEMPTS = 4
+OVERPASS_RETRY_S = 20.0
 LAEA = 3035
 STOREY_M = 3.0
 NODE_MATCH_M = 30.0
@@ -82,15 +94,25 @@ def to_wgs84(geometry: BaseGeometry) -> BaseGeometry:
     return gpd.GeoSeries([geometry], crs=LAEA).to_crs(4326).iloc[0]
 
 
-def read_obat(country: str, bbox: tuple[float, float, float, float], cache: Path) -> gpd.GeoDataFrame:
+def overlaps(a: tuple[float, float, float, float], b: tuple[float, float, float, float]) -> bool:
+    return a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[3]
+
+
+def read_obat(bbox: tuple[float, float, float, float], cache: Path) -> gpd.GeoDataFrame:
     if cache.exists():
         return gpd.read_parquet(cache)
-    name = f"GHS_OBAT_GPKG_{ISO3[country]}_E2020_R2024A_V1_0"
-    path = f"{BUCKET}/obat_{country}/{name}/{name}.gpkg"
-    frame = pyogrio.read_dataframe(path, bbox=bbox, columns=["use", "height", "area"])
+    frames: list[gpd.GeoDataFrame] = []
+    for country, iso in ISO3.items():
+        if not overlaps(bbox, COUNTRY_EXTENT[country]):
+            continue
+        name = f"GHS_OBAT_GPKG_{iso}_E2020_R2024A_V1_0"
+        frame = pyogrio.read_dataframe(f"{BUCKET}/obat_{country}/{name}/{name}.gpkg", bbox=bbox, columns=["use", "height", "area"])
+        frame["country"] = country
+        frames.append(frame)
+    combined = gpd.GeoDataFrame(pd.concat(frames, ignore_index=True), geometry="geometry", crs=frames[0].crs)
     cache.parent.mkdir(parents=True, exist_ok=True)
-    frame.to_parquet(cache)
-    return frame
+    combined.to_parquet(cache)
+    return combined
 
 
 @dataclass(frozen=True)
@@ -145,11 +167,10 @@ def allocate_residents(grid: Grid, lon: np.ndarray, lat: np.ndarray, weight: np.
     return residents, unallocated
 
 
-def fetch_overpass(bbox: tuple[float, float, float, float], cache: Path) -> list[dict[str, Json]]:
-    if not cache.exists():
-        west, south, east, north = bbox
-        box = f"{south:.5f},{west:.5f},{north:.5f},{east:.5f}"
-        query = f"""[out:json][timeout:120];
+def overpass_tile(tile: tuple[float, float, float, float]) -> list[dict[str, Json]]:
+    west, south, east, north = tile
+    box = f"{south:.5f},{west:.5f},{north:.5f},{east:.5f}"
+    query = f"""[out:json][timeout:120];
 (
   nwr["amenity"~"^(school|college|university|community_centre|townhall|social_centre|events_venue|kindergarten|hospital|clinic|nursing_home|social_facility)$"]({box});
   nwr["leisure"~"^(sports_hall|sports_centre)$"]({box});
@@ -157,15 +178,63 @@ def fetch_overpass(bbox: tuple[float, float, float, float], cache: Path) -> list
   node["place"~"^(town|village|hamlet|suburb)$"]({box});
 );
 out geom;"""
+    for attempt in range(OVERPASS_ATTEMPTS):
+        elements = overpass_attempt(query)
+        if elements is not None:
+            return elements
+        print(f"Overpass tile {box} failed (attempt {attempt + 1}); waiting {OVERPASS_RETRY_S:.0f} s")
+        time.sleep(OVERPASS_RETRY_S)
+    raise SystemExit("All Overpass endpoints failed; set OVERPASS_URL to a working mirror")
+
+
+def overpass_attempt(query: str) -> list[dict[str, Json]] | None:
+    for endpoint in OVERPASS_URLS:
         request = urllib.request.Request(
-            OVERPASS_URL,
+            endpoint,
             data=urllib.parse.urlencode({"data": query}).encode(),
             headers={"User-Agent": "EU-AI-challenge-hackathon/1.0 (shelter-alert demo)"},
         )
-        with urllib.request.urlopen(request, timeout=180) as response:
-            payload = response.read()
+        try:
+            with urllib.request.urlopen(request, timeout=180) as response:
+                answer: Json = json.loads(response.read())
+        except (OSError, http.client.HTTPException, ValueError) as error:
+            print(f"Overpass {endpoint} failed: {error}")
+            continue
+        remark = str(answer.get("remark", "")) if isinstance(answer, dict) else ""
+        elements = answer.get("elements") if isinstance(answer, dict) else None
+        if isinstance(elements, list) and "error" not in remark.lower():
+            return [item for item in elements if isinstance(item, dict)]
+        print(f"Overpass {endpoint} gave an incomplete answer: {remark or 'no elements'}")
+    return None
+
+
+def fetch_overpass(bbox: tuple[float, float, float, float], cache: Path) -> list[dict[str, Json]]:
+    if not cache.exists():
+        west, south, east, north = bbox
+        cols = max(1, math.ceil((east - west) / OVERPASS_TILE_DEG))
+        rows = max(1, math.ceil((north - south) / OVERPASS_TILE_DEG))
+        width, height = (east - west) / cols, (north - south) / rows
+        merged: list[dict[str, Json]] = []
+        seen: set[tuple[str, str]] = set()
+        for col in range(cols):
+            for row in range(rows):
+                tile = (west + col * width, south + row * height, west + (col + 1) * width, south + (row + 1) * height)
+                tile_cache = cache.with_name(f"{cache.stem}_tile{col}_{row}.json")
+                if not tile_cache.exists():
+                    tile_cache.parent.mkdir(parents=True, exist_ok=True)
+                    tile_cache.write_text(json.dumps({"elements": overpass_tile(tile)}, ensure_ascii=False), encoding="utf-8")
+                    time.sleep(OVERPASS_PAUSE_S)
+                stored: Json = json.loads(tile_cache.read_text(encoding="utf-8"))
+                tile_elements = stored.get("elements") if isinstance(stored, dict) else None
+                if not isinstance(tile_elements, list):
+                    raise SystemExit(f"Unexpected Overpass tile in {tile_cache}")
+                for element in (item for item in tile_elements if isinstance(item, dict)):
+                    key = (str(element.get("type")), str(element.get("id")))
+                    if key not in seen:
+                        seen.add(key)
+                        merged.append(element)
         cache.parent.mkdir(parents=True, exist_ok=True)
-        cache.write_bytes(payload)
+        cache.write_text(json.dumps({"elements": merged}, ensure_ascii=False), encoding="utf-8")
     document: Json = json.loads(cache.read_text(encoding="utf-8"))
     if not isinstance(document, dict) or not isinstance(document.get("elements"), list):
         raise SystemExit(f"Unexpected Overpass response in {cache}")
@@ -282,7 +351,8 @@ def attach_buildings(features: gpd.GeoDataFrame, buildings: gpd.GeoDataFrame) ->
 
 
 def distinct_sites(sites: gpd.GeoDataFrame, event: BaseGeometry) -> list[dict[str, str | float | bool]]:
-    candidates = sites[sites["kind"].isin(["care", "school"])].copy()
+    near = event.buffer(SITE_SEARCH_M)
+    candidates = sites[sites["kind"].isin(["care", "school"]) & sites.intersects(near)].copy()
     candidates["size"] = candidates.area
     kept: dict[str, list[BaseGeometry]] = {"care": [], "school": []}
     result: list[dict[str, str | float | bool]] = []
@@ -338,18 +408,28 @@ def simplified_geojson(geometry: BaseGeometry, tolerance_m: float) -> Json:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--aoi", default="de_15")
+    parser.add_argument("--aoi", nargs="+", default=[*REGION_AOIS, *COMPARISON_AOIS], help="EMS areas; default: Anna's region plus the Ahr comparison")
     parser.add_argument("--buffer-deg", type=float, default=0.04, help="Search margin around the AOI for shelters")
-    parser.add_argument("--johan-place", default="Dernau", help="Village used for the illustrative Johan home")
+    parser.add_argument("--johan-place", default=None, help="Village for the illustrative Johan home; default: most homes")
     args = parser.parse_args()
+    failed: list[str] = []
+    for aoi_id in args.aoi:
+        try:
+            build(aoi_id, args.buffer_deg, args.johan_place)
+        except SystemExit as error:
+            print(f"{aoi_id} failed: {error}")
+            failed.append(aoi_id)
+    if failed:
+        raise SystemExit(f"Failed areas: {', '.join(failed)}")
 
-    area = load_area(args.aoi)
+
+def build(aoi_id: str, margin: float, johan_place_name: str | None) -> None:
+    area = load_area(aoi_id)
     aoi_wgs = to_wgs84(area.aoi)
     west, south, east, north = aoi_wgs.bounds
-    margin = args.buffer_deg
     bbox = (west - margin * 1.5, south - margin, east + margin * 1.5, north + margin)
 
-    buildings = read_obat(area.country, bbox, REPO / "data" / "processed" / f"obat_{args.aoi}_{margin:g}.parquet")
+    buildings = read_obat(bbox, REPO / "data" / "processed" / f"obat_{aoi_id}_{margin:g}.parquet")
     buildings = buildings.to_crs(4326).reset_index(drop=True)
     lon = buildings.geometry.x.to_numpy()
     lat = buildings.geometry.y.to_numpy()
@@ -371,10 +451,14 @@ def main() -> None:
     shapely.prepare(area.event)
     in_event = buildings_laea.within(area.event).to_numpy()
     homes = np.flatnonzero(in_event & residential)
+    if homes.size == 0:
+        raise SystemExit(f"{aoi_id}: no residential buildings inside the mapped flood")
 
-    overpass_cache = REPO / "data" / "raw" / "osm" / f"overpass_{args.aoi}_{margin:g}.json"
+    overpass_cache = REPO / "data" / "raw" / "osm" / f"overpass_{aoi_id}_{margin:g}.json"
     features = osm_features(fetch_overpass(bbox, overpass_cache))
     places = features[(features["kind"] == "place") & (features["name"] != "")].to_crs(4326)
+    if places.empty:
+        raise SystemExit(f"{aoi_id}: no named OSM places in the search area")
     sites = features[features["kind"] != "place"]
     owner = attach_buildings(sites, buildings_laea)
 
@@ -402,6 +486,7 @@ def main() -> None:
         shelters.append(
             {
                 "osm": site["osm"],
+                "country": str(buildings["country"].iloc[main]),
                 "name": site["name"],
                 "kind": site["kind"],
                 "street": site["street"],
@@ -439,7 +524,7 @@ def main() -> None:
     placed = chosen >= 0
     walk = placed & (distance <= scenario.walk_distance_m)
 
-    johan_matches = places.index[places["name"] == args.johan_place]
+    johan_matches = places.index[places["name"] == johan_place_name]
     johan_place = int(places.index.get_loc(johan_matches[0])) if len(johan_matches) else int(np.bincount(home_place).argmax())
     candidates = np.flatnonzero(home_place == johan_place)
     if candidates.size == 0:
@@ -464,6 +549,7 @@ def main() -> None:
         "scenario": asdict(scenario),
         "homes_in_flood": int(homes.size),
         "homes_in_flood_height_missing": int(buildings["height"].isna().to_numpy()[homes].sum()),
+        "homes_in_flood_by_country": {str(k): int(v) for k, v in buildings["country"].iloc[homes].value_counts().items()},
         "residents_in_flood_building_weighted": round(float(home_res.sum()), 1),
         "residents_in_flood_area_weighted_reference": round(float(reference["pop2020_fractional"]), 1),
         "residents_unallocated_in_bbox_cells_without_homes": round(unallocated, 1),
@@ -471,6 +557,9 @@ def main() -> None:
         "homes_in_flood_with_rp100_depth": int(np.isfinite(depth100[homes]).sum()),
         "shelters_found": len(shelters),
         "shelters_eligible": len(eligible),
+        "shelters_eligible_by_country": {
+            str(k): int(v) for k, v in pd.Series([shelters[i]["country"] for i in eligible]).value_counts().items()
+        },
         "shelter_capacity": int(capacity.sum()),
         "residents_placed": round(float(home_res[placed].sum()), 1),
         "residents_placed_within_walk": round(float(home_res[walk].sum()), 1),
@@ -505,6 +594,7 @@ def main() -> None:
             "res": home_res.tolist(),
             "place": home_place.tolist(),
             "rp500": np.isfinite(depth500[homes]).astype(int).tolist(),
+            "country": buildings["country"].iloc[homes].tolist(),
         },
         "shelters": shelters,
         "critical": critical,
@@ -512,12 +602,13 @@ def main() -> None:
 
     tool = REPO / "policy-tool" / "data"
     tool.mkdir(parents=True, exist_ok=True)
-    (tool / f"{args.aoi}.js").write_text(
-        "window.SHELTER_DATA = " + json.dumps(data, ensure_ascii=False, separators=(",", ":")) + ";\n", encoding="utf-8"
+    payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+    (tool / f"{aoi_id}.js").write_text(
+        f"(window.SHELTER_AREAS = window.SHELTER_AREAS || {{}})[{json.dumps(aoi_id)}] = {payload};\n", encoding="utf-8"
     )
     analysis = REPO / "data-analysis"
-    pd.DataFrame(shelters).to_csv(analysis / f"shelter_alert_{args.aoi}_shelters.csv", index=False, encoding="utf-8")
-    (analysis / f"shelter_alert_{args.aoi}_summary.json").write_text(
+    pd.DataFrame(shelters).to_csv(analysis / f"shelter_alert_{aoi_id}_shelters.csv", index=False, encoding="utf-8")
+    (analysis / f"shelter_alert_{aoi_id}_summary.json").write_text(
         json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
     print(json.dumps(summary, indent=2, ensure_ascii=False))

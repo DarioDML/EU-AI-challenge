@@ -21,4 +21,4 @@ If the local source files are present, run `python scripts/check_raw_sources.py`
 
 ## Shelter-alert policy tool
 
-`scripts/build_shelter_alert_data.py --aoi de_15` writes `shelter_alert_de_15_summary.json` (residents in the mapped flood, shelter capacity and the default matching result, with reference checks) and `shelter_alert_de_15_shelters.csv` (one row per OSM shelter candidate with OBAT floor area, distance to the 2021 flood and EFAS depth). See `policy-tool/README.md`.
+`scripts/build_shelter_alert_data.py` writes, per EMS area (`be_01`, `nl_01`, `de_08`, `de_09`, `de_10`, `de_18`, and `de_15` as an out-of-region comparison), `shelter_alert_<area>_summary.json` (residents in the mapped flood, shelter capacity and the default matching result, with reference checks against `aoi_metrics.csv`) and `shelter_alert_<area>_shelters.csv` (one row per OSM shelter candidate with country, OBAT floor area, distance to the 2021 flood and EFAS depth). See `policy-tool/README.md`.
