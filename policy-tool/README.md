@@ -20,6 +20,10 @@ Then open <http://localhost:8765>. In view 2, use ← / → for the steps and cl
 python scripts/bundle_policy_tool.py
 ```
 
+## Deploy (Vercel)
+
+Static site, no build step: Root Directory `policy-tool`, Framework Preset "Other", build command empty. Every merge to `main` redeploys. A missing `data/<area>.js` only drops that area from the page.
+
 ## Q2 evidence (Researchers)
 
 Edit `q2_evidence.csv` (Excel works; keep UTF-8). One row per area and theme; `area_id` is `region`, `be_01`, `nl_01`, `de_08`, `de_09`, `de_10` or `de_18`; `status` is `verified` (finding + source), `claimed` (announced, not confirmed) or `unknown`. The `lead` column says what to look for. Then run:

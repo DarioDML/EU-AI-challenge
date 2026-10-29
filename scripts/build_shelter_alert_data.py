@@ -456,7 +456,7 @@ def build(aoi_id: str, margin: float, johan_place_name: str | None) -> None:
 
     overpass_cache = REPO / "data" / "raw" / "osm" / f"overpass_{aoi_id}_{margin:g}.json"
     features = osm_features(fetch_overpass(bbox, overpass_cache))
-    places = features[(features["kind"] == "place") & (features["name"] != "")].to_crs(4326)
+    places = features[(features["kind"] == "place") & (features["name"] != "") & (features.geom_type == "Point")].to_crs(4326)
     if places.empty:
         raise SystemExit(f"{aoi_id}: no named OSM places in the search area")
     sites = features[features["kind"] != "place"]

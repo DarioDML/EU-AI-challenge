@@ -21,7 +21,11 @@ def main() -> None:
         raise SystemExit("No data <script> tag found in policy-tool/index.html")
 
     def inline(match: re.Match[str]) -> str:
-        data = (TOOL / match.group(1)).read_text(encoding="utf-8").replace("</script", "<\\/script")
+        source = TOOL / match.group(1)
+        if not source.exists():
+            print(f"Skipping missing {match.group(1)}; build it with scripts/build_shelter_alert_data.py")
+            return ""
+        data = source.read_text(encoding="utf-8").replace("</script", "<\\/script")
         return f"<script>\n{data}</script>"
 
     bundled = DATA_TAG.sub(inline, page)
