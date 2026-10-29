@@ -664,11 +664,15 @@ function renderScorecard() {
   $("scorecard").querySelectorAll("tr[data-area]").forEach(r => r.addEventListener("click", () => openArea(/** @type {HTMLElement} */ (r).dataset.area || "")));
 }
 
+/** @param {string} urls */
+const sourceLinks = urls => urls.split(" | ").map(u => u.trim()).filter(u => /^https?:\/\//.test(u))
+  .map((u, i) => ` <a href="${esc(u)}" target="_blank" rel="noopener">[${i + 1}]</a>`).join("");
+
 function renderQ2Area() {
   const A = current, rows = EVIDENCE.filter(e => e.area_id === A.id || e.area_id === "region");
   $("q2Title").textContent = `Q2 · What has been done since 2021 in ${info(A.id).name} and across the border region`;
   $("q2cards").innerHTML = rows.map(e => `<div class="q2card"><h4><span>${esc(THEMES[/** @type {keyof typeof THEMES} */ (e.theme)] || e.theme)}${e.area_id === "region" ? " · region" : ""}</span><span class="chip ${e.status}">${e.status === "verified" ? "✔" : e.status === "claimed" ? "~" : "?"}</span></h4>` +
-    (e.finding ? `<div>${esc(e.finding)}</div><div class="hint">${e.url ? `<a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.source)}</a>` : esc(e.source)}${e.checked ? ` · checked ${esc(e.checked)}` : ""}</div>` : `<div class="lead">To research: ${esc(e.lead)}</div>`) + `</div>`).join("");
+    (e.finding ? `<div>${esc(e.finding)}</div><div class="hint">${esc(e.source)}${sourceLinks(e.url)}${e.checked ? ` · checked ${esc(e.checked)}` : ""}</div>` : `<div class="lead">To research: ${esc(e.lead)}</div>`) + `</div>`).join("");
 }
 
 function renderBusiest() {
