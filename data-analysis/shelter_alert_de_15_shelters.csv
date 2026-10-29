@@ -1,0 +1,387 @@
+osm,name,kind,street,lon,lat,buildings,footprint_m2,floor_area_m2,flood_dist_m,rp100_m,rp500_m
+node/271935539,Hildes Olymp,sports,,7.31702,50.51492,1,1331,4229,3659,,
+node/319798529,Grundschule,school,,7.11814,50.41927,1,366,545,11828,,
+node/330974627,St.Barbara Grundschule,school,,7.31835,50.32969,1,244,431,23531,,
+node/374091436,Bürgerhaus Erpel,community,,7.23195,50.58735,1,824,1302,3816,7.35,8.73
+node/401572871,Rathaus Bruchhausen,community,,7.25346,50.60269,1,483,1491,5211,,
+node/431427544,"Community building, Kruft",community,,7.33887,50.38493,1,208,697,17696,,
+node/711614014,Jugendheim Hilterscheid,community,,6.83731,50.47188,1,104,104,3152,,
+node/809987886,Gemeindesaal,community,,7.23819,50.58206,1,345,706,3130,3.68,5.07
+node/898295448,"Community building, Mahlberg",community,Breitestraße 44a,6.80335,50.51269,1,1022,1022,8215,,
+node/1256619532,Gemeindehaus Koisdorf,community,,7.24132,50.52987,1,222,222,1800,,
+node/1340375831,Kultur- und Vereinsheim Mayen,community,Brückenstraße 1,7.2245,50.32992,1,94,299,23751,0.36,0.4
+node/1359895500,Rheinkommen - der Ehrenamtstreff,community,Platz an der Alten Post 2a,7.2285,50.57874,1,386,1680,3021,,
+node/1599150379,Grundschule Kürrenberg,school,St.-Bernhard-Straße,7.15885,50.33689,1,60,119,19904,,
+node/1728709714,Gemeindezentrum St. Peter und Paul,community,,7.30647,50.51445,1,435,768,3273,2.28,3.72
+node/2399197379,Jenny Redmann Yoga und Pilates,sports,Ahrweilerstraße 7b,7.11854,50.54642,1,103,286,0,,
+node/2564458172,Jugend-Kulturbahnhof,community,Koblenzer Straße 86,7.30497,50.50413,1,281,450,4271,4.22,5.66
+node/2614522743,Grundschule Rieden,school,Schulstraße 9,7.17926,50.39467,1,338,711,16203,,
+node/2623231892,Grundschule Langenfeld,school,Adenau Straße 16,7.0905,50.37901,1,259,259,13201,,
+node/3517101491,Medlon,sports,Marktplatz 32-34,7.22074,50.32766,1,543,2153,24046,,
+node/3531108407,DRK Ortsverein Linz,community,Seilerbahn 1,7.28078,50.5645,1,374,1182,1278,,
+node/3653169284,Bürgerhaus Leubsdorf,community,,7.28915,50.54635,1,238,358,528,,
+node/3690451265,Nickenich,community,,7.32563,50.41357,1,233,530,14382,,
+node/3693242570,Bürgerhaus,community,,7.26142,50.58371,1,658,658,3098,,
+node/3966233135,Gemeindebüro,community,,7.07832,50.34156,1,127,127,15370,,
+node/4748316024,Jugendbahnhof Remagen,community,Maisons-Laffitte-Platz 2,7.23034,50.57728,1,54,158,2817,,
+node/5353072570,Stephan Heuskel-Gemeindehaus Herschbroich,community,,6.96917,50.36613,1,311,311,9051,,
+node/5571343362,Seminarhaus Kloster Schweinheim,community,Kloster Schweinheim,6.85133,50.6005,1,248,248,13229,,
+node/6401793722,Centerforum,community,,7.22084,50.59427,1,1553,4758,4802,6.86,8.22
+node/7102967760,Frauenbegegnungsstätte UTAMARA e.V.,community,,7.25642,50.58033,1,267,267,2716,1.76,3.17
+node/8288691691,Sen5,sports,Bachstraße 40,7.22152,50.33307,1,270,678,23445,2.13,2.22
+node/8909712839,Freie Montessorischule Sonnenschein Mendig,school,Bahnstraße 27,7.28433,50.3709,1,434,1217,18818,,
+node/9081682685,DRK Ortsverein Mayen e.V.,community,Neustraße 18,7.22352,50.32784,1,121,401,23991,,
+node/9321069240,Normannen Mittelrhein,community,,7.32336,50.50092,1,187,548,5182,1.1,2.55
+node/12508997988,Kreisvolkshochschule Ahrweiler e.V.,school,Wilhelmstraße 23,7.1026,50.54585,1,403,1174,71,,
+node/12806062014,BattleKart Mayen-Koblenz,sports,,7.24646,50.33057,1,3092,5318,23453,,
+node/13026986502,Offener Jugendtreff & Handwerk,community,,6.98642,50.5167,1,159,182,0,8.82,9.27
+node/13272044974,Schützenhalle St. Seb. Leubsdorf,sports,An der Koppe 0,7.29857,50.54975,1,164,206,1283,,
+way/26542020,Sprudel-Halle,sports,,7.31242,50.51665,1,1838,5629,3304,,
+way/30843225,Lenné Schlößchen,community,,7.14772,50.54207,1,390,760,0,1.38,1.7
+way/31262961,Rheinhöhenhalle,sports,,7.16264,50.60469,1,504,504,6261,,
+way/35951884,Sporthalle,sports,,7.32425,50.50492,1,2154,2649,4852,,0.92
+way/36228100,Bürgerhaus St. Katharinen,community,,7.34558,50.59089,1,939,1161,6335,,
+way/36853988,Kanu-Club Unkel,sports,,7.21372,50.59213,1,158,214,4472,8.2,9.59
+way/39813558,Gemeindehaus,community,,6.7889,50.33001,1,472,472,4323,,
+way/41052430,St.Seb.Schützenbruderschaft Heppingen,sports,,7.16644,50.55177,1,212,275,489,,
+way/42108137,Philipp Freiherr von Boeselager Realschule Plus,school,Schützenstraße 109,7.11263,50.54402,9,6995,19651,0,0.53,0.68
+way/47288889,Rathaus Remagen,community,Bachstraße 2,7.22847,50.57934,1,280,859,3081,,
+way/50257254,Tagungshaus Bahnhof Ahrdorf,community,Bahnhof Ahrdorf 1,6.78658,50.36955,1,348,375,170,4.05,4.36
+way/50288315,Rathaus Erpel,community,Frongasse 1,7.23756,50.58253,1,112,331,3192,3.59,4.98
+way/54265468,Tennis Center Remagen,sports,Von-Cramm-Straße 6,7.25105,50.57339,1,2070,3630,2004,2.53,3.94
+way/60566815,Sportplatz Kripp,sports,,7.25363,50.56206,1,573,886,747,1.23,2.66
+way/60639362,Rudi-Altig-Sporthalle,sports,Jahnstraße,7.24971,50.5497,1,2220,4359,0,1.82,3.21
+way/62095757,"School, Nitterscheid",school,Fichtenweg 2,6.8243,50.48699,1,1063,1063,5027,,
+way/66848444,Bürgerhaus Ahrbrück,community,Hauptstraße 4,6.97276,50.4897,1,177,177,28,,
+way/69593830,Evangelisches Gemeindehaus,community,Dreifaltigkeitsweg 26,7.25129,50.54767,1,380,1272,23,,1.31
+way/69727573,Bundesakademie für Bevölkerungsschutz und Zivile Verteidigung,school,,7.10577,50.52799,34,13044,13152,875,,
+way/72919140,"Sports hall, Lethert",sports,Am Hang 2a,6.86253,50.51926,1,357,357,7545,,
+way/75684816,Fachhochschule für Rechtspflege Nordrhein-Westfalen,school,Irmgardweg 1,6.76565,50.5002,1,1096,1096,9064,,
+way/79703510,Kaiserbergstadion,sports,,7.28662,50.56453,3,337,337,1341,,
+way/80041597,Rathaus Sinzig,community,Kirchplatz 5,7.25203,50.54538,1,605,2245,173,,
+way/80377778,Jahnhalle,sports,Dreifaltigkeitsweg 32,7.24814,50.54761,1,582,1218,0,,
+way/82330315,Rathaus Mendig,community,Marktplatz 3,7.28021,50.3722,1,572,1706,18674,,
+way/83017605,Helmut-Gies-Bürgerzentrum Ahrweiler,community,Marktplatz 12a,7.09337,50.54208,1,1043,3288,0,,
+way/83017607,Zehntscheuer,community,Marktplatz 13,7.09358,50.54242,1,204,637,0,,
+way/89747521,Johanniter-Komturei Adenau,community,Kirchstraße 26,6.93046,50.38268,1,246,621,6509,,
+way/91305703,Bürgerhaus,community,Schulstraße 6,7.0843,50.3836,1,465,465,12548,,
+way/96206747,"Sports hall, Bad Hönningen",sports,,7.31511,50.50909,2,197,221,4094,2.54,3.98
+way/96216122,"School, Ahrweiler",school,,7.09251,50.53375,1,1362,1485,105,,
+way/96216124,"School, Ahrweiler",school,,7.09257,50.53428,1,923,1148,100,,
+way/96246994,Sporthalle Bachem,sports,,7.11975,50.54175,1,2472,6295,0,0.67,0.92
+way/96565292,Haus 2,school,,7.14816,50.53964,1,1110,2617,0,1.16,1.48
+way/97603800,"Sports hall, Heppingen",sports,Kreuzstraße,7.15394,50.54434,1,2478,3122,0,2.12,2.42
+way/98501087,Altes Rathaus Linz,community,Marktplatz 14,7.28119,50.56534,1,531,1691,1375,,
+way/99000705,"Sports hall, Bad Hönningen",sports,,7.30762,50.5119,1,3561,6861,3561,4.52,5.96
+way/101939879,Bürgerhaus,community,,7.29515,50.5531,1,425,1295,1142,,
+way/101966082,"Sports hall, Westum",sports,,7.22896,50.53158,1,464,464,1779,,
+way/102305320,Berufsbildungszentrum Rheinbrohl,school,,7.323,50.50469,1,3208,3721,4820,,0.7
+way/102959150,Heinz-Gerlach-Halle,sports,Im Goldenen Tal 6,6.76223,50.54704,1,1925,1938,13018,,
+way/102960665,Sporthalle St.-Angela-Gymnasium,sports,Sittardweg 8,6.76117,50.54996,1,2038,3105,13327,,
+way/108008110,Sporthalle Miesgesweg,sports,,7.29337,50.57306,1,2040,3278,2457,,
+way/108481346,Schützenplatz Heimersheim,sports,,7.16704,50.54243,1,267,377,284,,
+way/109788429,Peter-Joerres-Gymnasium,school,Uhlandstraße 30,7.12362,50.54162,4,4399,10639,0,2.64,2.88
+way/110410771,Verbandsgemeindeverwaltung Linz,community,Am Schoppbüchel 5,7.28572,50.56942,1,665,2344,1890,,
+way/112707806,Haus 4,school,,7.14873,50.53964,1,1518,3638,0,1.16,1.48
+way/113292267,Schützenhaus,sports,,7.21974,50.56013,1,630,1091,1200,,
+way/113624039,Hockey- und Tennisclub Bad Neuenahr,sports,,7.14846,50.54177,1,265,493,0,2.46,2.78
+way/115551050,"Sports hall, Ahrweiler",sports,,7.09223,50.53454,1,593,786,77,,
+way/115666796,Rathaus Bad Neuenahr-Ahrweiler,community,Hauptstraße 116,7.13586,50.54625,1,1870,8179,0,,
+way/117298529,"Community building, Ahrbrück",community,Kesselinger Straße 6,6.98567,50.48341,1,158,248,869,,
+way/118749098,Herzog-Ludwig-Engelbert-Grundschule Wershofen,school,,6.81407,50.44456,1,281,666,2975,,
+way/118755299,Dorfgemeinschaftshaus Wershofen,community,Nordstraße 19,6.81507,50.44569,1,197,240,2996,,
+way/118810842,"Sports hall, Wershofen",sports,Nordstraße 34,6.81504,50.44668,1,366,403,3068,,
+way/119368579,Römer-Thermen,sports,Albert-Mertes-Straße 11,7.29913,50.50676,1,4149,10415,3862,3.74,5.18
+way/119913354,Schützenhaus St. Sebastianus Schützenverein Franken e.V.,sports,,7.23623,50.49967,1,272,272,5143,,
+way/121243755,Nettebad,sports,,7.22039,50.33426,5,3404,6867,23302,2.13,2.22
+way/122186857,St.-Hubertus-Kleinkaliber-Schützengilde 1898 e.V. Löhndorf,sports,,7.20296,50.53307,1,586,586,1750,,
+way/122969694,Sporthalle Kripp,sports,,7.2635,50.55943,1,836,2233,495,1.96,3.34
+way/130060680,Kath. Grundschule Arloff,school,Erlenhecke 45,6.79342,50.59772,1,1198,2384,16142,,
+way/130061391,"School, Arloff",school,,6.79343,50.59802,1,130,257,16161,,
+way/130061583,"Sports hall, Arloff",sports,,6.79333,50.59731,1,363,826,16120,,
+way/130755124,Pfarrhaus,community,,7.0949,50.48885,1,126,126,4549,,
+way/135987934,Willy-Brandt-Forum,community,Willy-Brandt-Platz 5,7.2153,50.59965,1,302,474,5316,5.57,6.96
+way/136095685,Turn-/Mehrzweckhalle,sports,Eichener Straße 11a,6.90442,50.54292,1,744,744,6197,,
+way/139686960,Grundschule Houverath,school,Eichener Straße 2,6.90358,50.5418,1,387,387,6176,,
+way/141449712,Pfarrheim St. Thomas,community,Eifeldomstraße 38,6.90431,50.54025,1,286,309,6038,,
+way/143320366,Tennishalle,sports,Im Goldenen Tal 8,6.76283,50.54607,1,3406,3406,12905,,
+way/143328582,Mimi-Renno-Halle,sports,Im Goldenen Tal 6 a,6.7625,50.54666,1,1539,1539,12972,,
+way/143498044,"School, Bad Münstereifel",school,,6.76297,50.5507,1,1047,1487,13322,,
+way/144793892,AXA-Akademie,school,,6.75703,50.55407,1,1232,1647,13870,,
+way/144875051,Haus-Maria-Königin,community,,6.75579,50.55487,1,645,985,13993,,
+way/145581088,TSB TENNIS - SQUASH - BOULE CENTER,sports,Brunnenstraße 10,7.29984,50.50673,1,2380,5608,3880,4.54,5.98
+way/145614961,Tennisclub Blau-Weiss Bad Breisig,sports,Brunnenstraße 11,7.30187,50.50547,1,194,409,4057,5.14,6.58
+way/146193719,Rheinhalle,sports,Goethestraße 25,7.24507,50.57639,1,2618,5088,2424,4.0,5.4
+way/147696161,Gemeindehaus Pitscheid,community,Kapellenstraße 15a,6.82914,50.46298,1,508,508,3027,,
+way/148578427,St. Josefshaus - Kath. Familienzentrum,community,,6.76402,50.55583,1,611,1610,13758,,
+way/148647714,OGS,school,,6.76284,50.55504,1,170,590,13730,,
+way/148725754,Gemeinschaftsgrundschule,school,,6.76199,50.55395,1,750,2258,13661,,
+way/148725755,Stadtverwaltung,community,,6.76201,50.55419,1,334,1006,13683,,
+way/148725756,Stadtverwaltung - Historisches Rathaus,community,,6.76266,50.55401,1,514,1832,13641,,
+way/148885233,RheinAhrCampus,school,Joseph-Rovan-Allee 2,7.25325,50.57228,1,6880,8073,1850,,1.2
+way/149013951,"Grundschule ""St. Sebastianus"" Bad Bodendorf",school,,7.22213,50.55656,1,897,1695,770,,
+way/149778042,"School, Bad Neuenahr-Ahrweiler",school,St.-Pius-Straße 25,7.11765,50.54214,1,3526,9027,0,2.36,2.68
+way/149778043,"School, Bad Neuenahr-Ahrweiler",school,St.-Pius-Straße 23,7.11653,50.54182,1,2825,6320,0,1.5,1.83
+way/150662725,Alte Schule,community,Winzerstraße 6,7.07657,50.53012,1,202,362,0,,
+way/151200329,Vereinshaus SV Walporzheim e.V.,community,Ahruferstraße 23,7.07755,50.52906,1,127,215,0,4.0,4.24
+way/154464263,Katholisches Pfarrheim Neukirchen,community,Neukirchener Straße 20,6.92727,50.58845,1,178,200,8906,,
+way/155065666,Resolution Fit,sports,Vogelsangstraße 4,7.29518,50.5095,1,570,1230,3495,,
+way/166273516,Schützenhalle Oberzissen,sports,Im Bröhl 8,7.20351,50.45343,1,337,710,10227,,
+way/181324592,Eifeltor Halle,community,Kirchweg 2a,6.96634,50.56508,1,204,204,5479,,
+way/189598614,Mehrzweckhalle Altendorf-Ersdorf,community,Kirchstraße 26,7.01066,50.59253,1,649,1270,6682,,
+way/195980308,Gemeindehaus Acht,community,Schulstraße 6,7.07164,50.36965,2,294,294,12795,,
+way/202704101,Bürgerhaus Heister,community,Am Kelter 11,7.22558,50.5908,1,84,129,4330,3.04,4.4
+way/210068001,"Community building, Queckenberg",community,Stuppenkreuz 6,6.89344,50.59315,1,216,216,10635,,
+way/210068042,"Community building, Queckenberg",community,,6.89355,50.593,1,187,187,10617,,
+way/210068043,Madbachhalle,community,Queckenberger Straße,6.8933,50.59294,1,319,319,10623,,
+way/211934730,Shape,sports,Alter Andernacher Weg,7.245,50.33026,1,3795,10056,23499,,
+way/212615114,Grundschule St. Veit,school,Koblenzer Straße 133,7.23571,50.32866,3,2326,7240,23720,,
+way/213889498,"Sports hall, Bad Hönningen",sports,,7.31222,50.51751,1,558,1819,3220,,
+way/214103451,Bürgerhaus,community,,7.25926,50.34704,1,1346,1951,21541,,
+way/214207191,"Sports hall, Thür",sports,,7.27423,50.35993,1,1016,1175,20049,,
+way/214237288,Grundschule,school,Schulstraße 17,7.25857,50.34885,1,489,1051,21345,,
+way/221008656,Bürgerhaus,community,,6.90973,50.49998,1,109,109,3907,,
+way/221633116,Robert-Wolff-Halle,sports,,7.14237,50.40533,2,2400,7630,14028,,
+way/223808728,Verbandsgemeindeverwaltung Unkel,community,Linzer Straße 4,7.21663,50.59776,1,470,1377,5123,0.63,1.99
+way/223808730,Rathaus der Stadt Unkel,community,Linzer Straße 2,7.21645,50.59802,1,192,562,5149,2.15,3.53
+way/232662497,Mehrzweckhalle Fritzdorf,sports,Raiffeisenstraße 7a,7.09122,50.59824,1,625,625,5782,,
+way/232879508,Vereinshaus SV Wormersdorf,sports,Ahrweg 19,6.98239,50.60388,1,184,184,8709,,
+way/232879561,Wormersdorfer Schützenhaus der St. Hubertus Schützenbruderschaft e.V. Wormersdorf 1925,community,,6.98548,50.60228,1,573,1518,8445,,
+way/233003116,Dorf- und Vereinshaus Notscheid,community,Am Wasserturm,7.33847,50.60053,1,339,339,6767,,
+way/233208246,Katholische Grundschule Altendorf-Ersdorf,school,,7.01106,50.59273,1,854,1852,6693,,
+way/233347392,Grundschule Obere Graftschaft,school,Grünstraße 9,7.03263,50.58476,2,1522,1674,5421,,
+way/233682460,Ahrtalschule,school,,6.99062,50.5088,7,6005,6005,48,3.62,4.07
+way/233732886,"Sports hall, Niederlützingen",sports,,7.29042,50.475,1,562,562,7253,,
+way/234169671,Hochsimmerhalle,sports,Kottenheimer Straße 31,7.23035,50.35573,1,1379,1379,20851,,
+way/242815158,Pistolenclub Sinzig e.V.,sports,,7.24085,50.52153,1,264,264,2723,,
+way/244433715,Janusz-Korczak-Schule,school,Beethovenstraße 3,7.25492,50.54681,1,1778,5433,0,,
+way/249685045,Grundschule Adenau,school,Schulstraße 18,6.93333,50.38244,1,1121,2835,6571,,
+way/252014386,Segel Club Laacher See,community,,7.26256,50.42032,1,103,103,13404,,
+way/254046733,Mehrzweckhalle Lantershofen,community,Graf-Blankard-Straße 25,7.1031,50.55507,1,646,646,1031,,
+way/259439163,FC Unkel 1980 e.V.,community,Linzer Straße 27,7.2207,50.59542,1,223,729,4924,5.91,7.27
+way/260509042,Bürgerhaus Heppingen,community,Landskroner Straße 78,7.16672,50.55116,1,468,644,434,,
+way/264070247,St. Hubertus Rheineck,sports,Mühlenstraße,7.31101,50.49407,1,368,380,5470,,
+way/265047837,Turnhalle,sports,Maria-Hilf-Straße 8b,7.33235,50.49678,1,216,584,5922,,
+way/265187060,Rathaus,community,Kirchstraße 6,7.33119,50.49267,1,114,270,6255,3.54,5.0
+way/271399376,Pfarrheim,community,Rheinbacher Straße 26,7.00661,50.59474,1,174,355,7019,,
+way/277570507,Verbandsgemeindeverwaltung Bad Hönningen,community,Marktstraße 1,7.30616,50.51555,1,539,1221,3156,4.25,5.69
+way/279493562,Evangelisches Gemeindehaus,community,Wolfgang-Müller-Straße 9,7.13385,50.5449,1,614,2419,0,,
+way/279980241,Erich-Kästner-Realschule-Plus,school,St.-Pius-Straße 29,7.11841,50.5415,1,4462,10829,0,,
+way/283164147,Robert-Koch-Schule,school,Im Rosengarten 2,7.27882,50.56724,1,1335,4020,1563,5.26,6.66
+way/283164357,Robert Koch Schule,school,Im Rosengarten 2,7.27909,50.56698,1,1040,3385,1535,1.76,3.17
+way/284658884,Bürgerhaus,community,Auf der Heide 1,7.27406,50.57815,1,357,505,2696,,
+way/286417466,Sport-Schützen-Verein 1970 e.V. Bad Breisig,sports,Frankenbachstraße 91,7.26789,50.50358,3,490,490,4203,,
+way/290915324,"TC ""Gelb-Weiß"" Obere Grafschaft e.V.",sports,,7.087,50.57161,1,101,101,3122,,
+way/292931580,"School, Nickenich",school,,7.33024,50.41494,1,1666,3859,14305,,
+way/292931584,"School, Nickenich",school,,7.3295,50.41484,1,1659,5021,14304,,
+way/298800416,Rathaus,community,Bachstraße 11,7.29821,50.50924,1,580,2038,3579,0.92,2.36
+way/299175086,St. Michael-Gymnasium,school,Markt 11,6.76461,50.55352,3,3582,9406,13520,,
+way/299297840,Pfarrer-Bechtel-Schule,school,Friedrich-Ebert-Straße 2,7.27391,50.37085,2,3055,5432,18808,,
+way/299479647,"School, Bad Münstereifel",school,,6.76302,50.55042,1,197,279,13295,,
+way/299479651,"School, Bad Münstereifel",school,Sittardweg 8,6.76127,50.54949,1,892,1282,13280,,
+way/299479652,"School, Bad Münstereifel",school,,6.76259,50.55062,1,433,615,13330,,
+way/301890393,Alte Schule,community,,7.19273,50.47687,1,310,496,7540,,
+way/304343080,"Sports hall, Adenau",sports,,6.93064,50.37775,1,2140,2647,6663,,
+way/304343090,Hocheifelschule Adenau,school,,6.93088,50.37657,5,5341,5640,6672,,
+way/313047731,"School, Bruchhausen",school,,7.25315,50.6069,1,1263,1263,5680,,
+way/318116678,"Sports hall, Lommersdorf",sports,,6.76484,50.4125,1,133,133,3936,,
+way/318207788,Bürgerhalle Lommersdorf,community,Ringstraße 18,6.74828,50.41289,1,641,1471,4318,,
+way/322582104,Gemeindeverwaltung Gemeinde Grafschaft,community,Ahrtalstraße 5,7.09722,50.57168,2,803,1060,2829,,
+way/325740518,Bürgerhaus Ringen - Beller - Bölingen,community,Im Kreuzerfeld 12,7.0879,50.57186,1,472,472,3133,,
+way/325741538,Sporthalle Ringen,sports,,7.08848,50.57161,1,1693,1788,3094,,
+way/326821642,Reitsportcenter Ettringen,sports,,7.22228,50.36324,2,5164,5164,20108,,
+way/326893748,Gemeindeverwaltung,community,Kreuzstraße 8,7.22069,50.35403,1,290,550,21172,,
+way/327053719,Kultur Werkstatt,community,Kirchstraße 5,7.22788,50.57943,1,262,710,3109,,
+way/328237149,DRK Ortsverein Ettringen,community,Mayener Straße 23a,7.22205,50.35365,1,358,684,21193,,
+way/330215377,Gemeindehaus Pomster,community,Maternusstraße 45,6.8437,50.35239,1,230,230,3802,,
+way/332480648,"School, Ettringen",school,,7.22093,50.3545,1,695,1592,21117,,
+way/334181080,Grundschule St. Martin,school,Alte Straße 11,7.23657,50.57799,2,1920,5598,2717,4.8,6.19
+way/334366245,"Community building, Hausen",community,Am Bürgerhaus 7,7.27839,50.33054,1,682,682,23310,,
+way/338127528,"School, Reifferscheid",school,,6.87992,50.4055,3,878,878,2777,,
+way/339567542,"School, Hausen",school,,7.2701,50.3284,1,462,548,23565,,
+way/342795545,Bürgerhaus,community,,7.02206,50.43234,1,375,375,6020,,
+way/345484120,"School, Kripp",school,,7.2645,50.55929,1,1428,3778,525,1.46,2.84
+way/352603690,Schule an der Hardtburg Teilstandort Kirchheim,school,,6.83097,50.60656,16,1976,2309,14738,,
+way/354910809,Biathlon - Sport - Club Adenau e.V,sports,,6.91943,50.37088,3,334,386,6133,,
+way/359828164,Gemeindehaus,community,In der Au 6,7.07631,50.34197,1,427,427,15242,,
+way/364971266,"Sports hall, Kruft",sports,,7.3377,50.39074,3,324,618,16880,,
+way/368614733,Nürburgring,sports,Otto-Flimm-Straße,6.94791,50.33465,56,73198,190606,9535,,
+way/375001003,Alte Schule,school,Anton-Mönch-Straße 2,7.05015,50.56014,1,156,179,2621,,
+way/375688664,Schützenplatz St. Sebastianus Schützengesellschaft Remagen e.V. von 1478,sports,,7.22456,50.57666,1,149,240,2957,,
+way/376430978,Römerhalle,community,Bachstraße 17,7.2108,50.42507,1,1182,1182,13406,,
+way/378886483,Sporthalle,sports,Schulstraße 3,6.75985,50.33998,1,606,659,3866,,
+way/378928663,Schützenplatz Oberlützingen,sports,,7.27305,50.46561,1,518,518,8316,,
+way/378933483,Schützenplatz Gönnersdorf,sports,,7.26632,50.47833,1,849,1047,6977,,
+way/379748940,"Community building, Mayen",community,Rosengasse 2,7.22044,50.32967,1,1599,5467,23831,0.13,0.22
+way/380555761,Altes Rathaus,community,,7.22197,50.32883,1,194,674,23902,,
+way/380808349,Carpe Diem Privatschule,school,Hardtstraße 3,7.13063,50.54204,2,511,2080,0,,
+way/383610603,"School, Rheinbrohl",school,,7.32509,50.50447,8,5997,8498,4927,,2.03
+way/385095333,Bürgerhaus,community,,6.74331,50.34218,1,262,262,4245,,
+way/385141141,Grundschule,school,,6.76044,50.34031,4,899,929,3777,,
+way/391476921,"Sports hall, Mayen",sports,,7.22415,50.33171,1,409,1504,23559,2.03,2.1
+way/396016595,"School, Sankt Johann",school,Kirchstraße 3,7.19635,50.34798,1,297,851,21401,,
+way/400464854,Dorfgemeinschaftshaus Lohrsdorf,community,In den Auen 10,7.1887,50.54947,1,242,242,0,0.4,0.74
+way/401852881,St.-Barbara-Grundschule,school,Mayener Straße 12,7.31802,50.32964,1,259,459,23534,,
+way/403103378,Bürgerhaus,community,,7.14918,50.42645,1,162,162,12410,,
+way/403693651,Jugendhaus,community,Martinusstraße 2,6.73162,50.41089,1,108,108,4751,,
+way/403695710,Frellenger Dorfhuus,community,Mittelstraße 15,6.72884,50.41168,1,160,160,4944,,
+way/403940661,"Sports hall, Lommersdorf",sports,,6.75535,50.41415,1,387,387,4269,,
+way/407226077,Rathaus,community,Josef-Leusch-Straße 23,7.32748,50.4836,1,212,473,7006,4.09,5.56
+way/408661161,Berufsbildende Schule des Landkreises Ahrweiler,school,Kreuzstraße 120,7.15748,50.5446,9,11768,22284,0,3.59,3.88
+way/408696694,Dorfsaal,community,Euskirchener Straße 22,6.71373,50.47359,1,520,520,10705,,
+way/427837890,Dorfgemeinschaftshaus,community,Münstereifeler Straße 34,6.73302,50.51631,1,240,240,11991,,
+way/432379787,"Sports hall, Mendig",sports,,7.26656,50.36982,1,2661,2661,18976,,
+way/445307832,Schullandheim Brohl-Lützing,school,Fritz-Beck-Straße 25,7.30354,50.4697,1,701,701,7952,,
+way/446695689,Freiraum Kletterwald Vulkanpark,sports,,7.17171,50.33357,3,410,410,20854,,
+way/448038724,"Community building, Kesseling",community,,7.02152,50.48313,1,159,159,2640,,
+way/458319282,Heimathaus,community,Bergstraße 6,7.29672,50.53041,1,369,369,1414,,
+way/463947898,"Sports hall, Wormersdorf",sports,Wormersdorfer Straße 39,6.98979,50.60632,1,643,2005,8692,,
+way/464046376,Katholische Grundschule,school,Wormersdorfer Straße 35,6.989,50.60719,1,526,1514,8804,,
+way/464576759,Megina Gymnasium,school,,7.21376,50.33279,11,6331,13376,23214,,
+way/471388667,Schulsportanlage,sports,Schulstraße 2,7.25803,50.34806,1,700,1386,21436,,
+way/478021183,"Sports hall, Adenau",sports,,6.93392,50.38273,1,1249,2955,6547,,
+way/478021184,"School, Adenau",school,,6.93483,50.38255,1,2426,7609,6579,,
+way/480847388,"Community building, Remagen",community,Marktstraße 25,7.23372,50.57759,1,449,1551,2751,,0.12
+way/487135660,"Sports hall, Welling",sports,,7.31826,50.33038,1,1088,1273,23454,,
+way/490725612,Grundschule Wehr,school,Kellerei 2,7.2104,50.42145,1,510,1240,13779,,
+way/490759554,Klieburghalle,sports,Zehntgasse 13,7.28165,50.43381,1,968,2769,11820,,
+way/492423309,Bürgerhaus Kirchwald,community,Escher Straße 40,7.15514,50.37119,1,574,574,17568,,
+way/495180514,Grundschule St. Martin,school,,7.04392,50.53569,4,1758,5348,0,7.03,7.35
+way/495446273,Grundschule Bad Neuenahr,school,Wolfgang-Müller-Straße 27,7.13198,50.54411,7,3883,13979,0,2.06,2.31
+way/496461785,Haus des Dorfes Leimersdorf,community,Platzstraße 10,7.13261,50.58466,1,508,620,4074,,
+way/496461786,"School, Leimersdorf",school,,7.13204,50.5846,1,312,378,4072,,
+way/496461787,"School, Leimersdorf",school,,7.13181,50.58475,1,210,253,4090,,
+way/496461788,Grundschule Leimersdorf,school,,7.13198,50.58485,1,611,736,4100,,
+way/496760394,Vinxtbachhalle,community,Im Hufen Boden 2,7.22908,50.48484,1,784,789,6869,,
+way/496930746,"Community building, Hoffeld",community,Schulstraße 2,6.82062,50.37094,1,177,177,1353,,
+way/496930749,"School, Hoffeld",school,Binnenstraße 11,6.82066,50.37004,1,309,309,1450,,
+way/496980944,"Sports hall, Mendig",sports,,7.27311,50.3791,1,600,600,17921,,
+way/497254180,Reiterhof Adenau,sports,,6.92232,50.37689,2,1990,1990,6094,,
+way/497498864,Gemeindehaus Hausten,community,Hauptstraße 28,7.12232,50.39702,1,308,308,14152,,
+way/498002410,Gemeindehaus,community,,6.99667,50.33983,1,131,131,12457,,
+way/498061551,Bürgerhaus,community,Hauptstraße 4a,7.02236,50.33324,1,152,152,13876,,
+way/498071340,"Community building, Oberbaar",community,,7.03391,50.35049,1,165,165,12640,,
+way/498261102,Brohltal-Sporthalle,sports,,7.266,50.45761,1,1488,2009,9257,,
+way/498327948,Phonolith-Halle,community,Hauptstraße 1,7.17404,50.43229,1,321,321,12006,,
+way/499383418,"Community building, Rodder",community,Hauptstraße 5,6.85884,50.39429,2,229,229,1376,,
+way/499455875,"Community building, Wimbach",community,Hauptstraße 54,6.91008,50.36334,1,186,186,5926,,
+way/499711490,Gemeindehaus Senscheid,community,Optikstraße 1,6.83264,50.33196,1,182,182,4961,,
+way/499883097,Bürgerhaus,community,Schulstraße 11,6.88709,50.3372,1,279,279,6840,,
+way/499941082,Gemeindehaus Hümmel,community,Breitzterweg 6,6.77966,50.46204,1,512,512,6098,,
+way/499974773,Leyberghalle,sports,,7.12246,50.41914,1,1149,1279,11993,,
+way/500228776,"Community building, Aremberg",community,Schulstraße 39,6.80709,50.41487,1,284,284,1788,,
+way/500237895,"Community building, Barweiler",community,,6.86391,50.357,1,182,248,4096,,
+way/500264497,DRK Ortsverein Adenau,community,Herschbroicher Straße 14,6.95646,50.37052,1,209,209,8293,,
+way/512658889,Gemeindehaus,community,Hauptstraße 11,7.03678,50.3801,2,206,206,10199,,
+way/521017366,St. Matthias Schützenbruderschaft Brohl am Rhein 1867 e. V.,sports,Josef-Leusch-Straße 52,7.32704,50.48491,1,88,208,6861,,
+way/521470522,Bürgerhaus Löhndorf,community,Orsbeckstraße 4,7.20303,50.53049,1,171,433,2005,,
+way/537956375,Gemeinde-Backhaus Kirchdaun,community,,7.16758,50.57137,1,62,170,2581,,
+way/544365461,Gymstar Niederzissen,sports,Kapellenstraße,7.21617,50.45875,1,971,1796,9822,,
+way/548515073,"Sports hall, Mendig",sports,,7.27165,50.36944,1,2524,2683,18999,,
+way/549685231,Winzerverein Lantershofen,community,Winzerstraße 16,7.10856,50.55623,1,636,978,954,,
+way/559719312,Pfarrzentrum,community,16a,6.99086,50.60612,2,255,816,8638,,
+way/560555819,St.-Hubertus-Schützenverein Wassenach 1930,sports,,7.27807,50.42731,1,561,561,12549,,
+way/563730486,Schützenhalle,community,,7.17814,50.49584,1,336,474,5211,,
+way/577200575,"Community building, Nickenich",community,,7.31417,50.41398,1,232,232,14191,,
+way/612882762,Dorfgemeinschaftshaus,community,Berkumer Straße 2,7.14269,50.59199,1,1468,3123,4877,,
+way/621752403,Junglas Baumaschinen Stadion,sports,,7.28219,50.37629,2,277,596,18218,,
+way/621997817,"Sports hall, Nickenich",sports,,7.31499,50.41527,3,318,318,14059,,
+way/624423885,Glashaus,community,,7.34204,50.42514,1,291,291,13438,,
+way/638242939,"School, Thür",school,Schulstraße 2,7.27358,50.35716,2,300,408,20355,,
+way/640252682,Eifelgoldhalle,community,Zum Nühren 14,7.1723,50.48139,1,288,312,6617,,
+way/650752096,Grundschule Clemens,school,Bachstraße 22,7.22301,50.33211,2,450,1445,23530,2.03,2.1
+way/650752097,Grundschule Clemens,school,Habsburgring 2,7.22404,50.33135,2,474,1750,23600,2.03,2.1
+way/651259791,Elisabeth Schule,school,St.-Veit-Straße 3,7.22539,50.3275,2,1159,3593,23957,0.39,0.67
+way/657331646,Jugendhaus Mayen,community,Im Hombrich 3,7.22479,50.32887,1,186,552,23862,0.13,0.15
+way/659568474,"Sports hall, Sankt Johann",sports,,7.1907,50.34786,1,140,140,21064,,
+way/662658146,TuS-Platz,sports,,7.21484,50.33641,4,409,560,22965,1.93,2.04
+way/672979841,Bausenberghalle,community,,7.22296,50.45993,1,832,1697,9652,,
+way/673159278,Kaiserhalle,community,Wilhelm-Bell-Straße 11,7.27907,50.45824,1,272,447,9108,,
+way/673482089,Gemeindeverwaltung Niederzissen,community,,7.22354,50.45879,1,83,144,9765,,
+way/673730328,Haus der Kultur,community,Brohltalstraße 77,7.27652,50.45742,1,104,213,9207,,
+way/674627506,Sportanlage Leimersdorf,sports,,7.14347,50.58225,12,5451,5451,3706,,
+way/677244580,Sportplatz Bengen,sports,,7.13354,50.56485,1,182,182,1874,,
+way/681828896,Freie Waldorfschule Mayen,school,,7.23487,50.33535,2,226,614,23034,,
+way/684078320,"Community building, Quiddelbach",community,August-Brüser-Straße 1,6.93622,50.35038,1,403,403,8267,,
+way/704283024,Leo-Stausberg-Schule,school,Quellenstraße 15,7.32809,50.48619,7,2090,4478,6741,7.11,8.58
+way/706082727,Hochschule für öffentliche Verwaltung Rheinland-Pfalz,school,,7.22952,50.32811,4,1766,5555,23865,,
+way/708246049,Haus 3,sports,,7.14767,50.53918,1,1313,2946,0,,
+way/735337848,Waldstadion,sports,,7.24688,50.34212,1,207,207,22173,,
+way/760928329,"Sports hall, Thür",sports,,7.25236,50.36766,2,1198,1950,19306,,
+way/775819055,Sportplatz Apollinarisstadion,sports,,7.15136,50.54408,12,2110,3538,0,5.76,6.07
+way/804250567,Städt. Realschule Bad Münstereifel,school,,6.76299,50.54993,1,2010,2833,13251,,
+way/806342444,Grundschule am Maar,school,,7.17889,50.45873,2,616,616,9155,,
+way/807490564,"Dorfgemeinschaftshaus ""Alte Schule""",community,Lantershofener Straße 9,7.11217,50.56256,1,156,277,1593,,
+way/808449029,IGS Remagen,school,,7.24688,50.57594,2,5714,13276,2309,5.3,6.71
+way/818788732,DüNaLü,community,Bahnhofstraße 16,6.9307,50.44102,1,596,596,337,,
+way/827644517,Burgweiherhütte,community,,6.95081,50.34858,1,124,124,9257,,
+way/830321659,Martinus Gymnasium Linz,school,Martinusstraße 3,7.28212,50.56949,2,3884,12146,1841,,
+way/837241303,Laacher-See-Halle,community,Marktplatz 6,7.28057,50.37176,1,787,2366,18723,,
+way/893732584,Ev. Familienbildungsstätte,community,Weidenstraße 10,6.93401,50.59759,1,548,627,9634,,
+way/906207179,St. Sebastianus Schützenbruderschaft,sports,,7.27936,50.33105,6,824,824,23252,,
+way/924857870,Vischeltalschule,school,,6.93692,50.52242,1,502,502,3049,,
+way/938896299,Königsseehalle,community,Hauptstraße 21,7.1607,50.46643,1,375,375,8121,,
+way/966300035,"Sports hall, Bad Bodendorf",sports,,7.22151,50.55663,1,815,1742,791,,
+way/967349767,Rhein-Gymnasium Sinzig,school,Dreifaltigkeitsweg 35,7.25112,50.54841,5,7236,21198,0,3.12,4.51
+way/967349768,Regenbogenschule,school,Dreifaltigkeitsweg 37,7.24975,50.54814,5,2504,6390,0,,0.41
+way/967349769,Barbarossaschule,school,Werner-Lücke-Straße 37b,7.25008,50.54897,5,3528,8671,0,2.02,3.41
+way/968906636,Aloisius-Grundschule Ahrweiler,school,Blankartstraße,7.10299,50.54189,4,2671,7931,0,,
+way/971146974,"School, Bad Münstereifel",school,,6.75257,50.56332,5,3150,3150,14836,,
+way/971146981,Hochschule der Justiz Nordrhein-Westfalen,school,Schleidtalstraße 3,6.76748,50.56217,8,4595,4602,14132,,
+way/977532105,Tennis Club Bad Bodendorf e.V.,sports,,7.21797,50.55122,1,293,293,530,5.86,6.13
+way/978164839,"School, Ahrweiler",school,,7.09192,50.5342,1,908,1087,54,,
+way/1025855368,"Sports hall, Üxheim",sports,,6.75301,50.34186,3,370,370,3896,,
+way/1050828373,Lava-Halle,community,Schulstraße 3,7.30018,50.47311,1,506,1270,7539,,
+way/1057805692,Are-Gymnasium,school,Joseph-von-Fraunhofer-Straße 0,7.10589,50.58045,9,4740,4740,3549,,
+way/1074257201,"Community building, Königsfeld",community,Burgstraße 4,7.17631,50.49843,1,441,441,4896,,
+way/1074268585,"School, Schalkenbach",school,,7.14274,50.49346,5,1845,2698,5058,,
+way/1078631075,Grundschule Herresbach,school,,7.01627,50.36062,3,720,720,10983,,
+way/1110752327,Denntal-Grundschule,school,,6.98149,50.48376,4,1708,1708,539,,
+way/1112525739,"Sports hall, Marienthal",sports,,7.06031,50.54008,1,431,431,440,,
+way/1118289157,Alte Schule,community,Schulstraße 6,7.28047,50.46561,1,256,256,8285,,
+way/1126458745,Grundschule Mutscheid,school,Arandstraße 33,6.84276,50.47946,7,2504,2504,3564,,
+way/1134025205,Lindenschule,school,Rheintalstraße 35-39,7.29481,50.51555,9,2863,4601,2815,4.32,5.76
+way/1139142516,Grundschule Am Sonnenberg,school,Schulstraße 6,7.21826,50.59784,3,1112,3009,5125,4.83,6.2
+way/1142490016,Stefan-Andres-Realschule Plus,school,Linzer Straße 17b,7.21912,50.5973,3,1886,5222,5050,5.78,7.14
+way/1142500753,Grundschule Weibern,school,Schulstraße 3,7.14816,50.40646,2,400,1134,14132,,
+way/1147624666,Schützenhalle,sports,,7.32609,50.48054,3,604,604,7271,1.5,2.96
+way/1148278894,Burgweg-Schule,school,Burgweg 6,7.27253,50.45654,4,1700,3413,9319,,
+way/1149617721,Sportplatz Hardtbrücke,sports,,6.85303,50.48667,4,413,413,4054,,
+way/1159141627,"Community building, Kruft",community,Jahnstraße 15,7.33812,50.38873,1,1371,3669,17272,,
+way/1190641281,Grundschule Wassenach,school,Zehntgasse 16,7.28074,50.43389,3,578,1892,11805,,
+way/1215688880,"Sports hall, Bad Tönisstein",sports,,7.30594,50.45689,1,244,244,9385,,
+way/1221657048,"Sports hall, Wassenach",sports,,7.27693,50.42785,2,340,437,12492,,
+way/1251355824,"Sports hall, Antweiler",sports,,6.83174,50.40946,1,173,173,0,1.87,2.23
+way/1304541363,"School, Kruft",school,,7.3368,50.38694,4,2984,9720,17423,,
+way/1316086398,Studienhaus St. Lambert,school,,7.10578,50.555,13,3066,5351,893,,
+way/1319220444,Bürgermeister-Castenholtz-Schule,school,,7.29453,50.57214,3,3396,3645,2402,,
+way/1343084319,St. Hubertus Schützenbruderschaft Niederzissen e.V.,sports,,7.21504,50.45386,1,800,800,10332,,
+way/1346616375,St. Hubertus Schützenhaus,sports,,7.27003,50.44673,1,345,345,10427,,
+way/1351242468,Sportpark Baar,sports,,7.04826,50.34652,3,1132,1132,13507,,
+way/1355153009,Ahrtalschule Realschule plus Altenahr,school,Grünstraße 10,7.0308,50.58491,4,1754,1754,5446,,
+way/1387055602,"Sports hall, Heimersheim",sports,,7.18248,50.5414,4,333,650,294,,
+way/1387055604,Grundschule an der Landskrone Heimersheim,school,Vehner Weg 31,7.18172,50.54022,7,3440,6296,443,,
+way/1389443222,"Sports hall, Nickenich",sports,,7.3142,50.41503,2,1720,1720,14076,,
+way/1430303238,Seminarhaus,community,Weiherstraße 5,6.8159,50.44567,1,2222,2578,2949,,
+way/1442127096,Kath. Grundschule Merzbach,school,,6.93469,50.59674,5,2050,2050,9472,,
+way/1444726178,"Fußball- und Leichtathletikstadion ""Goldene Meile""",sports,,7.24836,50.57559,1,195,457,2292,5.3,6.71
+way/1449733281,Sportplatz Bad Bodendorf,sports,Bäderstraße 30,7.2163,50.55136,2,399,408,648,1.38,1.66
+way/1459418712,"Sports hall, Holzweiler",sports,,7.05735,50.56423,2,419,419,3098,,
+way/1464106230,Evangelisches Gemeindezentrum,community,,7.30658,50.50371,1,208,281,4356,6.03,7.47
+way/1465163552,Grundschule St. Nikolaus,school,,7.08942,50.57147,1,2067,2364,3060,,
+way/1495895172,"Sports hall, Arloff",sports,,6.79099,50.5985,4,1042,3537,16304,,
+way/1510036522,"Sports hall, Ersdorf",sports,,7.00974,50.59633,1,84,119,7100,,
+way/1546417213,"School, Wormersdorf",school,Wormersdorfer Straße 33,6.98892,50.60745,1,174,485,8832,,
+way/1551011854,Realschule plus und Fachoberschule Mendig Laacher-See-Schule,school,Fallerstraße 49,7.26404,50.37114,4,4535,7928,18783,,
+way/1553193123,"School, Kirchesch",school,,7.15852,50.37324,6,559,559,17670,,
+way/1563813839,"School, Niederzissen",school,,7.21303,50.45546,5,3269,3537,10062,,
+way/1563843434,"School, Wimbach",school,,6.91058,50.36201,3,646,646,6002,,
+way/1571893037,Margaretha-von-Arenberg Grundschule,school,,6.82605,50.40684,2,1387,1387,331,,
+relation/3225717,"""de Kipp""",sports,,7.23327,50.58928,1,126,199,3995,,
+relation/3981088,"School, Bad Münstereifel",school,Sittardweg 8,6.76168,50.54894,1,3072,4218,13213,,
+relation/7324804,Grundschule St. Johannes,school,,7.23834,50.58696,2,1540,3010,3622,,
+relation/8413677,Verbandsgemeindeverwaltung Adenau,community,,6.93035,50.38339,1,1368,2700,6430,,
+relation/9849853,Haus 1,school,,7.14731,50.53966,1,2759,5850,0,1.76,2.08
+relation/13151693,"School, Walporzheim",school,,7.09188,50.53364,1,2055,2226,69,,
+relation/17783539,Verbandsgemeindeverwaltung Altenahr,community,,7.00172,50.54308,1,1243,1243,2539,,
+relation/21063193,Dorfgemeinschaftshaus Niederadenau,community,,6.93,50.42846,2,214,214,1619,,
