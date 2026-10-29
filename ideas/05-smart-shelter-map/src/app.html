@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart shelter system: planning aid</title>
+<!-- Leaflet CSS is inlined here by build.py -->
+<style id="leaflet-css">/*__LEAFLET_CSS__*/</style>
+<style>
+:root {
+  --bg: #f4f6f8; --panel: #ffffff; --ink: #14181d; --muted: #4a5360; --line: #c5ccd4;
+  --accent: #0072B2; --focus: #b35c00;
+  --bad: #9d1c0b; --badbg: #fdeceb; --warn: #6b4a00; --warnbg: #fff5d6; --ok: #00573f; --okbg: #e3f4ee;
+  --mapbg: #e6eaee; --road: #7c828a; --roadlite: #9aa0a8; --halo: #ffffff; --ringcol: #111111;
+  --btn: #eef2f6; --btnink: #14181d;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12161b; --panel: #1c2229; --ink: #eef1f4; --muted: #b3bcc7; --line: #3a444f;
+    --accent: #56B4E9; --focus: #F0E442;
+    --bad: #ffb3a7; --badbg: #4a1c17; --warn: #ffe08a; --warnbg: #473a10; --ok: #8de3c6; --okbg: #12372c;
+    --mapbg: #262d35; --road: #8d949c; --roadlite: #6f767e; --halo: #14181d; --ringcol: #ffffff;
+    --btn: #2a323b; --btnink: #eef1f4;
+  }
+}
+[hidden] { display: none !important; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; overflow-x: hidden; }
+h1 { font-size: 1.25rem; margin: 0; line-height: 1.2; }
+h2 { font-size: 1.1rem; margin: 0 0 6px; }
+h3 { font-size: 1rem; margin: 10px 0 4px; }
+p { margin: 4px 0; }
+small, .small { font-size: 14px; }
+.muted { color: var(--muted); }
+.wrap { padding: 0 16px; }
+header.top { padding: 6px 16px 2px; }
+.titlerow { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 16px; }
+.titlerow p { margin: 0; font-size: 14px; color: var(--muted); }
+.banner { border-left: 6px solid #E69F00; background: var(--warnbg); color: var(--warn); padding: 4px 12px; border-radius: 4px; margin-top: 4px; font-size: 14px; display: flex; flex-wrap: wrap; gap: 2px 12px; align-items: center; }
+.banner button { padding: 2px 8px; font-size: 14px; }
+.disc { border: 1px solid var(--line); background: var(--panel); border-radius: 4px; padding: 6px 12px; margin-top: 4px; font-size: 14px; max-height: 50vh; overflow-y: auto; }
+.mock { display: inline-block; background: var(--bad); color: #fff; font-weight: 700; padding: 2px 8px; border-radius: 4px; font-size: 14px; margin-left: 8px; vertical-align: middle; }
+.controls { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: flex-end; padding: 4px 16px 6px; }
+.controls select { text-overflow: ellipsis; }
+#selScenario { width: 270px; }
+#selClosure { width: 460px; }
+#selCapacity { width: 330px; }
+.controls label { display: flex; flex-direction: column; font-weight: 600; font-size: 14px; gap: 2px; }
+select, button, input[type=checkbox] { font: inherit; }
+select { min-width: 220px; max-width: 100%; padding: 6px 8px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; }
+button { cursor: pointer; background: var(--btn); color: var(--btnink); border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; }
+button:hover { border-color: var(--accent); }
+button.link { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; text-align: left; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.levelnote { flex: 1 1 320px; margin: 0; padding: 4px 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; font-size: 14px; }
+.badge { display: inline-block; font-weight: 700; padding: 1px 8px; border-radius: 4px; margin-right: 6px; border: 2px solid var(--accent); }
+.badge.observed { background: var(--accent); color: #fff; }
+.badge.modelled { background: repeating-linear-gradient(45deg, transparent 0 5px, rgba(0,114,178,.22) 5px 10px); color: var(--ink); }
+.summary { align-items: start; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 6px; padding: 0 16px 8px; }
+.card.wide { grid-column: span 2; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; }
+.card .v { font-size: 1.2rem; font-weight: 700; line-height: 1.2; }
+.card .l { font-size: 14px; color: var(--muted); }
+.card.unassigned { border: 3px solid var(--bad); background: var(--badbg); }
+.card.over { border: 3px dashed var(--bad); background: var(--badbg); }
+.card.over .v, .card.over .l { color: var(--bad); }
+.card .s { font-size: 14px; display: block; }
+.hint { font-size: 14px; color: var(--muted); margin: 2px 0 6px; }
+.card.unassigned .v, .card.unassigned .l { color: var(--bad); }
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 410px; gap: 16px; padding: 0 16px 16px; }
+#map { height: clamp(520px, 78vh, 820px); background: var(--mapbg); border: 1px solid var(--line); border-radius: 6px; z-index: 0; }
+.leaflet-container { font: 14px/1.4 system-ui, sans-serif; }
+.leaflet-control-attribution { font-size: 14px !important; }
+.side { max-height: clamp(520px, 78vh, 820px); overflow-y: auto; overflow-x: hidden; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; }
+details.panel > summary { cursor: pointer; font-weight: 700; }
+fieldset { border: 0; padding: 0; margin: 0; }
+legend { font-weight: 700; padding: 0; margin-bottom: 4px; }
+.toggle { display: flex; align-items: center; gap: 8px; padding: 2px 0; font-size: 14px; }
+.toggle input { width: 18px; height: 18px; flex: none; }
+.sw { display: inline-block; width: 26px; height: 14px; flex: none; vertical-align: middle; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.n, th.n { text-align: right; }
+tr.cur td { background: var(--okbg); font-weight: 700; }
+.alert { border: 2px solid var(--bad); background: var(--badbg); color: var(--bad); border-radius: 4px; padding: 6px 10px; margin: 6px 0; font-weight: 600; font-size: 14px; }
+.info { border: 1px solid var(--ok); background: var(--okbg); color: var(--ok); border-radius: 4px; padding: 6px 10px; margin: 6px 0; font-size: 14px; }
+.note { border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; margin: 6px 0; font-size: 14px; background: var(--bg); }
+pre.msg { white-space: pre-wrap; word-wrap: break-word; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 8px; font-family: inherit; font-size: 14px; line-height: 1.4; margin: 4px 0; }
+.row { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.legendbar { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 6px 0; font-size: 14px; }
+.legendbar span.i { display: inline-flex; align-items: center; gap: 6px; }
+.card[title], .legendbar span.i[title], .badge[title] { cursor: help; }
+.legendbar span.i[title]:hover, .legendbar span.i[title]:focus { text-decoration: underline dotted; }
+dl { margin: 4px 0; font-size: 14px; }
+dt { font-weight: 600; margin-top: 4px; }
+dd { margin: 0 0 0 12px; }
+ul { margin: 4px 0; padding-left: 20px; font-size: 14px; }
+footer { padding: 8px 16px 24px; font-size: 14px; color: var(--muted); }
+.shel { background: none; border: 0; }
+.shel svg { filter: drop-shadow(0 0 1.5px var(--halo)) drop-shadow(0 0 1px var(--halo)); display: block; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+#dataWarn { margin: 0 16px 8px; }
+@media (max-width: 900px) {
+  .main { grid-template-columns: minmax(0, 1fr); }
+  #map { height: 62vh; min-height: 380px; }
+  .side { max-height: none; overflow: visible; }
+  select, .controls select, #selScenario, #selClosure, #selCapacity { min-width: 0; width: 100%; }
+  .controls label { flex: 1 1 100%; }
+  h1 { font-size: 1.3rem; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="titlerow">
+    <h1><span id="title">Smart shelter system: planning aid</span><span id="mockBadge" class="mock" hidden>MOCK DATA</span></h1>
+    <p id="purpose">For a chosen flood level: which area could go to which candidate shelter, by which route, given capacity and closed roads. A planning and exercise aid, not live guidance.</p>
+  </div>
+  <div class="banner" id="banner" role="note"><span id="bannerText"></span><button id="btnDisc" aria-expanded="false" aria-controls="discBody">Full disclaimer, limits, not modelled</button></div>
+  <div class="disc" id="discBody" hidden></div>
+</header>
+
+<section class="controls" aria-label="Scenario controls">
+  <label>Flood level (scenario)<select id="selScenario"></select></label>
+  <label>Road closure rule<select id="selClosure"></select></label>
+  <label>Shelter capacity assumption<select id="selCapacity"></select></label>
+  <div class="levelnote" id="levelNote" role="status"></div>
+</section>
+<div id="dataWarn" hidden></div>
+
+<section class="summary" id="summary" aria-label="Summary of the selected result" aria-live="polite"></section>
+
+<div class="main">
+  <div>
+    <div id="map" role="application" aria-label="Map of zones, shelters and roads"></div>
+    <div class="legendbar" id="legendbar" aria-label="Map legend"></div>
+    <p class="hint" id="mapHint">Circles are residents inside the flood who must leave, not shelters; shelters are the squares, diamonds, triangles and other symbols. Zoom in or click either for details. The map shows only shelters used in this plan and flooded ones; switch on "All candidate shelters" to see every candidate. Zones with no residents to place at this flood level are not drawn or selectable.</p>
+  </div>
+  <aside class="side" id="side" aria-label="Details">
+    <div class="panel" id="selected" tabindex="-1"></div>
+    <fieldset class="panel" id="layers"><legend>Map layers</legend></fieldset>
+    <div class="panel">
+      <h2>Pick from a list</h2>
+      <p class="small muted">Same as clicking on the map, for keyboard use.</p>
+      <label class="small" for="selZone"><b>Zone</b></label><br>
+      <select id="selZone" style="min-width:0;width:100%"></select>
+      <label class="small" for="selShelter"><b>Candidate shelter</b></label><br>
+      <select id="selShelter" style="min-width:0;width:100%"></select>
+    </div>
+    <details class="panel" open><summary>Compare flood levels (current closure rule and capacity)</summary><div id="compare"></div></details>
+    <details class="panel"><summary>Assumptions</summary><div id="assumptions"></div></details>
+    <details class="panel"><summary>About the data and limits</summary><div id="about"></div></details>
+  </aside>
+</div>
+<footer id="footer"></footer>
+
+<script>/*__LEAFLET_JS__*/</script>
+<script>window.BUNDLE = /*__BUNDLE__*/null;</script>
+<script>
+(function () {
+'use strict';
+/* ====================================================================
+   Smart shelter system page. Everything shown comes from window.BUNDLE
+   (contract: tool/BUNDLE_SCHEMA.md). Missing keys are reported, not fatal.
+   ==================================================================== */
+const B = window.BUNDLE || {};
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const warnings = [];
+function warn(msg) { if (warnings.indexOf(msg) < 0) { warnings.push(msg); } }
+function safe(name, fn) { try { fn(); } catch (err) { warn('Could not draw "' + name + '": ' + err.message); console.error(name, err); } }
+// people are estimates and may be fractional in the bundle: show whole numbers, thousands separated
+const fmt = n => (n == null || isNaN(n)) ? 'n/a' : Math.round(Number(n)).toLocaleString('en');
+const fmtP = n => (n > 0 && n < 0.5) ? '<1' : fmt(n);
+const min1 = s => (s == null || isNaN(s)) ? 'n/a' : (s / 60).toFixed(1);
+
+// ---- data access with checks -------------------------------------------------
+const meta = B.meta || {};
+const ass = B.assumptions || {};
+const scenarios = Array.isArray(B.scenarios) ? B.scenarios : [];
+const capacities = Array.isArray(B.capacities) ? B.capacities : [];
+const edges = (B.network && B.network.edges) || [];
+const zones = Array.isArray(B.zones) ? B.zones : [];
+const shelters = Array.isArray(B.shelters) ? B.shelters : [];
+const results = B.results || {};
+['meta', 'assumptions', 'scenarios', 'capacities', 'network', 'zones', 'shelters', 'results'].forEach(k => { if (B[k] == null) warn('Bundle key missing: ' + k); });
+if (!meta.disclaimer) warn('meta.disclaimer is missing in the bundle');
+if (!meta.bounds) warn('meta.bounds is missing; map falls back to the extent of the roads');
+
+const E = new Map(edges.map(e => [e.id, e]));
+const Z = new Map(zones.map(z => [z.id, z]));
+const S = new Map(shelters.map(s => [s.id, s]));
+const ll = c => [c[1], c[0]];                       // bundle is [lon, lat], Leaflet wants [lat, lon]
+// OSM names can be missing; the pipeline may write 'nan' / 'None' for them
+const nm = e => (e && e.n && e.n !== 'nan' && e.n !== 'None') ? e.n : '';
+const edgeLL = new Map(edges.map(e => [e.id, e.c.map(ll)])); // converted once; reused by every layer
+const vehicles = ass.vehicles || null;
+const roadCap = ass.road_capacity_veh_per_h || {};
+const maxPeople = Math.max(1, ...zones.map(z => Math.max(0, ...Object.values(z.people || {}))));
+const maxCap = Math.max(1, ...shelters.map(s => Math.max(0, ...Object.values(s.cap || {}))));
+
+// ---- state -------------------------------------------------------------------
+const st = { sc: null, cl: null, cap: null, zone: null, shelter: null,
+             layers: { flood: true, roads: true, closed: true, routes: true, stress: false, zones: true, shelters: true, allshelters: false },
+             basemap: false };
+let res = null;   // current result object
+
+const scById = id => scenarios.find(s => s.id === id);
+const sc = () => scById(st.sc) || {};
+const keyOf = (a, b, c) => a + '|' + b + '|' + c;
+
+function defaultKey() {
+  // the real July 2021 event first: first observed scenario, its first closure rule, first capacity
+  const o = scenarios.find(x => x.kind === 'observed') || scenarios[0];
+  if (o && o.closures && o.closures[0] && capacities[0]) { const k = keyOf(o.id, o.closures[0].id, capacities[0].id); if (results[k]) return k; }
+  return bestKey();
+}
+function bestKey() {
+  // "Most informative": closed roads + a detour + unassigned people all present; tie-break on people to place.
+  let best = null, bestScore = -1;
+  Object.keys(results).forEach(k => {
+    const r = results[k], s = r.summary || {};
+    if (k.split('|')[2] !== (capacities[0] && capacities[0].id)) return;
+    const score = ((s.closed_edges > 0) ? 1 : 0) + ((s.unassigned > 0) ? 1 : 0) + ((s.mean_detour_min > 0) ? 1 : 0) + (s.people_to_place || 0) / 1e6;
+    if (score > bestScore) { bestScore = score; best = k; }
+  });
+  return best || Object.keys(results)[0] || null;
+}
+
+function readParams() {
+  const p = new URLSearchParams(location.search);
+  new URLSearchParams(location.hash.replace(/^#/, '')).forEach((v, k) => p.set(k, v));
+  return p;
+}
+
+// ---- helpers on the result ---------------------------------------------------
+const assignsOfZone = zid => ((res && res.assign) || []).filter(a => a[0] === zid);
+const assignsOfShelter = sid => ((res && res.assign) || []).filter(a => a[1] === sid);
+const unassignedOf = zid => (res && res.unassigned && res.unassigned[String(zid)]) || 0;
+const peopleOf = z => (z.people && z.people[st.sc]) || 0;
+function roadRatio(eid, people) {
+  const e = E.get(eid); if (!e || !vehicles) return null;
+  const cap = roadCap[e.h] || roadCap[String(e.h).replace('_link', '')]; if (!cap) return null;
+  return people * vehicles.car_share / vehicles.persons_per_car / vehicles.evacuation_window_h / cap;
+}
+function roadNames(edgeIds, limit) {
+  // names along a route, de-duplicated, in travel order
+  const out = [];
+  edgeIds.forEach(id => { const n = nm(E.get(id)); if (n && out.indexOf(n) < 0) out.push(n); });
+  return limit ? out.slice(0, limit) : out;
+}
+function nearbyClosedNames(z, assigns, metres) {
+  // closed roads within ~metres of the zone or of any vertex of its routes (names only)
+  if (!res || !res.closed) return [];
+  const pts = [[z.lat, z.lon]];
+  assigns.forEach(a => (a[5] || []).forEach(id => (edgeLL.get(id) || []).forEach(p => pts.push(p))));
+  const kx = 111200 * Math.cos(z.lat * Math.PI / 180), ky = 111200, lim = metres * metres, out = [];
+  res.closed.forEach(id => {
+    const e = E.get(id); if (!e || !nm(e) || out.indexOf(nm(e)) >= 0) return;
+    const m = edgeLL.get(id)[Math.floor(e.c.length / 2)];
+    for (let i = 0; i < pts.length; i++) {
+      const dx = (m[1] - pts[i][1]) * kx, dy = (m[0] - pts[i][0]) * ky;
+      if (dx * dx + dy * dy < lim) { out.push(nm(e)); return; }
+    }
+  });
+  return out;
+}
+
+// ====================================================================
+// MAP
+// ====================================================================
+const map = L.map('map', { preferCanvas: true, renderer: L.canvas({ padding: 0.3 }), zoomSnap: 0.25, zoomControl: true });
+map.attributionControl.setPrefix('Leaflet');
+const canvas = map.getRenderer(map);
+if (meta.bounds) map.fitBounds([[meta.bounds[1], meta.bounds[0]], [meta.bounds[3], meta.bounds[2]]]);
+else if (edges.length) map.fitBounds(L.latLngBounds(edges.map(e => ll(e.c[0]))));
+else map.setView([50.5, 6.5], 10);
+
+const basemap = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '(c) OpenStreetMap contributors' });
+let baseMsg = '', tileErrors = 0;
+function showBaseMsg() { const el = $('baseStatus'); if (el) el.textContent = baseMsg; }
+// tiles are optional: if they fail (offline, blocked) say so and keep working with vector layers only
+basemap.on('tileerror', () => { tileErrors++; if (tileErrors === 3) { baseMsg = 'Basemap tiles could not be loaded (offline?). The vector layers still work.'; showBaseMsg(); } });
+const g = { flood: L.layerGroup(), roads: L.layerGroup(), closed: L.layerGroup(), routes: L.layerGroup(), stress: L.layerGroup(),
+            zones: L.layerGroup(), shelters: L.layerGroup(), allshelters: L.layerGroup(), sel: L.layerGroup() };
+let floodImg = null;
+const col = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+function multi(ids, style) {
+  const lines = ids.map(id => edgeLL.get(id)).filter(Boolean);
+  return L.polyline(lines, Object.assign({ renderer: canvas, interactive: false, lineJoin: 'round', lineCap: 'round' }, style));
+}
+
+// Roads: ONE multi-polyline per road class, built once (25,000 edges stay one canvas path per class).
+function drawRoads() {
+  g.roads.clearLayers();
+  const groups = { major: [], mid: [], minor: [] };
+  edges.forEach(e => { (e.h === 'motorway' || e.h === 'primary' ? groups.major : (e.h === 'secondary' || e.h === 'tertiary') ? groups.mid : groups.minor).push(e.id); });
+  // roads are dimmed so routes, closed roads and stress stay readable; a bit darker/thinner again over a light basemap
+  const dim = st.basemap, c1 = dim ? '#6a6a6a' : col('--roadlite'), c2 = dim ? '#555' : col('--road');
+  g.roads.addLayer(multi(groups.minor, { color: c1, weight: 1, opacity: dim ? 0.4 : 0.6 }));
+  g.roads.addLayer(multi(groups.mid, { color: c2, weight: 1.6, opacity: dim ? 0.5 : 0.7 }));
+  g.roads.addLayer(multi(groups.major, { color: c2, weight: 2.6, opacity: dim ? 0.6 : 0.85 }));
+}
+
+const STRESS = [{ max: 0.5, c: '#009E73', w: 3, label: 'under 0.5' }, { max: 1, c: '#F0E442', w: 4, label: '0.5 to 1' },
+                { max: 1.5, c: '#D55E00', w: 5, label: '1 to 1.5' }, { max: Infinity, c: '#7a0019', w: 6.5, label: 'over 1.5 (above the assumed capacity)' }];
+
+// Result-dependent road layers: only subsets (closed / used / stress buckets) are rebuilt.
+function drawRoadResults() {
+  ['closed', 'routes', 'stress'].forEach(k => g[k].clearLayers());
+  if (!res) return;
+  g.closed.addLayer(multi(res.closed || [], { color: '#d7191c', weight: 3.2, dashArray: '7 5', opacity: 1 }));
+  const loadIds = Object.keys(res.load || {}).map(Number);
+  g.routes.addLayer(multi(loadIds, { color: '#0072B2', weight: 2.5, opacity: 0.7 }));
+  const buckets = STRESS.map(() => []);
+  loadIds.forEach(id => {
+    const r = roadRatio(id, res.load[String(id)]); if (r == null) return;
+    buckets[STRESS.findIndex(b => r < b.max)].push(id);
+  });
+  STRESS.forEach((b, i) => { if (buckets[i].length) g.stress.addLayer(multi(buckets[i], { color: b.c, weight: b.w, opacity: 0.95 })); });
+  // self-check against the bundle summary (visible in the console only)
+  const worst = Math.max(0, ...loadIds.map(id => roadRatio(id, res.load[String(id)]) || 0));
+  if (res.summary && res.summary.worst_road_ratio != null && Math.abs(worst - res.summary.worst_road_ratio) > 0.011) {
+    console.warn('worst road ratio computed by the page', worst.toFixed(3), 'differs from bundle summary', res.summary.worst_road_ratio);
+  }
+}
+
+function drawFlood() {
+  g.flood.clearLayers();
+  const s = sc();
+  const fc = B.floods && B.floods[st.sc];
+  if (s.kind === 'observed' || fc) {
+    if (fc && fc.features && fc.features.length) {
+      g.flood.addLayer(L.geoJSON(fc, { renderer: canvas, interactive: false,
+        style: { color: '#0072B2', weight: 1.5, dashArray: '5 4', fillColor: '#56B4E9', fillOpacity: 0.35 } }));
+    }
+  }
+  const ov = (B.overlays || []).find(o => o.scenario === st.sc);
+  if (ov) g.flood.addLayer(L.imageOverlay(ov.png, ov.bounds, { opacity: 0.75, interactive: false }));
+}
+
+// Zones: circle area ~ people (radius ~ sqrt, small cap so 900+ zones stay readable), thin outline.
+// Colour AND stroke style = placement status (two cues). Zones under half a person are not drawn.
+const zoneShown = z => Math.round(peopleOf(z)) >= 1;
+function drawZones() {
+  g.zones.clearLayers();
+  zones.filter(zoneShown).sort((a, b) => peopleOf(b) - peopleOf(a)).forEach(z => {
+    const p = peopleOf(z);
+    const un = res ? unassignedOf(z.id) : 0, placed = p - un;
+    let status = 'full', style;
+    if (!res) status = 'unknown';
+    else if (placed < 0.5) status = 'none'; else if (un >= 0.5) status = 'part';
+    if (status === 'full') style = { fillColor: '#8FA8C8', color: '#1F3550', weight: 1.2, dashArray: null, fillOpacity: 0.7 };   // neutral blue-grey, never green (green reads as 'safe')
+    else if (status === 'part') style = { fillColor: '#F0E442', color: '#222', weight: 1.6, dashArray: '3 2', fillOpacity: 0.7 };
+    else if (status === 'none') style = { fillColor: '#D55E00', color: '#000', weight: 1.8, dashArray: '1 3', fillOpacity: 0.75 };
+    else style = { fillColor: '#999', color: '#333', weight: 1, fillOpacity: 0.5 };
+    const m = L.circleMarker([z.lat, z.lon], Object.assign({ renderer: canvas, radius: 2.5 + 9 * Math.sqrt(p / maxPeople) }, style));
+    m.bindTooltip('Zone ' + z.id + ', ' + esc(z.muni) + ': ' + fmtP(p) + ' residents inside the flood who must leave (not a shelter)' + (res ? '; ' + fmt(un) + ' unassigned' : ''), { sticky: true });
+    m.on('click', () => selectZone(z.id, true));
+    g.zones.addLayer(m);
+  });
+}
+
+// Shelter symbols: shape = type family, size = capacity, fill/outline = state (usable / flooded / full / not counted).
+const SHAPES = {
+  school: '<rect x="4" y="4" width="16" height="16"/>',
+  sports_hall: '<path d="M12 2 L22 12 L12 22 L2 12Z"/>',
+  community_centre: '<circle cx="12" cy="12" r="9"/>',
+  civic: '<path d="M12 3 L22 21 L2 21Z"/>',
+  church: '<path d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7z"/>',
+  hotel: '<path d="M12 2 L21 7 L21 17 L12 22 L3 17 L3 7Z"/>',
+  other: '<path d="M12 2 L14.8 8.6 22 9.3 16.5 14 18.2 21 12 17.3 5.8 21 7.5 14 2 9.3 9.2 8.6Z"/>'
+};
+// real bundle types -> shape family (unknown types fall back to the star)
+const FAMILY = { school: 'school', kindergarten: 'school', college: 'school', university: 'school', sports_hall: 'sports_hall',
+  community_centre: 'community_centre', civic: 'civic', public: 'civic', townhall: 'civic', church: 'church', chapel: 'church', cathedral: 'church', hotel: 'hotel' };
+function shelterState(s) {
+  const cap = (s.cap && s.cap[st.cap]) || 0;
+  if (s.flooded && s.flooded[st.sc]) return 'flooded';
+  if (cap <= 0) return 'nocap';
+  const load = (res && res.shelter_load && res.shelter_load[String(s.id)]) || 0;
+  return load >= cap - 0.5 ? 'full' : 'ok';
+}
+const loadOf = s => (res && res.shelter_load && res.shelter_load[String(s.id)]) || 0;
+function shelterIcon(s, state) {
+  const cap = (s.cap && s.cap[st.cap]) || 0;
+  const size = state === 'flooded' ? 12 : Math.round(11 + 13 * Math.sqrt(cap / maxCap));
+  const shape = SHAPES[FAMILY[s.type] || 'other'];
+  let attrs = 'fill="#CC79A7" stroke="#1a1a1a" stroke-width="1.8"', extra = '';
+  if (state === 'flooded') { attrs = 'fill="#bdbdbd" stroke="#333" stroke-width="1.8"'; extra = '<path d="M4 4 L20 20 M20 4 L4 20" stroke="#000" stroke-width="3" fill="none"/>'; }
+  else if (state === 'full') attrs = 'fill="#E69F00" stroke="#000" stroke-width="2.6" stroke-dasharray="3 2"';
+  else if (state === 'nocap') attrs = 'fill="none" stroke="#6b6b6b" stroke-width="1.8" stroke-dasharray="2 2"';
+  const html = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" aria-hidden="true"><g ' + attrs + '>' + shape + '</g>' + extra + '</svg>';
+  return L.divIcon({ className: 'shel', html: html, iconSize: [size, size], iconAnchor: [size / 2, size / 2] });
+}
+const STATE_TXT = { ok: 'usable (candidate)', flooded: 'flooded in this scenario, not usable', full: 'full at this assumption', nocap: 'not counted at this capacity assumption' };
+// Default view = only shelters USED in the plan, plus flooded ones as small crossed marks (declutter).
+// "All candidate shelters" adds every other candidate as a small canvas dot (cheap even for 3,000+).
+function drawShelters() {
+  g.shelters.clearLayers(); g.allshelters.clearLayers();
+  shelters.forEach(s => {
+    const state = shelterState(s), load = loadOf(s);
+    const tip = '#' + s.id + ' ' + esc(s.type) + ', ' + esc(s.muni) + ': ' + STATE_TXT[state] + (load >= 0.5 ? '; ' + fmt(load) + ' people assigned' : '');
+    if (load >= 0.5 || state === 'flooded' || s.id === st.shelter) {
+      const m = L.marker([s.lat, s.lon], { icon: shelterIcon(s, state), keyboard: true, title: 'Shelter ' + s.id + ' ' + s.type, alt: 'Candidate shelter ' + s.id });
+      m.bindTooltip(tip, { sticky: true });
+      m.on('click', () => selectShelter(s.id, true));
+      g.shelters.addLayer(m);
+    } else if (st.layers.allshelters) {
+      const m = L.circleMarker([s.lat, s.lon], { renderer: canvas, radius: 3.5, weight: 1, color: '#1a1a1a',
+        fillColor: state === 'nocap' ? '#cccccc' : '#CC79A7', fillOpacity: state === 'nocap' ? 0.3 : 0.9, dashArray: state === 'nocap' ? '2 2' : null });
+      m.bindTooltip(tip, { sticky: true });
+      m.on('click', () => selectShelter(s.id, true));
+      g.allshelters.addLayer(m);
+    }
+  });
+}
+
+// Selection highlight: rings and the route(s) of the selected zone / shelter.
+function drawSelection() {
+  g.sel.clearLayers();
+  let assigns = [];
+  const ring = (lat, lon, r) => L.circleMarker([lat, lon], { renderer: canvas, radius: r, color: col('--ringcol'), weight: 3, fill: false, interactive: false });
+  if (st.zone != null && Z.get(st.zone)) {
+    const z = Z.get(st.zone); assigns = assignsOfZone(z.id);
+    g.sel.addLayer(ring(z.lat, z.lon, 6 + 18 * Math.sqrt(peopleOf(z) / maxPeople) + 4));
+  } else if (st.shelter != null && S.get(st.shelter)) {
+    assigns = assignsOfShelter(st.shelter);
+  }
+  const all = [];
+  assigns.forEach(a => {
+    const free = a[6];
+    if (free && free.length && JSON.stringify(free) !== JSON.stringify(a[5])) g.sel.addLayer(multi(free, { color: col('--ringcol'), weight: 4, dashArray: '1 8', opacity: 1 }));
+  });
+  assigns.forEach(a => { g.sel.addLayer(multi(a[5] || [], { color: '#fff', weight: 9, opacity: 0.9 })); });
+  assigns.forEach(a => {
+    g.sel.addLayer(multi(a[5] || [], { color: '#0072B2', weight: 5, opacity: 1 }));
+    const s = S.get(a[1]); if (s) g.sel.addLayer(ring(s.lat, s.lon, 16));
+    (a[5] || []).forEach(id => (edgeLL.get(id) || []).forEach(p => all.push(p)));
+  });
+  if (st.shelter != null && S.get(st.shelter)) { const s = S.get(st.shelter); g.sel.addLayer(ring(s.lat, s.lon, 18)); }
+  return all;
+}
+
+// Layer order on the shared canvas: later = on top.
+function restack() {
+  ['flood', 'roads', 'routes', 'stress', 'closed', 'sel', 'zones'].forEach(k => {
+    g[k].eachLayer(l => { if (l.bringToFront) l.bringToFront(); });
+  });
+}
+function applyLayerVisibility() {
+  ['flood', 'roads', 'closed', 'routes', 'stress', 'zones', 'shelters', 'allshelters'].forEach(k => {
+    if (st.layers[k]) { if (!map.hasLayer(g[k])) g[k].addTo(map); } else if (map.hasLayer(g[k])) map.removeLayer(g[k]);
+  });
+  if (!map.hasLayer(g.sel)) g.sel.addTo(map);
+  if (st.basemap) { if (!map.hasLayer(basemap)) basemap.addTo(map); } else if (map.hasLayer(basemap)) map.removeLayer(basemap);
+  restack();
+  if (basemap && st.basemap) basemap.bringToBack();
+  if (floodImg) { /* image overlay sits in its own pane below vectors */ }
+  renderLegend();
+}
+
+// ====================================================================
+// PANELS
+// ====================================================================
+// limits may contain a Python-style dict printed into a sentence: show it as "key value, key value"
+function prettyLimit(t) {
+  return String(t).replace(/\{[^{}]*\}/g, m => {
+    try { const o = JSON.parse(m.replace(/'/g, '"')); return Object.keys(o).map(k => k + ' ' + fmt(o[k])).join(', '); } catch (e) { return m; }
+  });
+}
+function renderTop() {
+  $('title').textContent = meta.title || 'Smart shelter system: planning aid';
+  document.title = (meta.title || 'Smart shelter system') + '';
+  $('mockBadge').hidden = meta.mock !== true;
+  const full = meta.disclaimer || 'The bundle did not provide a disclaimer text. Treat everything as a planning aid, not live guidance.';
+  // permanent one-line banner = the first two sentences of meta.disclaimer + the area; the rest is one click away
+  const head = full.split(/(?<=\.)\s+/).slice(0, 2).join(' ');
+  $('bannerText').textContent = head + (meta.area ? ' Area: ' + meta.area + '.' : '');
+  let h = '<h3>Disclaimer</h3><p>' + esc(full) + '</p>';
+  if (meta.area) h += '<p><b>Area:</b> ' + esc(meta.area) + '</p>';
+  h += '<h3>Limits</h3>' + (meta.limits && meta.limits.length ? '<ul>' + meta.limits.map(x => '<li>' + esc(prettyLimit(x)) + '</li>').join('') + '</ul>' : '<p>No limits listed in the bundle.</p>');
+  const row = (o) => Object.keys(o).map(k => esc(k) + ' ' + fmt(o[k])).join(', ');
+  if (meta.outside_hero_area || meta.outside_road_network || meta.q1_totals_bbox) {
+    h += '<h3>Not modelled</h3><ul>';
+    if (meta.outside_hero_area) h += '<li>Residents inside each flood level but outside the hero area (not modelled): ' + row(meta.outside_hero_area) + '.</li>';
+    if (meta.outside_road_network) h += '<li>Residents too far from any mapped road to be routed (not modelled): ' + row(meta.outside_road_network) + '.</li>';
+    if (meta.q1_totals_bbox) h += '<li>For comparison, residents inside each flood level in the whole map extent (Q1 totals): ' + row(meta.q1_totals_bbox) + '.</li>';
+    h += '</ul>';
+  }
+  h += '<h3>Flood levels</h3><ul>' + scenarios.map(x => '<li><b>' + esc(x.label) + '</b> (' + esc(x.kind) + '): ' + esc(x.note || '') + '</li>').join('') + '</ul>';
+  $('discBody').innerHTML = h;
+  $('btnDisc').addEventListener('click', () => { const open = $('discBody').hidden; $('discBody').hidden = !open; $('btnDisc').setAttribute('aria-expanded', open ? 'true' : 'false'); });
+}
+function fillSelect(el, items, value) {
+  el.innerHTML = '';
+  items.forEach(it => { const o = document.createElement('option'); o.value = it.id; o.textContent = it.label; if (it.id === value) o.selected = true; el.appendChild(o); });
+}
+function renderControls() {
+  fillSelect($('selScenario'), scenarios.map(s => ({ id: s.id, label: s.label })), st.sc);
+  fillSelect($('selClosure'), (sc().closures || []).map(c => ({ id: c.id, label: c.label })), st.cl);
+  fillSelect($('selCapacity'), capacities.map(c => ({ id: c.id, label: c.label })), st.cap);
+  const s = sc(), obs = s.kind === 'observed';
+  $('levelNote').title = s.note || '';
+  $('levelNote').innerHTML = obs
+    ? '<span class="badge observed" title="Observed July 2021 flood as mapped by the Copernicus emergency service (EMS) from satellite images after the peak, in the requested areas only. It is a snapshot, not the maximum extent." tabindex="0">OBSERVED</span> A snapshot after the peak; not mapped does not mean dry.'
+    : '<span class="badge modelled" title="A flood level from the EFAS model for a return period (10, 100 or 500 years). It is a model result, not an observation, and covers only rivers the model represents." tabindex="0">MODELLED</span> EFAS return period, not an observation; empty cells mean not modelled, not dry.';
+  ['selScenario', 'selClosure', 'selCapacity'].forEach(id => { const el = $(id); el.title = el.options[el.selectedIndex] ? el.options[el.selectedIndex].textContent : ''; });
+}
+function fillLists() {
+  const zl = zones.filter(zoneShown).sort((a, b) => peopleOf(b) - peopleOf(a));
+  const zs = $('selZone'); zs.innerHTML = '<option value="">(none selected)</option>';
+  zl.forEach(z => { const o = document.createElement('option'); o.value = z.id; o.textContent = 'Zone ' + z.id + ', ' + z.muni + ', ' + fmt(peopleOf(z)) + ' people'; if (z.id === st.zone) o.selected = true; zs.appendChild(o); });
+  // only shelters used in the current plan (a list of 3,000+ candidates would be unusable); plus the selected one
+  const ss = $('selShelter'); ss.innerHTML = '<option value="">(none selected)</option>';
+  shelters.filter(x => loadOf(x) >= 0.5 || x.id === st.shelter).sort((a, b) => loadOf(b) - loadOf(a)).forEach(x => {
+    const o = document.createElement('option'); o.value = x.id; o.textContent = 'Shelter ' + x.id + ', ' + x.type + ', ' + x.muni + ', ' + fmt(loadOf(x)) + ' people'; if (x.id === st.shelter) o.selected = true; ss.appendChild(o); });
+}
+
+function renderSummary() {
+  const el = $('summary');
+  if (!res) { el.innerHTML = '<div class="card unassigned"><div class="v">No result</div><div class="l">The bundle has no result for "' + esc(keyOf(st.sc, st.cl, st.cap)) + '".</div></div>'; return; }
+  const s = res.summary || {};
+  const pct = v => v == null ? 'n/a' : Math.round(v * 100) + ' %';
+  const m1 = v => v == null ? 'n/a' : Number(v).toFixed(1) + ' min';
+  // unassigned split: new fields first, the older two-way split as a fallback
+  const k = meta.candidate_list_check && meta.candidate_list_check.k;
+  let split = [], splitTip = '';
+  if (s.unassigned_no_open_road != null) {
+    split = [fmt(s.unassigned_no_open_road) + ' no open road within reach', fmt(s.unassigned_no_shelter_reachable) + ' no shelter reachable', fmt(s.unassigned_capacity_limited) + ' all reachable shelters full'];
+    splitTip = 'no open road within reach; no shelter reachable (by open roads, within 1 h); all reachable shelters full (capacity-limited within the ' + (k || 'N') + ' fastest shelters, 1 h)';
+  } else if (s.unassigned_no_capacity != null) {
+    split = [fmt(s.unassigned_no_capacity) + ' no capacity', fmt(s.unassigned_no_route) + ' no route'];
+    splitTip = 'no route = no reachable shelter by open roads within 1 h; no capacity = all reachable shelters are full';
+  }
+  const r = s.worst_road_ratio, over = s.stress_edges_over_1;
+  const stressTip = 'Assumed demand exceeds an assumed capacity on these road segments; check on the ground. A stress indicator (people on a road as vehicles per hour against an assumed capacity), not a traffic forecast, and not fed back into the plan.';
+  const road = (s.mean_time_min != null && s.mean_access_min != null) ? s.mean_time_min - s.mean_access_min : null;
+  const cards = [
+    { l: 'People to place (min.)', v: fmt(s.people_to_place), tip: 'Residents inside the flood at the selected level, in the modelled area (Kreis Euskirchen and Landkreis Ahrweiler). A minimum: the population grid is spread over buildings, EMS maps only part of the area, EFAS misses small rivers. All of them are assumed to need a public shelter.' },
+    { l: 'Placed', v: fmt(s.placed), tip: 'People who were assigned a shelter place in this plan, within the assumed capacity of each building and reaching it by open roads within 1 hour.' },
+    { l: 'UNASSIGNED', v: fmt(s.unassigned), cls: s.unassigned >= 0.5 ? 'unassigned wide' : 'wide', sub: split, tip: splitTip },
+    { l: 'Mean time (walk + road)', v: m1(s.mean_time_min), sub: s.mean_access_min != null ? ['walk ' + s.mean_access_min.toFixed(1) + ' + road ' + (road == null ? 'n/a' : road.toFixed(1)) + ' min'] : [], tip: 'Average over the people placed: the walk from inside the flood to the nearest open road plus the drive or walk on open roads to the shelter at free-flow speeds. Not a forecast; no congestion.' },
+    { l: 'Walk to open road', v: s.mean_access_min == null ? 'n/a' : m1(s.mean_access_min), sub: s.people_access_over_10min != null ? [fmt(s.people_access_over_10min) + ' people > 10 min'] : [], tip: 'First leg on foot from inside the flood to the nearest road that stays open; an assumption.' },
+    { l: 'Road detour', v: m1(s.mean_detour_min), sub: ['walk excluded'], tip: 'Extra road time caused by closures: time on open roads minus the time the same trip would take if no road were closed (same start point, same shelter). The walk is not included.' },
+    { l: 'Shelters used', v: fmt(s.shelters_used), sub: ['max fill ' + pct(s.max_shelter_fill)], tip: 'Number of candidate buildings that receive people in this plan, and the fullest one relative to its assumed capacity (100 % means at least one building is filled to its assumed limit).' },
+    { l: 'Closed roads', v: fmt(s.closed_edges), tip: 'Road segments removed because they touch the flood under the selected closure rule. Bridges and tunnels are closed on a touch test. A segment is a piece of road between two junctions.' },
+    { l: 'Stress over 1 (indicator)', v: over != null ? fmt(over) : (r == null ? 'n/a' : r.toFixed(2)),
+      cls: ((over != null ? over > 0 : r > 1) ? 'over ' : '') + 'wide',
+      sub: [(s.worst_road_class ? 'worst: ' + String(s.worst_road_class).replace(/_/g, ' ') + (r != null ? ', ratio ' + r.toFixed(2) : '') : ''), 'Assumed demand exceeds an assumed capacity; check on the ground. Not a forecast.'], tip: stressTip }
+  ];
+  el.innerHTML = cards.map(c => '<div class="card ' + (c.cls || '') + '"' + (c.tip ? ' title="' + esc(c.tip) + '"' : '') + '><div class="v">' + esc(c.v) + '</div><div class="l">' + esc(c.l) +
+    (c.sub || []).map(x => '<span class="s">' + esc(x) + '</span>').join('') + '</div></div>').join('');
+}
+
+function renderLegend() {
+  // hover (and keyboard focus) explanation for every legend entry; matched on the label text
+  const LEG_TIPS = [
+    [/^residents inside the flood: all placed/, 'A 500 m cell of residents who are INSIDE the flood and must leave (not a shelter). Every one of them was assigned a shelter in this plan. Circle area is proportional to the number of people.'],
+    [/^partly placed/, 'Only some of the residents in this cell could be assigned a shelter: the rest found no open road, no reachable shelter, or all reachable shelters were full.'],
+    [/^not placed/, 'None of the residents in this cell could be assigned a shelter in this plan (no open road, no reachable shelter, or all reachable shelters full). Click it to see why.'],
+    [/^circle area/, 'The area of each circle is proportional to the number of residents in the cell at the selected flood level (people in buildings inside the flood, from the population grid spread over buildings; a minimum).'],
+    [/^candidate shelter/, 'A public building from OpenStreetMap (school, sports hall, community or civic building, and so on). NOT an officially designated shelter. Size shows capacity under the selected assumption set; capacities are assumptions.'],
+    [/^flooded \(grey/, 'This building is inside the flood in the selected scenario (observed: footprint touches the mapped flood or a flood trace; modelled: building centre is wet), so it is not used.'],
+    [/^full \(orange/, 'All of this building\'s assumed capacity is taken by the plan.'],
+    [/^not counted at this capacity/, 'A building type that the selected assumption set does not count as a shelter (assumption set A counts core public buildings only).'],
+    [/^closed road/, 'A road segment removed from the network because it touches the flood (observed: mapped flood or flood trace, or the mapped flood only, depending on the closure rule; modelled: any water or 0.5 m or more). Routes never use it. A road not shown as closed is not necessarily open: not mapped does not mean dry.'],
+    [/^road used by a route/, 'A road that at least one assigned route uses in this plan.'],
+    [/^stress /, 'Stress = people sent along this road, turned into vehicles per hour, divided by an ASSUMED capacity for its road class. Above 1 means assumed demand exceeds an assumed capacity; check on the ground. An indicator, not a traffic forecast.'],
+    [/^STRESS INDICATOR/, 'The stress colours compare assumed demand with assumed road capacities (by road class). They are not measured traffic and are not fed back into the plan.'],
+    [/^depth /, 'EFAS modelled flood depth for the selected return period. Empty cells are not modelled or dry: not the same as safe.'],
+    [/^no colour/, 'EFAS covers only rivers with a large catchment; small rivers (for example at Kall) are missing, so no colour does not mean no flooding.'],
+    [/^mapped flood extent/, 'Flood and flood-trace features mapped by the Copernicus emergency service (EMS) in the requested areas only, from satellite images taken after the peak, on different dates. Areas not mapped are not necessarily dry.'],
+    [/^route without closures/, 'The route this zone would have used if no road were closed, for comparison with the route in this plan.']
+  ];
+  const tipFor = t => { const m = LEG_TIPS.find(x => x[0].test(t)); return m ? m[1] : ''; };
+  const item = (sw, t) => { const tip = tipFor(t); return '<span class="i"' + (tip ? ' title="' + esc(tip) + '" tabindex="0"' : '') + '>' + sw + esc(t) + '</span>'; };
+  const line = (c, w, dash) => '<svg class="sw" viewBox="0 0 26 14" aria-hidden="true"><line x1="1" y1="7" x2="25" y2="7" stroke="' + c + '" stroke-width="' + w + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/></svg>';
+  const dot = (f, st2, w, dash) => '<svg class="sw" viewBox="0 0 26 14" aria-hidden="true"><circle cx="13" cy="7" r="6" fill="' + f + '" stroke="' + st2 + '" stroke-width="' + w + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/></svg>';
+  const out = [];
+  if (st.layers.zones) out.push(item(dot('#8FA8C8', '#1F3550', 1.5), 'residents inside the flood: all placed'), item(dot('#F0E442', '#222', 2.5, '4 2'), 'partly placed'), item(dot('#D55E00', '#000', 3, '1 4'), 'not placed'), item('', 'circle area ~ people'));
+  if (st.layers.shelters) out.push(item('<svg class="sw" viewBox="0 0 26 14"><rect x="7" y="1" width="12" height="12" fill="#CC79A7" stroke="#1a1a1a" stroke-width="1.5"/></svg>', 'candidate shelter'),
+    item('<svg class="sw" viewBox="0 0 26 14"><rect x="7" y="1" width="12" height="12" fill="#bdbdbd" stroke="#333" stroke-width="1.5"/><path d="M8 2 L18 12 M18 2 L8 12" stroke="#000" stroke-width="2"/></svg>', 'flooded (grey, crossed)'),
+    item('<svg class="sw" viewBox="0 0 26 14"><rect x="7" y="1" width="12" height="12" fill="#E69F00" stroke="#000" stroke-width="2" stroke-dasharray="3 2"/></svg>', 'full (orange, dashed)'),
+    item('<svg class="sw" viewBox="0 0 26 14"><rect x="7" y="1" width="12" height="12" fill="none" stroke="#6b6b6b" stroke-width="1.5" stroke-dasharray="2 2"/></svg>', 'not counted at this capacity'));
+  if (st.layers.closed) out.push(item(line('#d7191c', 3, '7 5'), 'closed road'));
+  if (st.layers.routes) out.push(item(line('#0072B2', 2.5), 'road used by a route'));
+  if (st.layers.stress) {
+    STRESS.forEach(b => out.push(item(line(b.c, b.w), 'stress ' + b.label)));
+    out.push(item('', 'STRESS INDICATOR: assumed demand vs an assumed capacity; check on the ground. Not a traffic forecast.'));
+  }
+  if (st.layers.flood) {
+    const ov = (B.overlays || []).find(o => o.scenario === st.sc);
+    if (ov) { (ov.legend || []).forEach(l => out.push(item('<svg class="sw" viewBox="0 0 26 14"><rect x="1" y="1" width="24" height="12" fill="' + esc(l.color) + '"/></svg>', 'depth ' + l.label))); out.push(item('', 'no colour = not modelled, not dry')); }
+    else if (sc().kind === 'observed') out.push(item('<svg class="sw" viewBox="0 0 26 14"><rect x="1" y="1" width="24" height="12" fill="#56B4E9" fill-opacity=".4" stroke="#0072B2" stroke-dasharray="4 3"/></svg>', 'mapped flood extent (snapshot after the peak)'));
+  }
+  if (res && st.zone != null) out.push(item(line('#555', 3.5, '2 7'), 'route without closures (if given)'));
+  $('legendbar').innerHTML = out.join('');
+}
+
+function renderLayers() {
+  const rows = [['zones', 'Zones (residents who must leave)'], ['shelters', 'Shelters used in this plan (and flooded ones)'], ['allshelters', 'All candidate shelters (small dots)'], ['roads', 'Roads'], ['closed', 'Closed roads'],
+                ['routes', 'Routes (roads used)'], ['stress', 'Road stress (indicator)'], ['flood', 'Flood (observed extent or modelled overlay)']];
+  $('layers').innerHTML = '<legend>Map layers</legend>' + rows.map(r =>
+    '<label class="toggle"><input type="checkbox" data-layer="' + r[0] + '"' + (st.layers[r[0]] ? ' checked' : '') + '> ' + esc(r[1]) + '</label>').join('') +
+    '<label class="toggle"><input type="checkbox" id="chkBase"' + (st.basemap ? ' checked' : '') + (location.protocol === 'file:' ? ' disabled' : '') + '> OpenStreetMap basemap (only when served over http; not available from a local file; (c) OpenStreetMap contributors)</label><div class="hint" id="baseStatus" role="status">' + esc(baseMsg) + '</div>';
+  $('layers').querySelectorAll('input[data-layer]').forEach(i => i.addEventListener('change', () => { st.layers[i.dataset.layer] = i.checked; if (i.dataset.layer === 'allshelters') drawShelters(); applyLayerVisibility(); }));
+  $('chkBase').addEventListener('change', e => { st.basemap = e.target.checked; drawRoads(); applyLayerVisibility(); });
+}
+
+const TYPE_EN = { school: 'school', sports_hall: 'sports hall', community_centre: 'community centre', civic: 'civic building', public: 'public building', townhall: 'town hall', church: 'church', chapel: 'chapel', cathedral: 'cathedral', hotel: 'hotel', kindergarten: 'kindergarten', college: 'college', university: 'university' };
+const TYPE_DE = { school: 'Schule', sports_hall: 'Sporthalle', community_centre: 'Gemeindezentrum', civic: 'Öffentliches Gebäude', public: 'Öffentliches Gebäude', townhall: 'Rathaus', church: 'Kirche', chapel: 'Kapelle', cathedral: 'Dom', hotel: 'Hotel', kindergarten: 'Kindergarten', college: 'Kolleg', university: 'Universität' };
+const tEN = t => TYPE_EN[t] || String(t).replace(/_/g, ' ');
+const tDE = t => TYPE_DE[t] || String(t).replace(/_/g, ' ');
+
+function messageTexts(z, assigns) {
+  const s = sc(), un = unassignedOf(z.id);
+  const roads = [];
+  assigns.forEach(a => roadNames(a[5] || []).forEach(n => { if (roads.indexOf(n) < 0) roads.push(n); }));
+  const mainRoads = roads.slice(0, 5);
+  const closed = nearbyClosedNames(z, assigns, 800).slice(0, 6);
+  // short message: the (up to) two largest destinations, same type+municipality merged, time of the nearest one
+  const top = {}; assigns.slice().sort((a, b) => b[2] - a[2]).forEach(a => { const sh = S.get(a[1]); if (!sh) return; const k = sh.type + '|' + sh.muni; if (!top[k] || a[3] < top[k].t) top[k] = { sh: sh, t: a[3], n: 0 }; top[k].n += a[2]; });
+  const dl = Object.keys(top).map(k => top[k]).sort((a, b) => b.n - a.n), more = Math.max(0, dl.length - 2), dsel = dl.slice(0, 2);
+  const destEN = dsel.map(d => tEN(d.sh.type) + ' in ' + d.sh.muni + ' (about ' + Math.round(d.t / 60) + ' min)').concat(more ? ['and ' + more + ' more'] : []);
+  const destDE = dsel.map(d => tDE(d.sh.type) + ' in ' + d.sh.muni + ' (ca. ' + Math.round(d.t / 60) + ' Min.)').concat(more ? ['und ' + more + ' weitere'] : []);
+  const lvlEN = s.label + (s.kind === 'observed' ? ' - observed snapshot' : ' - modelled scenario');
+  const lvlDE = s.label + (s.kind === 'observed' ? ' - beobachteter Stand' : ' - modelliertes Szenario');
+  const en = ['DRAFT: Flood message for ' + z.muni + ', zone ' + z.id + '. Planning scenario, not a live warning.',
+    'Flood level: ' + lvlEN + '.',
+    destEN.length ? 'Destination (candidate shelter): ' + destEN.join('; ') + '.' : 'No shelter place could be assigned for this zone in this plan.',
+    mainRoads.length ? 'Roads to use: ' + mainRoads.join(', ') + '.' : '',
+    closed.length ? 'Avoid (closed): ' + closed.join(', ') + '.' : 'No closed road was found near this route.',
+    un >= 0.5 ? 'Note: in this plan ' + fmt(un) + ' residents of this zone have no assigned shelter place.' : '',
+    'DRAFT: must be checked by the responsible authority before use.'].filter(Boolean).join('\n');
+  const de = ['ENTWURF: Hochwassermeldung für ' + z.muni + ', Zone ' + z.id + '. Planungsszenario, keine aktuelle Warnung.',
+    'Hochwasserstufe: ' + lvlDE + '.',
+    destDE.length ? 'Ziel (mögliche Notunterkunft): ' + destDE.join('; ') + '.' : 'Für diese Zone konnte in diesem Plan kein Platz zugewiesen werden.',
+    mainRoads.length ? 'Zu nutzende Straßen: ' + mainRoads.join(', ') + '.' : '',
+    closed.length ? 'Bitte meiden (gesperrt): ' + closed.join(', ') + '.' : 'In der Nähe dieser Route wurde keine gesperrte Straße gefunden.',
+    un >= 0.5 ? 'Hinweis: In diesem Plan haben ' + fmt(un) + ' Einwohner dieser Zone keinen zugewiesenen Platz.' : '',
+    'ENTWURF: muss vor der Verwendung von der zuständigen Behörde geprüft werden.'].filter(Boolean).join('\n');
+  return { en: en, de: de, roads: roads, closed: closed };
+}
+
+function renderSelected() {
+  const el = $('selected');
+  if (!res) { el.innerHTML = '<h2>Details</h2><p>No result for this combination.</p>'; return; }
+  if (st.zone != null && Z.get(st.zone)) {
+    const z = Z.get(st.zone), p = peopleOf(z), un = unassignedOf(z.id), as = assignsOfZone(z.id);
+    if (!zoneShown(z)) { el.innerHTML = '<div class="row" style="justify-content:space-between"><h2>Zone ' + z.id + ', ' + esc(z.muni) + '</h2><button id="btnClear">Clear</button></div><p>No residents to place at this flood level.</p>'; bindSelected(); return; }
+    const detourMax = Math.max(0, ...as.map(a => a[3] - a[4]));
+    const msg = messageTexts(z, as);
+    let h = '<div class="row" style="justify-content:space-between"><h2>Zone ' + z.id + ', ' + esc(z.muni) + '</h2><button id="btnClear">Clear</button></div>';
+    h += '<p>Residents to place at this flood level (a minimum): <b>' + fmtP(p) + '</b>. These are people who must leave, not a shelter.</p>';
+    const acc = res.access_s && res.access_s[String(z.id)];
+    if (acc != null) h += '<div class="note">Walk to the nearest open road: about ' + (acc < 30 ? 'less than 1' : Math.round(acc / 60)) + ' min (assumption: the road is passable before the water rises). The time below is walk + road.</div>';
+    if (un >= 0.5) h += '<div class="alert">' + fmt(un) + ' of ' + fmt(p) + ' people in this zone are UNASSIGNED: no open road within reach, no shelter reachable, or all reachable shelters full.</div>';
+    if (detourMax >= 30) h += '<div class="alert">A closed road forces a detour of up to ' + min1(detourMax) + ' min compared with the route without closures.' + (msg.closed.length ? ' Closed roads near the route: ' + esc(msg.closed.join(', ')) + '.' : '') + '</div>';
+    else if (as.length) h += '<div class="info">No detour caused by closures in this result.</div>';
+    if (as.length) {
+      h += '<table><thead><tr><th>Candidate shelter</th><th class="n">People</th><th class="n">Time, walk + road (min)</th><th class="n">Road detour (min)</th></tr></thead><tbody>';
+      as.forEach(a => { const sh = S.get(a[1]) || {}; h += '<tr><td><button class="link" data-shelter="' + a[1] + '">#' + a[1] + ' ' + esc(tEN(sh.type)) + '</button><br>' + esc(sh.muni) + '</td><td class="n">' + fmtP(a[2]) + '</td><td class="n">' + min1(a[3]) + '</td><td class="n">' + min1(a[3] - a[4]) + '</td></tr>'; });
+      h += '</tbody></table><h3>Roads along the route</h3><ul>';
+      as.forEach(a => { const n = roadNames(a[5] || []); h += '<li>to #' + a[1] + ': ' + (n.length ? esc(n.join(', ')) : 'unnamed roads') + '</li>'; });
+      h += '</ul><p class="small muted">Blue line on the map = route avoiding mapped closed roads (not verified safe). Dotted grey = route without closures, where the bundle provides it.</p>';
+    } else if (un < 0.5) h += '<p>No assignment for this zone.</p>';
+    h += '<h3>Draft messages (fixed templates)</h3><p class="small muted">Fixed templates filled from the result. No free text is generated.</p>' +
+      '<p><b>English</b></p><pre class="msg" id="msgEN" lang="en">' + esc(msg.en) + '</pre><div class="row"><button data-copy="msgEN">Copy English</button></div>' +
+      '<p><b>Deutsch</b></p><pre class="msg" id="msgDE" lang="de">' + esc(msg.de) + '</pre><div class="row"><button data-copy="msgDE">Copy German</button><span id="copyStat" class="small" role="status"></span></div>';
+    h += '<div class="row"><button id="btnCsv">Export plan (CSV)</button></div>';
+    el.innerHTML = h;
+  } else if (st.shelter != null && S.get(st.shelter)) {
+    const s = S.get(st.shelter), cap = (s.cap && s.cap[st.cap]) || 0, load = (res.shelter_load && res.shelter_load[String(s.id)]) || 0;
+    const state = shelterState(s), as = assignsOfShelter(s.id);
+    const capOther = capacities.filter(c => c.id !== st.cap).map(c => esc(c.label) + ': ' + fmt(s.cap && s.cap[c.id])).join('; ');
+    let h = '<div class="row" style="justify-content:space-between"><h2>Shelter ' + s.id + ': ' + esc(tEN(s.type)) + '</h2><button id="btnClear">Clear</button></div>';
+    h += '<div class="note"><b>Candidate building from OpenStreetMap, not an officially designated shelter.</b></div>';
+    if (s.flooded && s.flooded[st.sc]) h += '<div class="alert">Flooded in this scenario: not usable.</div>';
+    if (state === 'nocap') h += '<div class="note">Not counted at the chosen capacity assumption (capacity 0).</div>';
+    h += '<dl><dt>Type</dt><dd>' + esc(tEN(s.type)) + (s.kind ? ' (' + esc(s.kind) + ')' : '') + ', ' + esc(s.muni) + '</dd>' +
+      '<dt>Footprint</dt><dd>' + fmt(s.footprint_m2) + ' m2</dd>' +
+      '<dt>Capacity, assumption "' + esc(st.cap) + '"</dt><dd>' + fmt(cap) + ' people' + (capOther ? ' (' + capOther + ')' : '') + '</dd>' +
+      '<dt>Load / fill</dt><dd>' + fmt(load) + ' people' + (cap > 0 ? ', ' + Math.round(100 * load / cap) + ' % full' : '') + '</dd></dl>';
+    if (as.length) {
+      h += '<h3>Zones sent here</h3><table><thead><tr><th>Zone</th><th class="n">People</th><th class="n">Time (min)</th></tr></thead><tbody>';
+      as.forEach(a => { const z = Z.get(a[0]) || {}; h += '<tr><td><button class="link" data-zone="' + a[0] + '">Zone ' + a[0] + '</button><br>' + esc(z.muni) + '</td><td class="n">' + fmtP(a[2]) + '</td><td class="n">' + min1(a[3]) + '</td></tr>'; });
+      h += '</tbody></table>';
+    } else h += '<p>No zone is sent here at this setting.</p>';
+    el.innerHTML = h;
+  } else {
+    el.innerHTML = '<h2>Details</h2><p>Click a zone circle or a shelter symbol on the map (or pick one from the lists below) to see where people go, by which route, and a draft message.</p>' +
+      '<div class="row"><button id="btnCsv">Export plan (CSV)</button></div>';
+  }
+  bindSelected();
+}
+function bindSelected() {
+  const el = $('selected');
+  const c = $('btnClear'); if (c) c.addEventListener('click', clearSelection);
+  const csv = $('btnCsv'); if (csv) csv.addEventListener('click', exportCsv);
+  el.querySelectorAll('[data-shelter]').forEach(b => b.addEventListener('click', () => selectShelter(Number(b.dataset.shelter), true)));
+  el.querySelectorAll('[data-zone]').forEach(b => b.addEventListener('click', () => selectZone(Number(b.dataset.zone), true)));
+  el.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => copyText($(b.dataset.copy).textContent)));
+}
+function copyText(t, cb) {
+  const done = ok => { const x = $('copyStat'); if (x) x.textContent = ok ? 'Copied.' : 'Copy failed: select the text and copy by hand.'; if (cb) cb(ok); };
+  const fallback = () => { const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; } document.body.removeChild(ta); done(ok); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(() => done(true), fallback); else fallback();
+}
+
+// People are fractional estimates: whole numbers in the file; values under half a person are written "<1".
+const csvP = v => (v > 0 && v < 0.5) ? '<1' : Math.round(v);
+function buildCsv() {
+  const q = v => { v = v == null ? '' : String(v); return /[",\n;]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const rows = [['zone', 'municipality', 'people_to_place', 'shelter_id', 'shelter_type', 'shelter_municipality', 'people_sent', 'minutes', 'detour_minutes', 'unassigned']];
+  zones.filter(zoneShown).sort((a, b) => a.id - b.id).forEach(z => {
+    const as = assignsOfZone(z.id), un = unassignedOf(z.id);
+    as.forEach(a => { const x = S.get(a[1]) || {}; rows.push([z.id, z.muni, csvP(peopleOf(z)), a[1], x.type, x.muni, csvP(a[2]), min1(a[3]), min1(a[3] - a[4]), 0]); });
+    if (un >= 0.5) rows.push([z.id, z.muni, csvP(peopleOf(z)), '', '', '', 0, '', '', csvP(un)]);
+  });
+  return '\ufeff' + rows.map(r => r.map(q).join(',')).join('\r\n') + '\r\n';
+}
+function exportCsv() {
+  if (!res) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([buildCsv()], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'shelter_plan_' + st.sc + '_' + st.cl + '_' + st.cap + '.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+function renderCompare() {
+  const rows = scenarios.map(s => {
+    let cid = st.cl, used = '';
+    if (!(s.closures || []).some(c => c.id === cid)) { cid = s.closures && s.closures[0] && s.closures[0].id; used = ' *'; }
+    const r = results[keyOf(s.id, cid, st.cap)], sm = r && r.summary;
+    return '<tr' + (s.id === st.sc ? ' class="cur"' : '') + '><td><button class="link" data-sc="' + esc(s.id) + '">' + esc(s.label) + '</button>' + used + '</td>' +
+      (sm ? '<td class="n">' + fmt(sm.people_to_place) + '</td><td class="n">' + fmt(sm.placed) + '</td><td class="n">' + fmt(sm.unassigned) + '</td><td class="n">' + fmt(sm.closed_edges) + '</td><td class="n">' + (sm.mean_detour_min == null ? 'n/a' : sm.mean_detour_min.toFixed(1)) + '</td>'
+        : '<td colspan="5">no result in bundle</td>') + '</tr>';
+  }).join('');
+  $('compare').innerHTML = '<table><thead><tr><th>Flood level</th><th class="n">To place</th><th class="n">Placed</th><th class="n">Unassigned</th><th class="n">Closed roads</th><th class="n">Mean detour (min)</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<p class="small muted">Rule "' + esc(st.cl) + '", capacity "' + esc(st.cap) + '". * = this flood level has no such rule, its first rule is shown. Levels differ in kind (observed vs modelled).</p>';
+  $('compare').querySelectorAll('[data-sc]').forEach(b => b.addEventListener('click', () => setScenario(b.dataset.sc)));
+}
+
+function kv(o) {
+  if (o == null) return '';
+  if (typeof o !== 'object') return esc(o);
+  if (Array.isArray(o)) return '<ul>' + o.map(v => '<li>' + kv(v) + '</li>').join('') + '</ul>';
+  return '<dl>' + Object.keys(o).map(k => '<dt>' + esc(k.replace(/_/g, ' ')) + '</dt><dd>' + kv(o[k]) + '</dd>').join('') + '</dl>';
+}
+function renderAssumptions() {
+  const rest = Object.assign({}, ass); const notes = rest.notes; delete rest.notes;
+  $('assumptions').innerHTML = '<p class="small">Every value below is an ASSUMPTION unless the bundle marks it otherwise. Change the capacity assumption and the closure rule with the controls above.</p>' + kv(rest) +
+    (notes ? '<h3>Notes</h3>' + kv(notes) : '') + (B.road_ratio_note ? '<h3>Road stress</h3><p class="small">' + esc(B.road_ratio_note) + '</p>' : '') +
+    (Object.keys(ass).length ? '' : '<p>The bundle has no assumptions block.</p>');
+}
+function renderAbout() {
+  $('about').innerHTML = '<h3>About the data</h3>' + (meta.data_notes && meta.data_notes.length ? kv(meta.data_notes) : '<p>No data notes in the bundle.</p>') +
+    '<h3>Limits</h3>' + (meta.limits && meta.limits.length ? kv(meta.limits) : '<p>No limits listed in the bundle.</p>') +
+    '<p class="small">Shelters are candidate buildings from OpenStreetMap, not officially designated. Routes avoid mapped closed roads only; they are not verified safe and not real-time.</p>';
+}
+function renderFooter() {
+  $('footer').textContent = [meta.area, meta.generated_utc ? 'bundle generated ' + meta.generated_utc : '', 'No personal data. No tracking. Works offline except the optional map tiles.'].filter(Boolean).join(' | ');
+}
+function renderWarn() {
+  const w = $('dataWarn');
+  if (!warnings.length) { w.hidden = true; return; }
+  w.hidden = false; w.innerHTML = '<div class="alert">Data check: ' + warnings.map(esc).join(' | ') + '</div>';
+}
+
+// ====================================================================
+// STATE CHANGES
+// ====================================================================
+function setScenario(id) {
+  st.sc = id;
+  const cls = (sc().closures || []).map(c => c.id);
+  if (cls.indexOf(st.cl) < 0) st.cl = cls[0] || null;
+  update();
+}
+function update() {
+  res = results[keyOf(st.sc, st.cl, st.cap)] || null;
+  if (!res) warn('No result for ' + keyOf(st.sc, st.cl, st.cap));
+  if (st.zone != null && Z.get(st.zone) && !zoneShown(Z.get(st.zone))) st.zone = null;   // no residents at this level: drop the selection
+  safe('controls', renderControls);
+  safe('flood', drawFlood);
+  safe('roadResults', drawRoadResults);
+  safe('zones', drawZones);
+  safe('shelters', drawShelters);
+  safe('summary', renderSummary);
+  safe('compare', renderCompare);
+  safe('lists', fillLists);
+  refreshSelection(false);
+  applyLayerVisibility();
+  renderWarn();
+}
+function refreshSelection(zoom) {
+  safe('selected', renderSelected);
+  let pts = [];
+  safe('selection', () => { pts = drawSelection(); });
+  restack();
+  if (zoom && pts.length) map.fitBounds(L.latLngBounds(pts), { padding: [50, 50], maxZoom: 16, animate: false });
+  $('selZone').value = st.zone == null ? '' : String(st.zone);
+  $('selShelter').value = st.shelter == null ? '' : String(st.shelter);
+  renderLegend();
+}
+function selectZone(id, zoom) {
+  const z = Z.get(id);
+  if (!z || !zoneShown(z)) return;   // zones with no residents at this flood level are not selectable
+  st.zone = id; st.shelter = null; refreshSelection(zoom); revealSide();
+}
+function selectShelter(id, zoom) {
+  st.shelter = id; st.zone = null; refreshSelection(false);
+  const s = S.get(id);
+  if (zoom && s) map.panTo([s.lat, s.lon], { animate: false });
+  revealSide();
+}
+function clearSelection() { st.zone = null; st.shelter = null; refreshSelection(false); }
+function revealSide() {
+  // on a stacked (phone) layout the panel is below the map: bring it into view
+  if (window.matchMedia('(max-width: 900px)').matches) $('selected').scrollIntoView({ block: 'start' });
+  else $('side').scrollTop = 0;
+}
+
+// ====================================================================
+// INIT
+// ====================================================================
+function init() {
+  const p = readParams();
+  const bk = defaultKey();
+  const parts = (bk || '||').split('|');
+  st.sc = (p.get('scenario') && scById(p.get('scenario'))) ? p.get('scenario') : (parts[0] || (scenarios[0] && scenarios[0].id));
+  const cls = (sc().closures || []).map(c => c.id);
+  st.cl = cls.indexOf(p.get('closure')) >= 0 ? p.get('closure') : (p.get('scenario') ? cls[0] : (cls.indexOf(parts[1]) >= 0 ? parts[1] : cls[0]));
+  const caps = capacities.map(c => c.id);
+  st.cap = caps.indexOf(p.get('capacity')) >= 0 ? p.get('capacity') : (caps.indexOf(parts[2]) >= 0 ? parts[2] : caps[0]);
+  if (p.get('layers')) { const on = p.get('layers').split(','); Object.keys(st.layers).forEach(k => { st.layers[k] = on.indexOf(k) >= 0; }); }
+  // OSM's public tile servers block pages opened from a local file (no referrer), so the basemap is off by default and only offered over http(s)
+  st.basemap = location.protocol !== 'file:' && p.get('basemap') === '1';
+
+  safe('top', renderTop); safe('layers', renderLayers); safe('assumptions', renderAssumptions); safe('about', renderAbout); safe('footer', renderFooter);
+  safe('roads', drawRoads);
+  update();
+  if (p.get('zone') != null && Z.get(Number(p.get('zone')))) selectZone(Number(p.get('zone')), true);
+  else if (p.get('shelter') != null && S.get(Number(p.get('shelter')))) selectShelter(Number(p.get('shelter')), true);
+
+  $('selScenario').addEventListener('change', e => setScenario(e.target.value));
+  $('selClosure').addEventListener('change', e => { st.cl = e.target.value; update(); });
+  $('selCapacity').addEventListener('change', e => { st.cap = e.target.value; update(); });
+  // verification hook: ?scrollto=<element id> scrolls that element into view after load
+  if (p.get('scrollto') && $(p.get('scrollto'))) setTimeout(() => $(p.get('scrollto')).scrollIntoView({ block: 'start' }), 300);
+  $('selZone').addEventListener('change', e => { if (e.target.value === '') clearSelection(); else selectZone(Number(e.target.value), true); });
+  $('selShelter').addEventListener('change', e => { if (e.target.value === '') clearSelection(); else selectShelter(Number(e.target.value), true); });
+  // theme change: canvas colours are read once, so redraw the road layers
+  if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { drawRoads(); applyLayerVisibility(); refreshSelection(false); });
+  window.__tool = { st: st, update: update, buildCsv: buildCsv, copyText: copyText, selectZone: selectZone, selectShelter: selectShelter, map: map, Z: Z, S: S, zoneShown: zoneShown, res: () => res };
+  if (p.get('selftest')) selfTest();
+  map.invalidateSize();
+  window.addEventListener('resize' , () => map.invalidateSize());
+}
+// Verification helper (?selftest=1): switches through every result key, times the JS part, prints CSV head and clipboard result.
+function selfTest() {
+  const keep = { sc: st.sc, cl: st.cl, cap: st.cap }, lines = [];
+  Object.keys(results).forEach(k => {
+    const a = k.split('|'); st.sc = a[0]; st.cl = a[1]; st.cap = a[2];
+    const t0 = performance.now(); update();
+    const zid = ((res && res.assign[0]) || [])[0];
+    const t1 = performance.now(); if (zid != null) selectZone(zid, false);
+    lines.push(k + ': switch ' + Math.round(t1 - t0) + ' ms, +zone panel ' + Math.round(performance.now() - t1) + ' ms');
+  });
+  console.log('SELFTEST timings (JS only, canvas paint is async)\n' + lines.join('\n'));
+  st.sc = keep.sc; st.cl = keep.cl; st.cap = keep.cap; update();
+  const zid = (res.assign[3] || res.assign[0])[0]; selectZone(zid, false);
+  console.log('SELFTEST csv head\n' + buildCsv().split('\r\n').slice(0, 6).join('\n'));
+  console.log('SELFTEST message EN\n' + $('msgEN').textContent);
+  copyText('selftest', ok => console.log('SELFTEST clipboard ok=' + ok));
+}
+init();
+})();
+</script>
+</body>
+</html>
