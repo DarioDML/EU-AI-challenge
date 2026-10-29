@@ -1,0 +1,169 @@
+[
+  {
+    "file": "working_data/ghs_pop/GHS_POP_E2025_GLOBE_R2023A_4326_30ss_V1_0/GHS_POP_E2025_GLOBE_R2023A_4326_30ss_V1_0.tif",
+    "crs": "EPSG:4326",
+    "width": 43202,
+    "height": 21384,
+    "transform": [
+      0.008333333300326923,
+      0.0,
+      -180.00791593130032,
+      0.0,
+      -0.00833333329979504,
+      89.0995831776456,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "nodata": null,
+    "dtypes": [
+      "float64"
+    ],
+    "block_shapes": [
+      [
+        256,
+        256
+      ]
+    ],
+    "tags": {
+      "AREA_OR_POINT": "Area"
+    },
+    "bandtags": {
+      "STATISTICS_MAXIMUM": "286330.44519772",
+      "STATISTICS_MEAN": "8.8674048604304",
+      "STATISTICS_MINIMUM": "0",
+      "STATISTICS_STDDEV": "249.62729204313",
+      "STATISTICS_VALID_PERCENT": "100"
+    }
+  },
+  {
+    "file": "working_data/ghs_pop/GHS_POP_E2020_GLOBE_R2023A_4326_30ss_V1_0/GHS_POP_E2020_GLOBE_R2023A_4326_30ss_V1_0.tif",
+    "crs": "EPSG:4326",
+    "width": 43202,
+    "height": 21384,
+    "transform": [
+      0.00833333330032682,
+      0.0,
+      -180.00791593130032,
+      0.0,
+      -0.008333333299795073,
+      89.0995831776456,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "nodata": null,
+    "dtypes": [
+      "float64"
+    ],
+    "block_shapes": [
+      [
+        256,
+        256
+      ]
+    ],
+    "tags": {
+      "AREA_OR_POINT": "Area"
+    },
+    "bandtags": {
+      "STATISTICS_MAXIMUM": "277608.74043128",
+      "STATISTICS_MEAN": "8.4874269494672",
+      "STATISTICS_MINIMUM": "0",
+      "STATISTICS_STDDEV": "235.7608994699",
+      "STATISTICS_VALID_PERCENT": "100"
+    }
+  },
+  {
+    "file": "working_data/cems-efas/Europe_RP500_filled_depth.tif",
+    "crs": "EPSG:4326",
+    "width": 110162,
+    "height": 51992,
+    "transform": [
+      0.0008333333333333334,
+      0.0,
+      -24.54208333,
+      0.0,
+      -0.0008333333333333334,
+      71.13375,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "nodata": -9999.0,
+    "dtypes": [
+      "float32"
+    ],
+    "block_shapes": [
+      [
+        256,
+        256
+      ]
+    ],
+    "tags": {
+      "AREA_OR_POINT": "Area"
+    },
+    "bandtags": {}
+  },
+  {
+    "file": "working_data/cems-efas/Europe_RP10_filled_depth.tif",
+    "crs": "EPSG:4326",
+    "width": 110162,
+    "height": 51992,
+    "transform": [
+      0.0008333333333333334,
+      0.0,
+      -24.54208333,
+      0.0,
+      -0.0008333333333333334,
+      71.13375,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "nodata": -9999.0,
+    "dtypes": [
+      "float32"
+    ],
+    "block_shapes": [
+      [
+        256,
+        256
+      ]
+    ],
+    "tags": {
+      "AREA_OR_POINT": "Area"
+    },
+    "bandtags": {}
+  },
+  {
+    "file": "working_data/cems-efas/Europe_RP100_filled_depth.tif",
+    "crs": "EPSG:4326",
+    "width": 110162,
+    "height": 51992,
+    "transform": [
+      0.0008333333333333334,
+      0.0,
+      -24.54208333,
+      0.0,
+      -0.0008333333333333334,
+      71.13375,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "nodata": -9999.0,
+    "dtypes": [
+      "float32"
+    ],
+    "block_shapes": [
+      [
+        256,
+        256
+      ]
+    ],
+    "tags": {
+      "AREA_OR_POINT": "Area"
+    },
+    "bandtags": {}
+  }
+]

@@ -1,0 +1,110 @@
+[
+  {
+    "country": "be",
+    "rp": 10,
+    "scope": "rectangular bounds of activation AOIs, including outside AOIs",
+    "cells": 1895345,
+    "nodata": 1820953,
+    "zero": 0,
+    "positive": 74392,
+    "valid_min": 0.10000000149011612,
+    "valid_max": 20.829999923706055,
+    "other_negative": []
+  },
+  {
+    "country": "be",
+    "rp": 100,
+    "scope": "rectangular bounds of activation AOIs, including outside AOIs",
+    "cells": 1895345,
+    "nodata": 1808504,
+    "zero": 0,
+    "positive": 86841,
+    "valid_min": 0.10000000149011612,
+    "valid_max": 21.57900047302246,
+    "other_negative": []
+  },
+  {
+    "country": "be",
+    "rp": 500,
+    "scope": "rectangular bounds of activation AOIs, including outside AOIs",
+    "cells": 1895345,
+    "nodata": 1803253,
+    "zero": 0,
+    "positive": 92092,
+    "valid_min": 0.10000000149011612,
+    "valid_max": 21.923999786376953,
+    "other_negative": []
+  },
+  {
+    "country": "de",
+    "rp": 10,
+    "scope": "rectangular bounds of activation AOIs, including outside AOIs",
+    "cells": 4758715,
+    "nodata": 4598209,
+    "zero": 0,
+    "positive": 160506,
+    "valid_min": 0.10000000149011612,
+    "valid_max": 25.070999145507812,
+    "other_negative": []
+  },
+  {
+    "country": "de",
+    "rp": 100,
+    "scope": "rectangular bounds of activation AOIs, including outside AOIs",
+    "cells": 4758715,
+    "nodata": 4540550,
+    "zero": 0,
+    "positive": 218165,
+    "valid_min": 0.10000000149011612,
+    "valid_max": 26.429000854492188,
+    "other_negative": []
+  },
+  {
+    "country": "de",
+    "rp": 500,
+    "scope": "rectangular bounds of activation AOIs, including outside AOIs",
+    "cells": 4758715,
+    "nodata": 4505166,
+    "zero": 0,
+    "positive": 253549,
+    "valid_min": 0.10000000149011612,
+    "valid_max": 27.16200065612793,
+    "other_negative": []
+  },
+  {
+    "country": "nl",
+    "rp": 10,
+    "scope": "rectangular bounds of activation AOIs, including outside AOIs",
+    "cells": 178890,
+    "nodata": 156761,
+    "zero": 0,
+    "positive": 22129,
+    "valid_min": 0.10000000149011612,
+    "valid_max": 11.590999603271484,
+    "other_negative": []
+  },
+  {
+    "country": "nl",
+    "rp": 100,
+    "scope": "rectangular bounds of activation AOIs, including outside AOIs",
+    "cells": 178890,
+    "nodata": 148457,
+    "zero": 0,
+    "positive": 30433,
+    "valid_min": 0.10000000149011612,
+    "valid_max": 13.70300006866455,
+    "other_negative": []
+  },
+  {
+    "country": "nl",
+    "rp": 500,
+    "scope": "rectangular bounds of activation AOIs, including outside AOIs",
+    "cells": 178890,
+    "nodata": 144071,
+    "zero": 0,
+    "positive": 34819,
+    "valid_min": 0.10000000149011612,
+    "valid_max": 14.560999870300293,
+    "other_negative": []
+  }
+]

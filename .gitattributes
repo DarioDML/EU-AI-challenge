@@ -1,0 +1,10 @@
+# Preserve copied source-derived artifacts byte-for-byte for MANIFEST.sha256.
+data/reference/*.csv -text
+data/reference/*.json -text
+data/reference/*.parquet -text
+data/reference/** whitespace=cr-at-eol
+figures/reference/*.svg binary
+figures/reference/*.png -text
+figures/reference/** whitespace=cr-at-eol
+annexes/*.pdf -text
+annexes/*.docx -text

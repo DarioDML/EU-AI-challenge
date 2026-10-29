@@ -1,0 +1,17 @@
+# Large source data and personal configuration
+data/raw/**
+!data/raw/.gitkeep
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.DS_Store
+
+# Local exports and scratch work
+data/processed/*
+!data/processed/README.md
+figures/generated/*
+!figures/generated/.gitkeep
+deliverables/*
+!deliverables/README.md

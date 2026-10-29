@@ -1,0 +1,7 @@
+gcsfs
+numpy
+pandas
+matplotlib
+geopandas
+pyarrow
+rasterio

@@ -1,0 +1,121 @@
+product,aoi_id,grade,info,records,inside_product_event,inside_cumulative_event,positive_rp500
+EMSR517_AOI07_GRA_PRODUCT_r1_RTP01_v1_vector,de_07,Damaged,997-Not Applicable,25,22,22,5
+EMSR517_AOI07_GRA_PRODUCT_r1_RTP01_v1_vector,de_07,Destroyed,997-Not Applicable,10,6,6,0
+EMSR517_AOI07_GRA_PRODUCT_r1_RTP01_v1_vector,de_07,Possibly damaged,122-Office buildings,3,3,3,0
+EMSR517_AOI07_GRA_PRODUCT_r1_RTP01_v1_vector,de_07,Possibly damaged,1220-Administrative,1,0,0,1
+EMSR517_AOI07_GRA_PRODUCT_r1_RTP01_v1_vector,de_07,Possibly damaged,1221-Institutional,1,0,0,0
+EMSR517_AOI07_GRA_PRODUCT_r1_RTP01_v1_vector,de_07,Possibly damaged,1223-Fire station,2,1,1,0
+EMSR517_AOI07_GRA_PRODUCT_r1_RTP01_v1_vector,de_07,Possibly damaged,123-Wholesale and retail trade buildings,5,1,1,0
+EMSR517_AOI07_GRA_PRODUCT_r1_RTP01_v1_vector,de_07,Possibly damaged,"1241-Communication buildings, stations, terminals and associated buildings",124,105,105,27
+EMSR517_AOI07_GRA_PRODUCT_r1_RTP01_v1_vector,de_07,Possibly damaged,1242-Garage buildings,4,4,4,0
+EMSR517_AOI07_GRA_PRODUCT_r1_RTP01_v1_vector,de_07,Possibly damaged,"1263-School, university and research buildings",1,0,0,0
+EMSR517_AOI07_GRA_PRODUCT_r1_RTP01_v1_vector,de_07,Possibly damaged,1264-Hospital or institutional care buildings,1,1,1,0
+EMSR517_AOI07_GRA_PRODUCT_r1_RTP01_v1_vector,de_07,Possibly damaged,1272-Buildings used as places of worship and for religious activities,2,2,2,0
+EMSR517_AOI07_GRA_PRODUCT_r1_RTP01_v1_vector,de_07,Possibly damaged,1274-Other buildings not elsewhere classified,1,1,1,0
+EMSR517_AOI07_GRA_PRODUCT_r1_RTP01_v1_vector,de_07,Possibly damaged,997-Not Applicable,1572,1384,1384,242
+EMSR517_AOI08_GRA_PRODUCT_r1_RTP01_v1_vector,de_08,Destroyed,997-Not Applicable,6,5,5,0
+EMSR517_AOI08_GRA_PRODUCT_r1_RTP01_v1_vector,de_08,Destroyed,None,3,2,2,0
+EMSR517_AOI08_GRA_PRODUCT_r1_RTP01_v1_vector,de_08,Possibly damaged,997-Not Applicable,49,48,48,0
+EMSR517_AOI08_GRA_PRODUCT_r1_RTP01_v1_vector,de_08,Possibly damaged,None,4,3,3,0
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Damaged,125-Industrial buildings and warehouses,1,0,0,1
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Damaged,1251-Industrial buildings,8,1,1,0
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Damaged,997-Not Applicable,15,11,11,0
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Destroyed,997-Not Applicable,5,1,1,0
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Possibly damaged,1211-Hotel buildings,2,0,0,0
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Possibly damaged,122-Office buildings,1,0,0,0
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Possibly damaged,1220-Administrative,1,0,0,1
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Possibly damaged,1223-Fire station,1,0,0,0
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Possibly damaged,123-Wholesale and retail trade buildings,3,0,0,0
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Possibly damaged,"1241-Communication buildings, stations, terminals and associated buildings",1,0,0,0
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Possibly damaged,1242-Garage buildings,2,0,0,0
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Possibly damaged,125-Industrial buildings and warehouses,2,0,0,0
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Possibly damaged,1251-Industrial buildings,1,0,0,0
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Possibly damaged,"1263-School, university and research buildings",1,0,0,0
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Possibly damaged,1272-Buildings used as places of worship and for religious activities,1,0,0,0
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Possibly damaged,1274-Other buildings not elsewhere classified,1,1,1,0
+EMSR517_AOI09_GRA_PRODUCT_r1_RTP01_v1_vector,de_09,Possibly damaged,997-Not Applicable,473,11,11,12
+EMSR517_AOI10_GRA_PRODUCT_r1_RTP01_v1_vector,de_10,Damaged,997-Not Applicable,54,51,51,20
+EMSR517_AOI10_GRA_PRODUCT_r1_RTP01_v1_vector,de_10,Destroyed,1223-Fire station,1,0,0,0
+EMSR517_AOI10_GRA_PRODUCT_r1_RTP01_v1_vector,de_10,Destroyed,997-Not Applicable,4,0,0,0
+EMSR517_AOI10_GRA_PRODUCT_r1_RTP01_v1_vector,de_10,Possibly damaged,1212-Other short-stay accommodation buildings,1,0,0,0
+EMSR517_AOI10_GRA_PRODUCT_r1_RTP01_v1_vector,de_10,Possibly damaged,1261-Public entertainment buildings,1,1,1,0
+EMSR517_AOI10_GRA_PRODUCT_r1_RTP01_v1_vector,de_10,Possibly damaged,1271-Non-residential farm buildings,4,0,0,4
+EMSR517_AOI10_GRA_PRODUCT_r1_RTP01_v1_vector,de_10,Possibly damaged,997-Not Applicable,339,8,8,142
+EMSR517_AOI11_GRA_PRODUCT_r1_RTP01_v1_vector,de_11,Damaged,997-Not Applicable,5,2,2,5
+EMSR517_AOI11_GRA_PRODUCT_r1_RTP01_v1_vector,de_11,Possibly damaged,"1241-Communication buildings, stations, terminals and associated buildings",3,0,0,0
+EMSR517_AOI11_GRA_PRODUCT_r1_RTP01_v1_vector,de_11,Possibly damaged,997-Not Applicable,17,0,0,11
+EMSR517_AOI14_GRA_PRODUCT_r1_RTP01_v1_vector,de_14,Damaged,997-Not Applicable,5,3,3,5
+EMSR517_AOI14_GRA_PRODUCT_r1_RTP01_v1_vector,de_14,Possibly damaged,1211-Hotel buildings,2,0,0,2
+EMSR517_AOI14_GRA_PRODUCT_r1_RTP01_v1_vector,de_14,Possibly damaged,1222-Police station,1,0,0,1
+EMSR517_AOI14_GRA_PRODUCT_r1_RTP01_v1_vector,de_14,Possibly damaged,997-Not Applicable,34,1,1,30
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Damaged,1211-Hotel buildings,21,21,21,10
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Damaged,122-Office buildings,9,6,6,6
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Damaged,1223-Fire station,5,4,4,5
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Damaged,123-Wholesale and retail trade buildings,26,17,17,13
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Damaged,"1241-Communication buildings, stations, terminals and associated buildings",146,144,144,142
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Damaged,1242-Garage buildings,6,5,5,4
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Damaged,1251-Industrial buildings,5,3,3,2
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Damaged,1261-Public entertainment buildings,3,3,3,3
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Damaged,1262-Museums and libraries,4,4,4,0
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Damaged,"1263-School, university and research buildings",8,8,8,5
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Damaged,1264-Hospital or institutional care buildings,2,2,2,0
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Damaged,1271-Non-residential farm buildings,4,4,4,1
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Damaged,1272-Buildings used as places of worship and for religious activities,8,7,7,5
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Damaged,1280-Cemetery,2,1,1,1
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Damaged,997-Not Applicable,4829,4154,4156,2702
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Destroyed,1211-Hotel buildings,1,1,1,1
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Destroyed,122-Office buildings,1,1,1,1
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Destroyed,123-Wholesale and retail trade buildings,2,2,2,2
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Destroyed,"1241-Communication buildings, stations, terminals and associated buildings",1,1,1,1
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Destroyed,1251-Industrial buildings,1,0,0,0
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Destroyed,1261-Public entertainment buildings,3,3,3,2
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Destroyed,"1263-School, university and research buildings",1,1,1,1
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Destroyed,1271-Non-residential farm buildings,2,2,2,2
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Destroyed,1272-Buildings used as places of worship and for religious activities,1,1,1,0
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Destroyed,1280-Cemetery,2,2,2,2
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Destroyed,997-Not Applicable,738,626,626,606
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Possibly damaged,1211-Hotel buildings,2,2,2,2
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Possibly damaged,122-Office buildings,6,5,5,0
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Possibly damaged,123-Wholesale and retail trade buildings,19,19,19,2
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Possibly damaged,"1241-Communication buildings, stations, terminals and associated buildings",48,48,48,30
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Possibly damaged,1242-Garage buildings,1,1,1,0
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Possibly damaged,1251-Industrial buildings,5,4,4,3
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Possibly damaged,"1263-School, university and research buildings",13,11,11,8
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Possibly damaged,1271-Non-residential farm buildings,2,0,0,2
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Possibly damaged,1272-Buildings used as places of worship and for religious activities,1,1,1,0
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Possibly damaged,1274-Other buildings not elsewhere classified,1,1,1,1
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Possibly damaged,1280-Cemetery,2,2,2,1
+EMSR517_AOI15_GRA_MONIT01_r1_RTP01_v3_vector,de_15,Possibly damaged,997-Not Applicable,1075,757,757,379
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Damaged,1211-Hotel buildings,1,1,1,0
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Damaged,122-Office buildings,2,1,1,2
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Damaged,1223-Fire station,2,1,1,2
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Damaged,123-Wholesale and retail trade buildings,3,2,2,3
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Damaged,"1241-Communication buildings, stations, terminals and associated buildings",2,1,2,1
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Damaged,1242-Garage buildings,1,1,1,1
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Damaged,1272-Buildings used as places of worship and for religious activities,1,1,1,0
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Damaged,997-Not Applicable,675,488,508,495
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Destroyed,123-Wholesale and retail trade buildings,1,1,1,1
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Destroyed,1271-Non-residential farm buildings,2,2,2,2
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Destroyed,997-Not Applicable,333,326,326,279
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Possibly damaged,1211-Hotel buildings,15,15,15,10
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Possibly damaged,122-Office buildings,4,4,4,2
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Possibly damaged,1223-Fire station,1,1,1,1
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Possibly damaged,123-Wholesale and retail trade buildings,8,8,8,1
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Possibly damaged,"1241-Communication buildings, stations, terminals and associated buildings",9,9,9,6
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Possibly damaged,1242-Garage buildings,1,1,1,1
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Possibly damaged,1251-Industrial buildings,2,2,2,0
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Possibly damaged,1261-Public entertainment buildings,1,1,1,0
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Possibly damaged,1262-Museums and libraries,4,4,4,0
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Possibly damaged,"1263-School, university and research buildings",2,2,2,2
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Possibly damaged,1264-Hospital or institutional care buildings,1,1,1,0
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Possibly damaged,1272-Buildings used as places of worship and for religious activities,4,4,4,3
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Possibly damaged,1280-Cemetery,4,4,4,3
+EMSR517_AOI15_GRA_PRODUCT_r1_RTP01_v1_vector,de_15,Possibly damaged,997-Not Applicable,2735,2618,2622,1343
+EMSR517_AOI16_GRA_PRODUCT_r1_RTP01_v1_vector,de_16,Damaged,125-Industrial buildings and warehouses,1,1,1,1
+EMSR517_AOI16_GRA_PRODUCT_r1_RTP01_v1_vector,de_16,Destroyed,997-Not Applicable,10,9,9,10
+EMSR517_AOI16_GRA_PRODUCT_r1_RTP01_v1_vector,de_16,Possibly damaged,125-Industrial buildings and warehouses,1,0,0,0
+EMSR517_AOI16_GRA_PRODUCT_r1_RTP01_v1_vector,de_16,Possibly damaged,1251-Industrial buildings,3,1,1,3
+EMSR517_AOI16_GRA_PRODUCT_r1_RTP01_v1_vector,de_16,Possibly damaged,997-Not Applicable,1,0,0,1
+EMSR517_AOI17_GRA_PRODUCT_r1_RTP01_v2_vector,de_17,Damaged,997-Not Applicable,1,1,1,0
+EMSR517_AOI17_GRA_PRODUCT_r1_RTP01_v2_vector,de_17,Possibly damaged,997-Not Applicable,42,41,41,36
+EMSR517_AOI18_GRA_PRODUCT_r1_RTP01_v1_vector,de_18,Possibly damaged,997-Not Applicable,1958,1948,1948,530

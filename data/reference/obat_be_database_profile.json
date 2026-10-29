@@ -1,0 +1,246 @@
+{
+  "country": "be",
+  "source": "insights\\staging\\working_data\\obat_be\\GHS_OBAT_GPKG_BEL_E2020_R2024A_V1_0\\GHS_OBAT_GPKG_BEL_E2020_R2024A_V1_0.gpkg",
+  "schema": [
+    [
+      0,
+      "fid",
+      "INTEGER",
+      1,
+      null,
+      1
+    ],
+    [
+      1,
+      "geom",
+      "POINT",
+      0,
+      null,
+      0
+    ],
+    [
+      2,
+      "id",
+      "TEXT(32)",
+      0,
+      null,
+      0
+    ],
+    [
+      3,
+      "country",
+      "TEXT(3)",
+      0,
+      null,
+      0
+    ],
+    [
+      4,
+      "adm1",
+      "TEXT(40)",
+      0,
+      null,
+      0
+    ],
+    [
+      5,
+      "height",
+      "REAL",
+      0,
+      null,
+      0
+    ],
+    [
+      6,
+      "shapefactor",
+      "REAL",
+      0,
+      null,
+      0
+    ],
+    [
+      7,
+      "use",
+      "MEDIUMINT",
+      0,
+      null,
+      0
+    ],
+    [
+      8,
+      "epoch",
+      "MEDIUMINT",
+      0,
+      null,
+      0
+    ],
+    [
+      9,
+      "area",
+      "REAL",
+      0,
+      null,
+      0
+    ],
+    [
+      10,
+      "perimeter",
+      "REAL",
+      0,
+      null,
+      0
+    ]
+  ],
+  "contents": [
+    [
+      "GHS_OBAT_E2020_BEL_R2024A_V1_0",
+      "features",
+      "GHS_OBAT_E2020_BEL_R2024A_V1_0",
+      "",
+      "2024-11-17T23:09:18.967Z",
+      2.558419999999999,
+      49.50312999999999,
+      6.40767,
+      51.50379999999999,
+      4326
+    ]
+  ],
+  "geometry": [
+    [
+      "GHS_OBAT_E2020_BEL_R2024A_V1_0",
+      "geom",
+      "POINT",
+      4326,
+      0,
+      0
+    ]
+  ],
+  "national_summary": {
+    "n": 7536087,
+    "height_null": 62458,
+    "shapefactor_null": 62458,
+    "use_null": 0,
+    "use_zero": 64672,
+    "use_residential": 7204236,
+    "use_nonresidential": 267179,
+    "epoch_null": 0,
+    "epoch_zero": 64807,
+    "area_null": 0,
+    "area_nonpositive": 6,
+    "height_min": 2.5,
+    "height_max": 63.6,
+    "area_min": 0.0,
+    "area_max": 221879.66
+  },
+  "integrity_check": "ZIP CRC verified during extraction; schema and full aggregate scan succeeded. PRAGMA quick_check not run.",
+  "study_area_summary": {
+    "records": 569963,
+    "duplicate_ids": 0,
+    "geometry_valid": 569963,
+    "height_null": 4210,
+    "use_counts": {
+      "1": 552247,
+      "2": 13349,
+      "0": 4367
+    },
+    "aoi_counts": [
+      {
+        "aoi_id": "be_01",
+        "locality": "Liege",
+        "records": 500592
+      },
+      {
+        "aoi_id": "be_02",
+        "locality": "Rochefort",
+        "records": 69144
+      },
+      {
+        "aoi_id": "de_01",
+        "locality": "Moselle",
+        "records": 0
+      },
+      {
+        "aoi_id": "de_03",
+        "locality": "Honningen",
+        "records": 0
+      },
+      {
+        "aoi_id": "de_04",
+        "locality": "Prum",
+        "records": 0
+      },
+      {
+        "aoi_id": "de_05",
+        "locality": "Bonn",
+        "records": 2
+      },
+      {
+        "aoi_id": "de_06",
+        "locality": "Duisburg",
+        "records": 0
+      },
+      {
+        "aoi_id": "de_07",
+        "locality": "Erftstadt",
+        "records": 0
+      },
+      {
+        "aoi_id": "de_08",
+        "locality": "Euskirchen-Rheinbach-Steinbachtalsperre",
+        "records": 0
+      },
+      {
+        "aoi_id": "de_09",
+        "locality": "Eschweiler",
+        "records": 0
+      },
+      {
+        "aoi_id": "de_10",
+        "locality": "Wassenberg",
+        "records": 0
+      },
+      {
+        "aoi_id": "de_11",
+        "locality": "Leverkusen",
+        "records": 0
+      },
+      {
+        "aoi_id": "de_14",
+        "locality": "Dusseldorf",
+        "records": 0
+      },
+      {
+        "aoi_id": "de_15",
+        "locality": "Bad Neuenahr-Ahrweiler",
+        "records": 0
+      },
+      {
+        "aoi_id": "de_16",
+        "locality": "Gerolstein",
+        "records": 0
+      },
+      {
+        "aoi_id": "de_17",
+        "locality": "IRREL",
+        "records": 0
+      },
+      {
+        "aoi_id": "de_18",
+        "locality": "Schleiden",
+        "records": 0
+      },
+      {
+        "aoi_id": "de_20",
+        "locality": "Garzweiler",
+        "records": 0
+      },
+      {
+        "aoi_id": "nl_01",
+        "locality": "Venlo",
+        "records": 225
+      }
+    ],
+    "clip_bytes": 24960018,
+    "seconds": 59.6
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "all_passed": true,
+  "checks": [
+    {
+      "check": "19 unique AOIs",
+      "passed": true,
+      "detail": 19
+    },
+    {
+      "check": "Water is contained in event exposure",
+      "passed": true,
+      "detail": "All AOIs"
+    },
+    {
+      "check": "Boundary counts are monotone",
+      "passed": true,
+      "detail": "Erosion through dilation"
+    },
+    {
+      "check": "Fractional population does not exceed touched-cell total",
+      "passed": true,
+      "detail": "Nonnegative source population"
+    },
+    {
+      "check": "RP10 building classes partition exposure",
+      "passed": true,
+      "detail": "Positive + zero + NoData"
+    },
+    {
+      "check": "RP10 intersections recover event area",
+      "passed": true,
+      "detail": 5.984045714502173e-08
+    },
+    {
+      "check": "RP100 building classes partition exposure",
+      "passed": true,
+      "detail": "Positive + zero + NoData"
+    },
+    {
+      "check": "RP100 intersections recover event area",
+      "passed": true,
+      "detail": 5.984045714502173e-08
+    },
+    {
+      "check": "RP500 building classes partition exposure",
+      "passed": true,
+      "detail": "Positive + zero + NoData"
+    },
+    {
+      "check": "RP500 intersections recover event area",
+      "passed": true,
+      "detail": 5.984045714502173e-08
+    },
+    {
+      "check": "Positive hazard point counts are nested",
+      "passed": true,
+      "detail": "10 <= 100 <= 500"
+    },
+    {
+      "check": "Independent quarter-cell population example",
+      "passed": true,
+      "detail": {
+        "quarter": 25.0,
+        "full": 100.0
+      }
+    },
+    {
+      "check": "Independent native raster point sampling",
+      "passed": true,
+      "detail": "150 deterministic sampled points, Rasterio sample API"
+    },
+    {
+      "check": "Independent original SHP count be_01",
+      "passed": true,
+      "detail": {
+        "original_shp": 164,
+        "prepared_json_result": 164
+      }
+    },
+    {
+      "check": "Independent original SHP count de_15",
+      "passed": true,
+      "detail": {
+        "original_shp": 6975,
+        "prepared_json_result": 6975
+      }
+    },
+    {
+      "check": "Independent original SHP count de_18",
+      "passed": true,
+      "detail": {
+        "original_shp": 3360,
+        "prepared_json_result": 3360
+      }
+    },
+    {
+      "check": "Ahrweiler residential grades match supplied workbook cells E8:G8",
+      "passed": true,
+      "detail": {
+        "Damaged": 4829,
+        "Destroyed": 738,
+        "Possibly damaged": 1075
+      }
+    },
+    {
+      "check": "All source representation feature counts match",
+      "passed": true,
+      "detail": 260
+    }
+  ],
+  "limitations": [
+    "These checks validate calculations and data handling, not inventory completeness or causal claims.",
+    "Sensitivity distances are assumptions, not calibrated uncertainty.",
+    "Hazard release provenance remains unresolved."
+  ]
+}
