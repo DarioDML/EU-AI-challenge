@@ -40,8 +40,8 @@ def main() -> None:
                 problems.append(f"line {number}: status must be one of {sorted(STATUSES)}")
             if row["status"] != "unknown" and not (row["finding"] and row["source"]):
                 problems.append(f"line {number}: a {row['status']} row needs a finding and a source")
-            if row["url"] and not is_web_link(row["url"]):
-                problems.append(f"line {number}: url must start with http:// or https://")
+            if row["url"] and not all(is_web_link(link.strip()) for link in row["url"].split(" | ")):
+                problems.append(f"line {number}: each url (separate several with ' | ') must start with http:// or https://")
             key = (row["area_id"], row["theme"])
             if key in seen:
                 problems.append(f"line {number}: {key[0]}/{key[1]} already on line {seen[key]}; edit that row instead")
