@@ -109,12 +109,17 @@
       if (![W, H, fx, fy].every(Number.isFinite) || W <= 0 || H <= 0) {
         throw new Error('Slide 2 requires map dimensions and a flood callout from PITCH.');
       }
-      Object.assign(img.style, {
-        width: `${W * ZOOM}px`, height: `${H * ZOOM}px`,
-        left: `${LENS / 2 - fx * ZOOM}px`, top: `${LENS / 2 - fy * ZOOM}px`,
-        transformOrigin: `${fx * ZOOM}px ${fy * ZOOM}px`,
-      });
+      // The map never uses transform: scale (the browser would rasterise at the base size and upscale it). The zoom is
+      // the image's real size and position, so the vector map is re-drawn sharp at every frame; the flood callout stays centred.
+      const box = z => ({ width: `${W * z}px`, height: `${H * z}px`, left: `${LENS / 2 - fx * z}px`, top: `${LENS / 2 - fy * z}px` });
+      Object.assign(img.style, box(ZOOM));
       D.mapSrc(img);
+      // slow push-in on entry: 1.10 x -> 1 x of the final zoom, the engine's spring, 2.4 s (size and position only)
+      document.addEventListener('deck:enter', e => {
+        if (e.detail.id !== 's2' || D.reduced || typeof img.animate !== 'function') return;
+        img.getAnimations().forEach(a => a.cancel());
+        img.animate([box(ZOOM * 1.1), box(ZOOM)], { duration: 2400, delay: 100, easing: D.SPRING });
+      });
       // lens 2: links draw in with stroke-dashoffset (CSS reads --len)
       el.querySelectorAll('.s2-link, .s2-link-casing').forEach(p => p.style.setProperty('--len', `${Math.ceil(p.getTotalLength()) + 1}px`));
     },
