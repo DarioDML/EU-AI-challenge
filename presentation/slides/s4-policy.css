@@ -26,21 +26,26 @@
 #s4 .s4-bar { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 16px; background: #F3F5F9; border-bottom: 1px solid var(--glass-line); }
 #s4 .s4-bar i { width: 11px; height: 11px; border-radius: 50%; background: #C9D1DD; }
 #s4 .s4-bar span { margin-left: 18px; padding: 5px 16px; border-radius: 6px; background: #fff; font: 500 15px/1 var(--mono); color: var(--ink-3); }
-#s4 .s4-screen { position: relative; height: 644px; overflow: hidden; }
+#s4 .s4-screen { position: relative; height: var(--sh, 644px); overflow: hidden; transition: height 700ms var(--spring); }
+/* the window takes the aspect of each screen: region 16:9, map crop 1246 x 802, action box 1172 x 554 (1144 px wide) */
+#s4.s2 { --sh: 736px; }
+#s4.s3 { --sh: 541px; }
 
 #s4 .s4-shot {
   position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; opacity: 0;
-  transition: opacity 500ms var(--spring), transform 1800ms var(--spring);
+  transition: opacity 450ms var(--spring) 120ms;
 }
 #s4 .s4-shot.region { opacity: 1; }
 #s4.s2 .s4-shot.region { opacity: 0; }
-/* step 2: the camera pushes into the map (capture x 380-1262, y 340-837 fills the screen) */
-#s4 .s4-shot.decide { transform-origin: 0 0; }
-#s4.s2 .s4-shot.decide { opacity: 1; transform: scale(1.814) translate3d(-271.7px, -243.1px, 0); }
+/* steps 2 and 3: purpose-cropped captures, crossfaded in place (no live zoom: a scaled screenshot drifted and cut panels) */
+#s4 .s4-shot.decide, #s4 .s4-shot.action { object-fit: cover; object-position: center; }
+#s4.s2 .s4-shot.decide { opacity: 1; }
 #s4.s3 .s4-shot.decide { opacity: 0; }
-/* step 3: view 3, the camera pushes into "the one thing Anna can do first" (capture x 14-840, y 420-885) */
-#s4 .s4-shot.action { transform-origin: 0 0; }
-#s4.s3 .s4-shot.action { opacity: 1; transform: scale(1.937) translate3d(-10px, -299.8px, 0); }
+#s4.s3 .s4-shot.action { opacity: 1; }
+
+/* the caption swap: the old caption leaves first (fast), the new one arrives after it, so numbers never overlap */
+#s4 .s4-say { transition: opacity 600ms var(--spring) 220ms, transform 900ms var(--spring) 220ms; }
+#s4.s1 .s4-say[data-b-out="1"], #s4.s2 .s4-say[data-b-out="2"], #s4.s3 .s4-say[data-b-out="3"] { transition: opacity 160ms linear, transform 160ms linear; }
 
 /* step 1: Schleiden on the map and first in the ranking (region capture × 0.715) */
 #s4 .s4-ring {
@@ -50,3 +55,6 @@
 #s4 .s4-ring.map { left: 562px; top: 312px; width: 84px; height: 84px; border-radius: 50%; }
 #s4 .s4-ring.rank { left: 904px; top: 104px; width: 230px; height: 78px; border-radius: 10px; }
 #s4.s1:not(.s2) .s4-ring { opacity: 1; transform: none; transition-delay: 250ms; }
+
+/* the rings belong to the region view: they leave at once when the map crop arrives */
+#s4.s2 .s4-ring { opacity: 0; transition: opacity 90ms linear; transition-delay: 0s; }

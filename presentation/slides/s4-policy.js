@@ -14,17 +14,15 @@
 
   const notes = {
     title: 'How it helps Anna',
-    script: 'Johan needs one answer. Anna needs one for a whole border region. ' +
-      'This is our policy tool, built for her. Anna coordinates flood crises across the Belgian, Dutch and German border. ' +
-      'Her question: would we be better prepared if 2021 returned tomorrow? ' +
-      `First, where is the risk? The tool replays the 2021 flood across her region. Schleiden is the most exposed area: ${FIG.homes} homes stood in the water. ` +
-      'Second, is there a shelter for everyone? The tool matches every home to the nearest safe school, sports hall or community building that still has room. ' +
-      `${FIG.placed} percent get a place. But only ${FIG.walk} percent can walk there; most others need transport, and ${FIG.noPlace} percent have no place at all. ` +
-      'So our answer to Anna: ready on paper, not yet in practice. ' +
-      'And the tool tells her what to do first: build one register of flood shelters across the border, with their capacity, ' +
-      'so that every flood alert can name a shelter. Starting in Schleiden, where most people cannot walk to one.',
+    script: 'Johan’s Ahr valley is just outside Anna’s region. Anna coordinates flood crises across the Belgian, Dutch and German border. ' +
+      'Her question: would we be better prepared if 2021 returned tomorrow? First, where is the risk? ' +
+      `Schleiden is her most exposed area: ${FIG.homes} residential buildings stood in the 2021 flood. ` +
+      'Second, is there a shelter for everyone? The tool matches every home to the nearest safe building that still has room. ' +
+      `${FIG.placed} percent of estimated residents get a place, but only ${FIG.walk} percent can walk there, and ${FIG.noPlace} percent have no place at all. ` +
+      'Across all six areas it is 94 and 43 percent. So our answer: ready on paper, not yet in practice. ' +
+      'The first step: one shelter register across the border, with capacities, so every flood alert can name a shelter. Starting in Schleiden.',
     notes: [
-      `Schleiden, default plan: ${FIG.homes} homes in the mapped 2021 flood (Copernicus EMS × GHS-OBAT, checked against the team reference table); ${FIG.placed} % of the estimated residents get a shelter place within 5 km, ${FIG.walk} % within walking distance (2 km).`,
+      `Schleiden, default plan: ${FIG.homes} residential buildings in the mapped 2021 flood (Copernicus EMS × GHS-OBAT, checked against the team reference table); ${FIG.placed} % of the estimated residents get a shelter place within 5 km, ${FIG.walk} % within walking distance (2 km).`,
       'Residents are a GHS-POP 2020 estimate (2,139 to 5,233 depending on the method); the percentages use the building-weighted estimate.',
       'Shelters are OpenStreetMap candidates (schools, sports halls, community buildings), not designated shelters; capacity assumes 3.5 m² per person on half the floor area; matching uses straight-line distance.',
       `If asked: the tool’s box says 94 % and 43 % for all six areas in her region; build 2 says ${FIG.placed} % and ${FIG.walk} % for Schleiden alone.`,
@@ -43,17 +41,17 @@
     <div class="s4-say" data-b="1" data-b-out="2">
       <p class="kicker">01 · Where is the risk?</p>
       <div class="s4-big num">${FIG.homes}</div>
-      <p class="lead">homes in the 2021 flood in Schleiden, her most exposed area.</p>
+      <p class="lead">residential buildings in Schleiden’s 2021 flood.</p>
     </div>
     <div class="s4-say" data-b="2" data-b-out="3">
       <p class="kicker">02 · A shelter for everyone?</p>
-      <div class="s4-stat"><b class="num">${FIG.placed}<small>%</small></b><span>get a safe place with room</span></div>
+      <div class="s4-stat"><b class="num">${FIG.placed}<small>%</small></b><span>of estimated residents get a place</span></div>
       <div class="s4-stat slow"><b class="num">${FIG.walk}<small>%</small></b><span>can walk there</span></div>
     </div>
     <div class="s4-say" data-b="3">
       <p class="kicker">03 · Anna’s answer</p>
       <p class="s4-answer">Ready on paper.<br>Not yet in practice.</p>
-      <p class="lead">First step: one shelter register across the border, so every alert names a shelter.</p>
+      <p class="lead">First: one cross-border shelter register.</p>
     </div>
 
     <figure class="s4-browser" data-b="0" aria-label="The policy tool">
@@ -61,9 +59,9 @@
       <div class="s4-screen">
         <img class="s4-shot region" src="assets/tool/tool-region.jpg" width="1716" height="965" decoding="async"
              alt="Policy tool, region view: the six areas Copernicus mapped in Anna's region, ranked by residents who cannot walk to a shelter">
-        <img class="s4-shot decide" src="assets/tool/tool-decide.jpg" width="2288" height="1287" decoding="async"
+        <img class="s4-shot decide" src="assets/tool/tool-decide-map.jpg" width="1246" height="802" decoding="async"
              alt="Policy tool, Schleiden: every home matched to the nearest safe shelter with room">
-        <img class="s4-shot action" src="assets/tool/tool-action.jpg" width="2288" height="1287" decoding="async"
+        <img class="s4-shot action" src="assets/tool/tool-action-box.jpg" width="1172" height="554" decoding="async"
              alt="Policy tool, Anna's action: build one cross-border register of flood shelters with their capacity, and make every flood alert name a shelter, starting in Schleiden and Euskirchen-Steinbach dam">
         <i class="s4-ring map" aria-hidden="true"></i>
         <i class="s4-ring rank" aria-hidden="true"></i>
