@@ -10,13 +10,13 @@
      placed = residents_placed / residents_in_flood_building_weighted = 4,819.8 / 5,233.2;
      walk = residents_placed_within_walk / the same = 1,652.7 / 5,233.2; noPlace = residents_unplaced / the same = 413.4 / 5,233.2.
      The tool shows the same values. */
-  const FIG = { homes: '3,360', placed: 92, walk: 32, noPlace: 8 };
+  const FIG = { homes: '3,360', cannotWalk: '3,580', placed: 92, walk: 32, noPlace: 8 };   // cannotWalk = residents placed beyond 2 km + unplaced (3,167 + 413), the tool's Q4 ranking figure
 
   const notes = {
     title: 'How it helps Anna',
     script: 'Johan’s Ahr valley is just outside Anna’s region. Anna coordinates flood crises across the Belgian, Dutch and German border. ' +
       'Her question: would we be better prepared if 2021 returned tomorrow? First, where is the risk? ' +
-      `Schleiden is her most exposed area: ${FIG.homes} residential buildings stood in the 2021 flood. ` +
+      `Schleiden is her most exposed area: ${FIG.cannotWalk} estimated residents cannot walk to a shelter, the most of any area. ` +
       'Second, is there a shelter for everyone? The tool matches every home to the nearest safe building that still has room. ' +
       `${FIG.placed} percent of estimated residents get a place, but only ${FIG.walk} percent can walk there, and ${FIG.noPlace} percent have no place at all. ` +
       'Across all six areas it is 94 and 43 percent. So our answer: ready on paper, not yet in practice. ' +
@@ -41,8 +41,8 @@
     </div>
     <div class="s4-say" data-b="1" data-b-out="2">
       <p class="kicker">01 · Where is the risk?</p>
-      <div class="s4-big num">${FIG.homes}</div>
-      <p class="lead">residential buildings in Schleiden’s 2021 flood.</p>
+      <div class="s4-big num">${FIG.cannotWalk}</div>
+      <p class="lead">estimated residents in Schleiden cannot walk to a shelter.</p>
     </div>
     <div class="s4-say" data-b="2" data-b-out="3">
       <p class="kicker">02 · A shelter for everyone?</p>
@@ -63,10 +63,11 @@
       <div class="s4-screen">
         <img class="s4-shot region" src="assets/tool/tool-region.jpg" width="1716" height="965" decoding="async"
              alt="Policy tool, region view: the six areas Copernicus mapped in Anna's region, ranked by residents who cannot walk to a shelter">
+        <img class="s4-shot rank" src="assets/tool/tool-region-rank.jpg" width="978" height="1164" decoding="async"
+             alt="Policy tool, ranking of areas by residents who cannot walk to a shelter: Schleiden first with 3,580, then Euskirchen-Steinbach dam, Liège and Eschweiler">
         <img class="s4-shot decide" src="assets/tool/tool-decide-map.jpg" width="1246" height="802" decoding="async"
              alt="Policy tool, Schleiden: every home matched to the nearest safe shelter with room">
-        <i class="s4-ring map" aria-hidden="true"></i>
-        <i class="s4-ring rank" aria-hidden="true"></i>
+        <i class="s4-ring bar" aria-hidden="true"></i>
       </div>
     </figure>
 
