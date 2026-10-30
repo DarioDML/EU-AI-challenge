@@ -2,6 +2,58 @@
 
 A single self-contained HTML page (Leaflet inlined, no server, works from `file://`) that shows a flood-shelter planning aid from one JSON bundle. Planning aid only: not live guidance, shelters are OSM candidates, routes are not verified safe.
 
+## Overview (state 2026-10-30, Team 1, European AI Challenge)
+**What it answers.** For Kreis Euskirchen and Landkreis Ahrweiler (Germany only): if the July 2021 flood, or a modelled 10-, 100- or 500-year river flood, happened, where could the residents inside the flood shelter, and how would they get there?
+
+**Three views** (header switch or `?profile=`):
+
+| View | For | Shows |
+|---|---|---|
+| Citizen | a resident | Find your street or click your area. You get the building (OSM name, else street, else nearest road), route steps (walk to the open road, then drive), the time, and up to 2 more buildings. July 2021 flood, one building per area (at most 3 for a shared area). |
+| Municipality | a local planner | Build a list of municipalities. You get: residents in the flood, placed within 1 h, without a place, within 2 km, over 30 min, the largest destinations, and people sent outside the two districts. The flood level is the only choice. |
+| Full analysis | analysts and the jury | Every setting (flood level, road-closure rule, capacity set A/B, population 2020/2025), cards, layers, method, compare tables, CSV, draft messages. |
+
+**Data rules that hold in every view** (design: `research/POLICY_TOOL_PLAN.md` section 0):
+- **Coverage of the July 2021 map.** The satellite map (Copernicus EMS EMSR517) covers only the requested areas; the Rhine banks between Remagen and Bad Breisig lie outside, while the river model floods them. People inside the flood who live outside the 2021 map: 0 / 4,810 / 10,652 / 13,763 at 2021 / 10 / 100 / 500 years (claim C4.4).
+  - The page draws the edge of the mapped area as a dashed violet line at every level.
+  - Outside it the citizen and municipality views say "not covered yet; we are working on more data", never 0.
+  - The full analysis shows "N outside the 2021 map".
+- **Shelter rule.** A candidate building is used only if it is dry in every flood map we have (2021 and all three model levels).
+- **Honesty.** Never "safe", never "your shelter"; candidate buildings, not designated shelters; counts are modelled minimums, rounded.
+
+**Headline numbers** (Set A, 1 h by road; claims C4.2-C4.4 in `research/claims_register.md`):
+
+| Level | People to place | Without a place |
+|---|---|---|
+| July 2021 | 25,559 | 0 (mean time 22.7 min) |
+| 10-year | 15,091 | 0 |
+| 100-year | 24,514 | 1,057 (0 with 2 h) |
+| 500-year | 30,012 | 4,694 (1,179 with 2 h) |
+
+One sentence (C4.3): for the July 2021 flood, under cautious assumptions, there is room for everyone within an hour by road, but not enough room close by: only about 9 % fit within 2 km.
+
+**Map reading (full analysis).**
+- Closed roads are black dashes (red is kept for stress and 'not placed').
+- Below zoom 14, nearby shelters merge into numbered badges (magenta = used, grey = flooded); click one to zoom in.
+- Flooded buildings have their own layer.
+- A click on a blank spot steps back one selection.
+- Notes close with ✕ or fade after 8 s.
+
+**Regenerate the data, then the page** (about 5 min, from the project root):
+```
+.venv\Scripts\python.exe -B research\r01\20_tool_pipeline.py . results\runs\20261029-143924-5ec1\out results\runs\20261029-144102-f165\out research\r01\results\20261029-134745-b0be results\runs\20261029-101321-bf98\out results\runs\20261029-172655-2377\out research\r01\results\20261030-004137-9f38
+.venv\Scripts\python.exe -B -I tool\build.py
+.venv\Scripts\python.exe -B -I tool\verify\cdp_test.py        # headless Chrome, 161 checks
+```
+After every regenerate, rerun `research\r01\25_q3_compare_2021_2026.py` (arguments in its report) so the Q3 report's map numbers stay in step, and update claims C4.x.
+
+**Test it locally over http** (as it will be hosted): `cd tool\dist` then `..\..\.venv\Scripts\python.exe -m http.server 8765`, and open `http://127.0.0.1:8765/shelter_tool.html?profile=full` (add `&basemap=1` for the OpenStreetMap background, which tile servers refuse to a `file://` page).
+
+**On the web.** The same page is also prepared as a website, hosted with the team's policy tool once the team approves it: one static page that opens in any desktop browser, with nothing to install. It has the same three views and the same data, and it can show an OpenStreetMap background, which the local file cannot.
+
+**Page size.** About 16 MB (one file with the data inlined). This is above the comfortable limit for email and Claude Artifacts. A web build with the data as a separate, compressed JSON is a later option.
+
+
 ## Build
 ```
 .venv\Scripts\python.exe -B -I tool\build.py                              # default: tool\data\bundle.json if it exists, else the mock
@@ -45,7 +97,7 @@ Write the pipeline output to `tool\data\bundle.json` (format of `BUNDLE_SCHEMA.m
 - No what-if editing (click-to-close a road or shelter); closure rule and capacity switch between precomputed results.
 - Map shapes (cells, chips, shelter badges) are not keyboard tab stops (`keyboard: false`, so hundreds of markers do not become tab stops); in the full analysis use the "Pick from a list" selects. Keyboard use of the citizen and municipality views: to check. The shelter pick-list holds only shelters used in the current plan.
 - Map declutter: by default only shelters used in the plan and flooded ones (small crossed marks) are drawn; "All candidate shelters" adds the rest as small dots. Roads are dimmed so routes and closed roads stay readable.
-- Basemap (OSM raster): OFF by default and disabled when the page is opened from a local file (OSM blocks file pages); offered only over http(s) with `&basemap=1`. After 3 failed tiles the page says so and continues with vector layers.
+- Basemap (OSM raster): OFF by default and disabled when the page is opened from a local file (OSM blocks file pages); offered only over http(s) with `&basemap=1` (see "Test it locally" above). After 3 failed tiles the page says so and continues with vector layers.
 - Clipboard: `navigator.clipboard` with an `execCommand` fallback; verified with a real click and a read-back in headless Chrome (permission granted by the test harness, focus emulated); a user in a normal window may still be asked for permission.
 - File size: the real bundle makes a page of about 15.2 MB (15,174,043 bytes on 2026-10-30). Compact JSON per key on 2026-10-30: results 7.7 MB (including the 2025 population results), network 4.1 MB, shelters 1.1 MB, streets 0.8 MB, citizen_plan 0.5 MB. (Day 1: 14.8 MB page with network 4.6 MB and results 4.3 MB; zlib would then give about 2.2 MB; the zlib size now is to check.) A smaller encoding (integer-delta edge coordinates, gzip+base64 inflated with DecompressionStream) could cut the page to about 3 MB; that would change the contract and is NOT done.
 - Real-input test: `.venv\Scripts\python.exe -B -I tool\verify\cdp_test.py` drives headless Chrome over the DevTools protocol (real mouse clicks, real key presses on the selects, a real CSV download, clipboard read-back) and compares the page with `dataundle.json` (161 passed, 0 failed on 2026-10-30 at the data stage). Screenshots land in `verify\t_*.png`.
