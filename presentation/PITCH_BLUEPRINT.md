@@ -8,7 +8,7 @@ This section supersedes the original dark-theme layout and delivery notes below.
 - Slide 1 has four builds: Johan without the house, his three questions, 29% not warned in Rhineland-Palatinate, then separate 85% and 46% grids among warned respondents across both states. These are independently normalised shares, not inferred overlapping groups of 60 and 33 people.
 - Slide 2 uses open editorial columns with one-time connector/diagram reveals.
 - Slide 3 uses the transparent 1244 by 894 road SVG and its fitted overlay coordinates. Road stress retains its source semantics. Trip times are labelled as free-flow model estimates; the closed-road check concerns the driving network.
-- Slide 4 remains the teammate-owned demo. Its content and interaction logic have not been redesigned.
+- Slide 5 (`s4-policy`, after the message slide) is the policy-tool demo for Anna (4 builds): her question; region view with Schleiden ringed (3,360 homes in the 2021 flood); the Schleiden map (92 % get a shelter place, 32 % can walk there); her answer, "Ready on paper. Not yet in practice.", with the tool's first step: one cross-border shelter register so every alert names a shelter. It is the deck's only policy ask since the Europe slide was removed. The slider demo described in section 7 is retired.
 - Slide 5 uses restrained artwork, a light Europe map and a flat closing layout. Existing impact estimates retain their team-brief qualification.
 - Motion uses short crossfades and small lifts. Static and reduced-motion modes show completed states without animation.
 - `build_single.py` embeds the exact map named by `pitch-data.js` and both organiser logos. No external fonts or runtime dependencies are needed.
