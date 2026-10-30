@@ -1395,7 +1395,7 @@ const STATE_TXT = { wetother: 'not used: wet in another flood map (July 2021 or 
 const CLUSTER_PX = 44, CLUSTER_MAXZOOM = 14;
 function clusterBadge(list, flooded) {
   const n = list.length, size = Math.round(Math.min(40, 22 + 4 * Math.log2(n)));
-  const lat = list.reduce((a, x) => a + x.s.lat, 0) / n, lon = list.reduce((a, x) => a + x.s.lon, 0) / n, people = list.reduce((a, x) => a + (x.load || 0), 0);
+  const lat = list[0].s.lat, lon = list[0].s.lon, people = list.reduce((a, x) => a + (x.load || 0), 0);
   const m = L.marker([lat, lon], { icon: L.divIcon({ className: 'shel', html: '<div class="shclu' + (flooded ? ' fl' : '') + '" style="width:' + size + 'px;height:' + size + 'px">' + n + '</div>', iconSize: [size, size], iconAnchor: [size / 2, size / 2] }), keyboard: false, interactive: !flooded });      // flooded marks never catch the mouse below zoom 14 (resident cells underneath)
   m.bindTooltip(n + (flooded ? ' flooded candidate buildings here (not used at this level)' : ' shelter buildings used here; they take ' + fmtR(people) + ' people') + '. Click to zoom in.', { sticky: true });
   m.on('click', () => { fullClickAt = performance.now(); map.setView([lat, lon], Math.min(18, map.getZoom() + 2), { animate: false }); });
@@ -1404,9 +1404,16 @@ function clusterBadge(list, flooded) {
 function placeClustered(items, group, flooded) {
   const z = map.getZoom();
   if (z >= CLUSTER_MAXZOOM) { items.forEach(x => group.addLayer(x.make())); return; }
-  const cells = new Map();
-  items.forEach(x => { const p = map.project([x.s.lat, x.s.lon], z), k = Math.floor(p.x / CLUSTER_PX) + ':' + Math.floor(p.y / CLUSTER_PX); if (!cells.has(k)) cells.set(k, []); cells.get(k).push(x); });
-  cells.forEach(list => group.addLayer(list.length === 1 ? list[0].make() : clusterBadge(list, flooded)));
+  // merge by real screen distance (a fixed grid left overlapping badges on either side of a grid line): each building joins the first group whose centre is
+  // within CLUSTER_PX, otherwise it starts a new one; busiest buildings first so the groups centre on them
+  const groups = [];
+  items.slice().sort((a, b) => (b.load || 0) - (a.load || 0)).forEach(x => {
+    const p = map.project([x.s.lat, x.s.lon], z);
+    const gq = groups.find(gr => Math.hypot(gr.x - p.x, gr.y - p.y) < CLUSTER_PX);
+    if (gq) gq.list.push(x);      // the group stays anchored on its busiest building
+    else groups.push({ x: p.x, y: p.y, list: [x] });
+  });
+  groups.forEach(gr => group.addLayer(gr.list.length === 1 ? gr.list[0].make() : clusterBadge(gr.list, flooded)));
 }
 function drawShelters() {
   g.shelters.clearLayers(); g.floodshelters.clearLayers(); g.allshelters.clearLayers();
