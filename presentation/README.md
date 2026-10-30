@@ -16,7 +16,7 @@ The white European editorial theme uses navy text, blue emphasis, original-colou
 | T | Restart the five-minute pace bar |
 | Period | Blackout / restore |
 
-`index.html#3.2` opens slide 3 at build 2. `?static` suppresses motion, as does the operating system's reduced-motion setting.
+`index.html#3.2` opens slide 3 at build 2. `?static` suppresses motion, as does the operating system's reduced-motion setting (Windows: Settings, Accessibility, Visual effects, Animation effects off). `?motion` animates anyway, for presenting from a laptop with that setting: <https://johan-pitch.vercel.app/?motion>. It works on the hosted site and in `johan-pitch.html`; the multi-file `index.html` opened from disk keeps the CSS reduced-motion rules.
 
 ### From the browser (Vercel)
 
