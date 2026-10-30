@@ -3,3 +3,4 @@
 qa/
 georef.json
 .vercel
+.env*

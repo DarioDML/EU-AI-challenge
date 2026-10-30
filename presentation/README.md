@@ -20,9 +20,10 @@ The white European editorial theme uses navy text, blue emphasis, original-colou
 
 ### From the browser (Vercel)
 
-The deck is also hosted as a static site on Vercel, with `presentation/` as the project root and `index.html` as the start page. `vercel.json` marks it `noindex`; `.vercelignore` leaves out scripts, notes and QA. The hosted copy is a snapshot: redeploy after changes, from `presentation/`:
+The deck is hosted at <https://johan-pitch.vercel.app> as a static site, with `presentation/` as the project root and `index.html` as the start page. `vercel.json` marks it `noindex`; `.vercelignore` leaves out scripts, notes, QA and env files. The hosted copy is a snapshot: redeploy after changes, from `presentation/` (the link step is needed once per checkout):
 
 ```powershell
+npx vercel link --yes --project johan-pitch
 npx vercel deploy --prod
 ```
 
