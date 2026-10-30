@@ -90,13 +90,13 @@ Optional `people_ranges` (written into the bundle by `pipeline/research/21_tool_
 "people_ranges": {
   "label": "range across methods", "rules": {"footprint": "footprint share (tool's rule)", "...": "..."}, "direction": "string", "plan_method": "string",
   "levels": {"rp100": {"base": 24514, "low": 11200, "high": 41300,      // base = sum of zones[].people; low/high rounded down/up to 100 (run of 2026-10-30)
-                       "low_rule": "edge_in", "high_rule": "edge_out", "spreading": [22079, 25170], "edge": [11258, 41277],
+                       "low_rule": "edge_in", "high_rule": "edge_out", "plan_rules": ["edge_in", "edge_out"], "spreading": [22079, 25170], "edge": [11258, 41277],
                        "variants": {"footprint": 24440, "equal": 24097, "floor_area": 24456, "cell_area": 25170, "cell_centre": 22079, "edge_in": 11258, "edge_out": 41277}}},
   "plans": {"rp100|wet|restrictive": {"base": {...}, "low": {...}, "high": {...}}},   // each: people, places_per_resident, shelters_full, shelters_used, unplaced_at_most
   "checks": {"rp100_base_matches_bundle": {"pass": true, "ours": 24440, "bundle": 24514, "relative_difference": -0.003}}
 }
 ```
-The plans at both ends are `results[key]` with every zone's residents scaled to the low or high count, not re-optimised, so `unplaced_at_most` is an upper estimate. The page shows the range only for 2020 residents and never calls it a confidence interval.
+The plans at both ends (2020 keys only) use the lowest and highest building-based variant (`plan_rules`) and are `results[key]` with every zone's residents scaled to the low or high count, not re-optimised, so `unplaced_at_most` is an upper estimate. The page shows the range only for 2020 residents and never calls it a confidence interval.
 
 Citizen plan numbers are a simpler plan than `results[key]`: it keeps each 250 m cell together, so it leaves some people without a named building (`unassigned_reason` "plan_rule") although the main plan finds room for everyone within 1 h. The page must not word those people as "no room".
 

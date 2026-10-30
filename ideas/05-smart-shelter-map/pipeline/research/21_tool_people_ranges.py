@@ -50,6 +50,7 @@ OBS_EDGE_M = 60.0
 CHECK_TOLERANCE = 0.03
 LEVELS = ("obs2021", "rp10", "rp100", "rp500")
 BUILDING_RULES = ("footprint", "equal", "floor_area")
+PLAN_RULES = (*BUILDING_RULES, "edge_in", "edge_out")
 RULE_LABELS = {
     "footprint": "footprint share (tool's rule)",
     "equal": "equal split over buildings",
@@ -148,7 +149,7 @@ def scaled_plan(result: dict[str, Json], zone_of_bundle: dict[int, int], base_zo
         zone = zone_of_bundle.get(key)
         base = base_zone.get(key, 0.0)
         if zone is None or base <= 0:
-            new_people += people
+            new_people += max(0.0, people - base)
         else:
             ratio[zone] = people / base
     load: dict[int, float] = {}
@@ -266,6 +267,8 @@ def main() -> None:
         variant_zone["cell_centre"] = by_zone(cell_keys[centre], population[centre])
         totals = {name: sum(z.values()) for name, z in variant_zone.items()}
         low_rule, high_rule = min(totals, key=totals.__getitem__), max(totals, key=totals.__getitem__)
+        placed_rules = [r for r in totals if r in PLAN_RULES]
+        plan_low, plan_high = min(placed_rules, key=totals.__getitem__), max(placed_rules, key=totals.__getitem__)
         bundle_total = sum(float(z["people"][level]) for z in zones)
         diff = (totals["footprint"] - bundle_total) / bundle_total if bundle_total > 0 else 0.0
         checks[f"{level}_base_matches_bundle"] = {"pass": abs(diff) <= CHECK_TOLERANCE, "ours": round(totals["footprint"]), "bundle": round(bundle_total),
@@ -276,6 +279,7 @@ def main() -> None:
             "high": math.ceil(max(totals[high_rule], bundle_total) / 100) * 100,
             "low_rule": low_rule,
             "high_rule": high_rule,
+            "plan_rules": [plan_low, plan_high],
             "spreading": [round(min(totals[r] for r in (*BUILDING_RULES, "cell_area", "cell_centre"))), round(max(totals[r] for r in (*BUILDING_RULES, "cell_area", "cell_centre")))],
             "edge": [round(min(totals["edge_in"], totals["footprint"])), round(max(totals["edge_out"], totals["footprint"]))],
             "variants": {name: round(v) for name, v in totals.items()},
@@ -283,12 +287,12 @@ def main() -> None:
         lap(f"{level}: {levels_out[level]}")
         base_zone = variant_zone["footprint"]
         for key, result in bundle["results"].items():
-            if not key.startswith(level + "|"):
+            if not key.startswith(level + "|") or key.count("|") != 2:
                 continue
             set_id = key.split("|")[2]
             cap = {s: c[set_id] for s, c in capacity.items()}
             plans_out[key] = {end: scaled_plan(result, zone_of_bundle, base_zone, variant_zone[rule], cap, float(total_places[set_id]))
-                              for end, rule in (("base", "footprint"), ("low", low_rule), ("high", high_rule))}
+                              for end, rule in (("base", "footprint"), ("low", plan_low), ("high", plan_high))}
             plans_out[key]["base"]["unplaced_in_tool"] = round(float(result["summary"]["unassigned"]))
 
     bundle["people_ranges"] = {
@@ -305,11 +309,11 @@ def main() -> None:
         "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "script": "pipeline/research/21_tool_people_ranges.py",
     }
-    BUNDLE.write_text(json.dumps(bundle, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     lap(f"checks: {json.dumps(checks)}")
-    lap(f"plans: {json.dumps({k: v for k, v in plans_out.items() if k.endswith('restrictive')})}")
     if not all(bool(c["pass"]) for c in checks.values()):
-        raise SystemExit("base check failed: our footprint count differs from the bundle by more than 3%")
+        raise SystemExit("base check failed: our footprint count differs from the bundle by more than 3%; bundle not written")
+    BUNDLE.write_text(json.dumps(bundle, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    lap(f"plans: {json.dumps({k: v for k, v in plans_out.items() if k.endswith('restrictive')})}")
 
 
 if __name__ == "__main__":

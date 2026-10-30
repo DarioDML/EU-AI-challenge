@@ -375,7 +375,7 @@ const shelters = Array.isArray(B.shelters) ? B.shelters : [];
 // residents per flood level as a range across methods (pipeline/research/21_tool_people_ranges.py); computed for 2020 residents only
 const PR = B.people_ranges && B.people_ranges.levels ? B.people_ranges : null;
 const prLevel = () => (PR && st.pop === POP0 && PR.levels[st.sc]) || null;
-const prPlan = () => (PR && st.pop === POP0 && PR.plans[keyOf(st.sc, st.cl, st.cap)]) || null;
+const prPlan = () => (PR && st.pop === POP0 && (PR.plans || {})[keyOf(st.sc, st.cl, st.cap)]) || null;
 const fmtRange = r => r.low.toLocaleString('en') + '–' + r.high.toLocaleString('en');
 const LVL_SHORT = { obs2021: 'July 2021 (observed)', rp10: '10-year (model)', rp100: '100-year (model)', rp500: '500-year (model)' };
 function rangeBar(r, w) {
@@ -885,7 +885,7 @@ function rangeChartHtml() {
   const yAxis = top + ids.length * rowH + 4;
   svg += '<text x="' + x(0) + '" y="' + yAxis + '" font-size="10" fill="var(--muted)">0</text><text x="' + x(max) + '" y="' + yAxis + '" font-size="10" fill="var(--muted)" text-anchor="end">' + Math.round(max).toLocaleString('en') + ' residents</text></svg>';
   const rows = ids.map(id => {
-    const r = PR.levels[id], cl = ((scById(id) || {}).closures || [])[0], p = cl && capacities.length ? PR.plans[id + '|' + cl.id + '|' + capacities[0].id] : null;
+    const r = PR.levels[id], cl = ((scById(id) || {}).closures || [])[0], p = cl && capacities.length ? (PR.plans || {})[id + '|' + cl.id + '|' + capacities[0].id] : null;
     const pair = a => a ? fmtP(a[0]) + '–' + fmtP(a[1]).replace('~', '') : '';
     return '<tr><td>' + esc(LVL_SHORT[id] || id) + '</td><td>' + fmtRange(r) + '</td><td>' + fmt(r.base) + '</td><td>' + pair(r.spreading) + '</td><td>' + pair(r.edge) + '</td>' +
       (p ? '<td>' + p.low.places_per_resident + ' / ' + p.high.places_per_resident + '</td><td>' + fmt(p.low.shelters_full) + ' / ' + fmt(p.high.shelters_full) + '</td><td>' + fmtP(p.low.unplaced_at_most) + ' / ' + fmtP(p.high.unplaced_at_most) + '</td>' : '<td></td><td></td><td></td>') + '</tr>';
