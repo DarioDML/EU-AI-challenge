@@ -20,13 +20,14 @@
       'Second, is there a shelter for everyone? The tool matches every home to the nearest safe building that still has room. ' +
       `${FIG.placed} percent of estimated residents get a place, but only ${FIG.walk} percent can walk there, and ${FIG.noPlace} percent have no place at all. ` +
       'Across all six areas it is 94 and 43 percent. So our answer: ready on paper, not yet in practice. ' +
-      'The first step: one shelter register across the border, with capacities, so every flood alert can name a shelter. Starting in Schleiden.',
+      'Anna’s next actions: one cross-border register of shelters with their capacity, so every flood alert names a shelter, starting in Schleiden. ' +
+      'Then plan transport where people cannot walk, and get Belgian damage records for the Vesdre.',
     notes: [
       `Schleiden, default plan: ${FIG.homes} residential buildings in the mapped 2021 flood (Copernicus EMS × GHS-OBAT, checked against the team reference table); ${FIG.placed} % of the estimated residents get a shelter place within 5 km, ${FIG.walk} % within walking distance (2 km).`,
       'Residents are a GHS-POP 2020 estimate (2,139 to 5,233 depending on the method); the percentages use the building-weighted estimate.',
       'Shelters are OpenStreetMap candidates (schools, sports halls, community buildings), not designated shelters; capacity assumes 3.5 m² per person on half the floor area; matching uses straight-line distance.',
       `If asked: the tool’s box says 94 % and 43 % for all six areas in her region; build 2 says ${FIG.placed} % and ${FIG.walk} % for Schleiden alone.`,
-      'Step 3 is the tool’s view 3 (Anna’s action): who registers (each municipality, one shared format), who sends (crisis centres via BE-Alert, NL-Alert, Cell Broadcast), and Belgian damage records for the Vesdre, which the European data under-measures.',
+      'Step 3 gives Anna’s next actions in three lines; the tool’s view 3 has the detail (spoken, not shown): who registers (each municipality, one shared format), who sends (crisis centres via BE-Alert, NL-Alert, Cell Broadcast), and Belgian damage records for the Vesdre, which the European data under-measures.',
       'The live tool: policy-tool/index.html (or the Vercel deploy). View 3 also stress-tests the plan: space per person, furthest shelter, shelter types.',
     ],
   };
@@ -48,10 +49,13 @@
       <div class="s4-stat"><b class="num">${FIG.placed}<small>%</small></b><span>of estimated residents get a place</span></div>
       <div class="s4-stat slow"><b class="num">${FIG.walk}<small>%</small></b><span>can walk there</span></div>
     </div>
-    <div class="s4-say" data-b="3">
-      <p class="kicker">03 · Anna’s answer</p>
-      <p class="s4-answer">Ready on paper.<br>Not yet in practice.</p>
-      <p class="lead">First: one cross-border shelter register.</p>
+    <div class="s4-say s4-act" data-b="3">
+      <p class="kicker">03 · Anna’s next actions</p>
+      <ol class="s4-steps">
+        <li><span class="n mono">1</span>One cross-border shelter register.</li>
+        <li><span class="n mono">2</span>Every flood alert names a shelter.</li>
+        <li><span class="n mono">3</span>Start in Schleiden.</li>
+      </ol>
     </div>
 
     <figure class="s4-browser" data-b="0" aria-label="The policy tool">
@@ -61,14 +65,12 @@
              alt="Policy tool, region view: the six areas Copernicus mapped in Anna's region, ranked by residents who cannot walk to a shelter">
         <img class="s4-shot decide" src="assets/tool/tool-decide-map.jpg" width="1246" height="802" decoding="async"
              alt="Policy tool, Schleiden: every home matched to the nearest safe shelter with room">
-        <img class="s4-shot action" src="assets/tool/tool-action-box.jpg" width="1172" height="554" decoding="async"
-             alt="Policy tool, Anna's action: build one cross-border register of flood shelters with their capacity, and make every flood alert name a shelter, starting in Schleiden and Euskirchen-Steinbach dam">
         <i class="s4-ring map" aria-hidden="true"></i>
         <i class="s4-ring rank" aria-hidden="true"></i>
       </div>
     </figure>
 
-    <p class="src s4-src">Policy tool, default plan, 29 Oct 2026 · Schleiden · homes: EMS 2021 flood × GHS-OBAT · residents: GHS-POP 2020 estimate<br>
+    <p class="src s4-src">Policy tool, default plan, 29 Oct 2026 · Schleiden · buildings: EMS 2021 flood × GHS-OBAT · residents: GHS-POP 2020 estimate<br>
       Shelters: OSM candidates, not designated · 3.5 m² per person · ≤ 5 km, walk ≤ 2 km · map © OpenStreetMap</p>`;
 
   Deck.register({

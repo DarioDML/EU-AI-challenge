@@ -58,3 +58,20 @@
 
 /* the rings belong to the region view: they leave at once when the map crop arrives */
 #s4.s2 .s4-ring { opacity: 0; transition: opacity 90ms linear; transition-delay: 0s; }
+
+/* step 3: Anna's next actions, big and plain; the tool window gives way to them */
+#s4.s3 .s4-browser { opacity: 0; transform: translate3d(40px, 0, 0); pointer-events: none; }
+#s4 .s4-act { width: 1500px; top: 330px; }
+#s4 .s4-steps { list-style: none; margin: 0; padding: 0; }
+#s4 .s4-steps li {
+  display: flex; align-items: baseline; gap: 36px; margin-bottom: 38px;
+  font: 700 76px/1.08 var(--font); letter-spacing: -0.03em; color: var(--ink);
+  opacity: 0; transform: translate3d(0, 28px, 0);
+  transition: opacity 500ms var(--spring), transform 800ms var(--spring);
+}
+#s4 .s4-steps .n { flex: none; width: 56px; font: 600 34px/1 var(--mono); letter-spacing: 0; color: var(--eu-blue); }
+#s4.s3 .s4-steps li { opacity: 1; transform: none; }
+#s4.s3 .s4-steps li:nth-child(1) { transition-delay: 380ms; }
+#s4.s3 .s4-steps li:nth-child(2) { transition-delay: 620ms; }
+#s4.s3 .s4-steps li:nth-child(3) { transition-delay: 860ms; }
+#s4 .s4-steps li:nth-child(3) .n { color: var(--gold-ink); }
