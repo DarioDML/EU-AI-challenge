@@ -638,7 +638,7 @@ html.static *, html.static *::before, html.static *::after { transition: none !i
 
 #s4 .s4-shot {
   position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; opacity: 0;
-  transition: opacity 500ms var(--spring), transform 1800ms var(--spring); will-change: opacity, transform;
+  transition: opacity 500ms var(--spring), transform 1800ms var(--spring);
 }
 #s4 .s4-shot.region { opacity: 1; }
 #s4.s2 .s4-shot.region { opacity: 0; }
@@ -658,11 +658,11 @@ html.static *, html.static *::before, html.static *::after { transition: none !i
 #s4 .s4-ring.rank { left: 904px; top: 104px; width: 230px; height: 78px; border-radius: 10px; }
 #s4.s1:not(.s2) .s4-ring { opacity: 1; transform: none; transition-delay: 250ms; }
 
-/* step 3: the tool's phone grows out of its place in the frame (from 1592, 399 at 0.585) */
+/* step 3: the tool's phone grows out of its place in the frame (from 1602, 400 at 0.584) */
 #s4 .s4-phone {
   position: absolute; left: 1478px; top: 168px; width: 330px; height: 684px; border-radius: 51px;
   box-shadow: 0 40px 80px rgba(19, 43, 80, 0.3), 0 10px 24px rgba(19, 43, 80, 0.18);
-  opacity: 0; visibility: hidden; transform-origin: 0 0; transform: translate3d(114px, 231px, 0) scale(0.585);
+  opacity: 0; visibility: hidden; transform-origin: 0 0; transform: translate3d(124px, 232px, 0) scale(0.584);
   transition: opacity 250ms linear, transform 900ms var(--spring), visibility 0s linear 900ms;
 }
 #s4.s3 .s4-phone { opacity: 1; visibility: visible; transform: none; transition: opacity 250ms linear 150ms, transform 900ms var(--spring) 150ms, visibility 0s; }
@@ -1890,8 +1890,9 @@ window.PITCH = {"generated":"2026-10-30T12:06Z","source":{"bundle":"origin/team1
 
   /* Schleiden (de_18), default plan: data-analysis/shelter_alert_de_18_summary.json (generated 29 Oct 2026).
      placed = residents_placed / residents_in_flood_building_weighted = 4,819.8 / 5,233.2;
-     walk = residents_placed_within_walk / the same = 1,652.7 / 5,233.2. The tool shows the same values. */
-  const FIG = { homes: '3,360', placed: 92, walk: 32 };
+     walk = residents_placed_within_walk / the same = 1,652.7 / 5,233.2; noPlace = residents_unplaced / the same = 413.4 / 5,233.2.
+     The tool shows the same values. */
+  const FIG = { homes: '3,360', placed: 92, walk: 32, noPlace: 8 };
 
   const notes = {
     title: 'How it helps Anna',
@@ -1900,7 +1901,7 @@ window.PITCH = {"generated":"2026-10-30T12:06Z","source":{"bundle":"origin/team1
       'Her question: would we be better prepared if 2021 returned tomorrow? ' +
       `First, where is the risk? The tool replays the 2021 flood across her region. Schleiden is the most exposed area: ${FIG.homes} homes stood in the water. ` +
       'Second, is there a shelter for everyone? The tool matches every home to the nearest safe school, sports hall or community building that still has room. ' +
-      `${FIG.placed} percent get a place. But only ${FIG.walk} percent can walk there; the others need transport. ` +
+      `${FIG.placed} percent get a place. But only ${FIG.walk} percent can walk there; most others need transport, and ${FIG.noPlace} percent have no place at all. ` +
       'Third, what does each home hear? Not just danger, but where to go, and that a place is waiting. Plain text, so it reaches any phone. ' +
       'So our answer to Anna: ready on paper, not yet in practice. Her first step: one shelter register across the border, so every alert can name a shelter.',
     notes: [

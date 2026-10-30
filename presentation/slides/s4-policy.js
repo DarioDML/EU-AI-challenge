@@ -7,8 +7,9 @@
 
   /* Schleiden (de_18), default plan: data-analysis/shelter_alert_de_18_summary.json (generated 29 Oct 2026).
      placed = residents_placed / residents_in_flood_building_weighted = 4,819.8 / 5,233.2;
-     walk = residents_placed_within_walk / the same = 1,652.7 / 5,233.2. The tool shows the same values. */
-  const FIG = { homes: '3,360', placed: 92, walk: 32 };
+     walk = residents_placed_within_walk / the same = 1,652.7 / 5,233.2; noPlace = residents_unplaced / the same = 413.4 / 5,233.2.
+     The tool shows the same values. */
+  const FIG = { homes: '3,360', placed: 92, walk: 32, noPlace: 8 };
 
   const notes = {
     title: 'How it helps Anna',
@@ -17,7 +18,7 @@
       'Her question: would we be better prepared if 2021 returned tomorrow? ' +
       `First, where is the risk? The tool replays the 2021 flood across her region. Schleiden is the most exposed area: ${FIG.homes} homes stood in the water. ` +
       'Second, is there a shelter for everyone? The tool matches every home to the nearest safe school, sports hall or community building that still has room. ' +
-      `${FIG.placed} percent get a place. But only ${FIG.walk} percent can walk there; the others need transport. ` +
+      `${FIG.placed} percent get a place. But only ${FIG.walk} percent can walk there; most others need transport, and ${FIG.noPlace} percent have no place at all. ` +
       'Third, what does each home hear? Not just danger, but where to go, and that a place is waiting. Plain text, so it reaches any phone. ' +
       'So our answer to Anna: ready on paper, not yet in practice. Her first step: one shelter register across the border, so every alert can name a shelter.',
     notes: [
