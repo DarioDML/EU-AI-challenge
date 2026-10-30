@@ -15,13 +15,12 @@ The white European editorial theme uses navy text, blue emphasis, original-colou
 | N | Rehearsal notes and clock (visible to the audience) |
 | T | Restart the five-minute pace bar |
 | Period | Blackout / restore |
-| 1-4, B | Existing teammate-owned slide 4 controls |
 
 `index.html#3.2` opens slide 3 at build 2. `?static` suppresses motion, as does the operating system's reduced-motion setting.
 
 Opening sequence: Meet Johan, his three questions, the proportion receiving no warning, then two separate shares among warned respondents. The separate dot grids preserve the differing survey denominators.
 
-Slide 4 remains the teammate's demo placeholder. This style pass does not redesign its controls or message logic.
+Slide 5 (`slides/s4-policy.*`) is a guided demo of the policy tool (`policy-tool/`) for Anna in five builds: her question, where the risk is (region view), who gets a shelter (Schleiden, the map pushes in), what each home hears (the tool's phone grows out of the frame), and her answer. The screens in `assets/tool/` are headless captures of the tool at 1600 × 900, default plan; the Schleiden figures come from `data-analysis/shelter_alert_de_18_summary.json`.
 
 ## Build and review
 
