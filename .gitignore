@@ -15,3 +15,7 @@ figures/generated/*
 !figures/generated/.gitkeep
 deliverables/*
 !deliverables/README.md
+
+# Vercel CLI project link
+.vercel/
+.env*

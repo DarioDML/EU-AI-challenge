@@ -1,0 +1,6 @@
+*.py
+*.md
+qa/
+georef.json
+.vercel
+.env*
