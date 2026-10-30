@@ -523,8 +523,19 @@ function drawRoads() {
   g.roads.addLayer(multi(groups.major, { renderer: roadCanvas, color: c2, weight: 2.6, opacity: dim ? 0.6 : 0.85 }));
 }
 
-const STRESS = [{ max: 0.5, c: '#009E73', w: 3, label: 'under 0.5' }, { max: 1, c: '#F0E442', w: 4, label: '0.5 to 1' },
-                { max: 1.5, c: '#D55E00', w: 5, label: '1 to 1.5' }, { max: Infinity, c: '#7a0019', w: 6.5, label: 'over 1.5 (above the assumed capacity)' }];
+// road stress as a continuous gradient: green (no stress) -> yellow -> red -> dark red at twice the assumed capacity; thicker as it rises.
+// Drawn in 24 narrow steps so the canvas keeps a few dozen paths instead of one per road segment.
+const STRESS_STOPS = [[0, [26, 152, 80]], [0.75, [240, 210, 40]], [1.25, [215, 48, 39]], [2, [122, 0, 25]]];
+const STRESS_MAX = 2, STRESS_STEPS = 24;
+function stressRGB(r) {
+  const x = Math.max(0, Math.min(STRESS_MAX, r));
+  for (let i = 1; i < STRESS_STOPS.length; i++) {
+    const [x1, c1] = STRESS_STOPS[i];
+    if (x <= x1) { const [x0, c0] = STRESS_STOPS[i - 1], f = (x - x0) / (x1 - x0); return 'rgb(' + c0.map((v, k) => Math.round(v + f * (c1[k] - v))).join(',') + ')'; }
+  }
+  return 'rgb(122,0,25)';
+}
+const stressW = r => 2.5 + 4 * Math.min(1, Math.max(0, r) / STRESS_MAX);
 
 // Result-dependent road layers: only subsets (closed / used / stress buckets) are rebuilt.
 function drawRoadResults() {
@@ -534,12 +545,12 @@ function drawRoadResults() {
   g.closed.addLayer(multi(res.closed || [], { renderer: closedCanvas, color: '#111111', weight: 2.4, opacity: 1 }));
   const loadIds = Object.keys(res.load || {}).map(Number);
   g.routes.addLayer(multi(loadIds, { color: '#0072B2', weight: 2.5, opacity: 0.7 }));
-  const buckets = STRESS.map(() => []);
+  const buckets = Array.from({ length: STRESS_STEPS + 1 }, () => []);
   loadIds.forEach(id => {
     const r = roadRatio(id, res.load[String(id)]); if (r == null) return;
-    buckets[STRESS.findIndex(b => r < b.max)].push(id);
+    buckets[Math.min(STRESS_STEPS, Math.floor(Math.max(0, r) / STRESS_MAX * STRESS_STEPS))].push(id);
   });
-  STRESS.forEach((b, i) => { if (buckets[i].length) g.stress.addLayer(multi(buckets[i], { color: b.c, weight: b.w, opacity: 0.95 })); });
+  buckets.forEach((ids, i) => { if (ids.length) { const r = (i + 0.5) / STRESS_STEPS * STRESS_MAX; g.stress.addLayer(multi(ids, { color: stressRGB(r), weight: stressW(r), opacity: 0.95 })); } });
   // self-check against the bundle summary (visible in the console only)
   const worst = Math.max(0, ...loadIds.map(id => roadRatio(id, res.load[String(id)]) || 0));
   if (res.summary && res.summary.worst_road_ratio != null && Math.abs(worst - res.summary.worst_road_ratio) > 0.011) {
@@ -1046,7 +1057,7 @@ function renderLegend() {
   if (st.layers.closed) other.push(item(line('#111', 2.4), 'closed road (blocked, under the flood)'));
   if (st.layers.routes) other.push(item(line('#0072B2', 2.5), 'road used by a route'));
   if (st.layers.stress) {
-    STRESS.forEach(b => other.push(item(line(b.c, b.w), 'stress ' + b.label)));
+    other.push(item('<span style="display:inline-block;width:120px;height:8px;border-radius:4px;vertical-align:middle;background:linear-gradient(90deg,' + [0, 0.5, 1, 1.5, 2].map(r => stressRGB(r) + ' ' + (r / STRESS_MAX * 100) + '%').join(',') + ')"></span>', 'stress 0 → 1 (assumed capacity) → 2+'));
     other.push(item('', 'STRESS INDICATOR: assumed demand vs an assumed capacity; check on the ground. Not a forecast.'));
   }
   if (st.layers.flood) {
@@ -1075,7 +1086,7 @@ function renderLayers() {
     roads: sv(ln('#9aa0a8', 2)),
     closed: sv(ln('#111', 2.4)),
     routes: sv(ln('#0072B2', 3)),
-    stress: sv('<line x1="2" y1="8" x2="9" y2="8" stroke="#009E73" stroke-width="4"/><line x1="9" y1="8" x2="17" y2="8" stroke="#F0E442" stroke-width="4"/><line x1="17" y1="8" x2="24" y2="8" stroke="#d7191c" stroke-width="4"/>'),
+    stress: sv('<defs><linearGradient id="sgr"><stop offset="0" stop-color="' + stressRGB(0) + '"/><stop offset=".5" stop-color="' + stressRGB(1) + '"/><stop offset="1" stop-color="' + stressRGB(2) + '"/></linearGradient></defs><line x1="2" y1="8" x2="24" y2="8" stroke="url(#sgr)" stroke-width="4"/>'),
     flood: sv('<rect x="3" y="3" width="20" height="10" rx="2" fill="#56B4E9" fill-opacity=".45" stroke="#0072B2" stroke-width="1.5"/>') };
   const t = r => '<label class="toggle"><input type="checkbox" data-layer="' + r[0] + '"' + (st.layers[r[0]] ? ' checked' : '') + '> ' + (ICON[r[0]] || '') + esc(r[1]) + '</label>';
   $('layers').innerHTML = '<legend>Map layers</legend><h3 class="grp">Residents inside the flood (population)</h3>' + rowsPop.map(t).join('') +
