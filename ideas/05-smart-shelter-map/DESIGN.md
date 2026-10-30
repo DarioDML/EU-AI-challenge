@@ -3,7 +3,7 @@
 ## 0. Three profiles (user decision 2026-10-29 evening; supersedes the what-if and citizen-stretch parts below)
 Scope: only the interactive map is worked on now. One page, one bundle, three profiles chosen by a switch in the header (`?profile=citizen|municipality|full`). Each profile shows only what its user needs; the numbers come from the same precomputed plans, so the three never disagree. MVP = proof of concept of the basic flow, not a finished product. Task items: `BACKLOG.md` B13-B34.
 
-Read this plan with the build (note 2026-10-30): the page is static. It switches between precomputed results (flood level, closure rule, capacity set, population year); there is no live recompute and no click-to-close road or shelter. Sections 3, 4, 7 and 8 below are marked STALE where they still describe that; `research/HANDOVER_TOOL.md` (top UPDATE blocks) and `tool/README.md` describe what exists.
+Read this plan with the build (note 2026-10-30): the page is static. It switches between precomputed results (flood level, closure rule, capacity set, population year); there is no live recompute and no click-to-close road or shelter. Sections 3, 4, 7 and 8 below are marked STALE where they still describe that; `README.md` describes what exists.
 
 | | Citizen | Municipality | Full analysis (current page) |
 |---|---|---|---|
