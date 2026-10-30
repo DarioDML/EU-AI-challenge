@@ -1,0 +1,105 @@
+/* Slide 1 · Meet Johan (agent 6). Words on the dark left; Johan's world on the right, feathered into the stage.
+   The illustrations have transparent skies and navy (#14213D) outlines, so each sits on a "sky plate" that is
+   transparent at the top (the stage shows through, the brand corner stays dark) and light at the horizon. */
+
+#s1 .s1-scene { position: absolute; inset: 0; pointer-events: none; }
+#s1 .s1-shot {
+  position: absolute; margin: 0; opacity: 0; transform: scale(1);
+  transition: opacity 1100ms var(--spring), transform 1600ms var(--spring);
+  will-change: opacity, transform;
+}
+#s1 .s1-frame { position: absolute; inset: 0; }
+#s1 .s1-frame img { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+/* one shot per step: crossfade, then a slow push-in (Ken Burns, max 1.04) */
+#s1[data-step="0"] .s1-home,
+#s1[data-step="1"] .s1-night,
+#s1[data-step="2"] .s1-think {
+  opacity: 1; transform: scale(1.04);
+  transition: opacity 1100ms var(--spring), transform 12s var(--spring);
+}
+
+/* step 0 · home at dusk. The plate fades in slowly from the left; the image (2047 × 1819, box keeps the ratio)
+   only feathers its own left strip of hills, so the house stays crisp. */
+#s1 .s1-home { left: 700px; top: 112px; width: 1240px; height: 968px; transform-origin: 63% 73%; }
+#s1 .s1-home .s1-plate {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 50% 30% at 52% 69%, rgba(232, 240, 243, 0.55), rgba(232, 240, 243, 0) 72%),
+    linear-gradient(to bottom, rgba(23, 36, 64, 0) 0%, rgba(36, 54, 88, 0.55) 22%, rgba(92, 118, 146, 0.86) 42%,
+                    rgba(170, 192, 204, 0.97) 57%, #D3E1E5 73%, #D3E1E5 86%, rgba(211, 225, 229, 0) 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 30%);
+          mask-image: linear-gradient(to right, transparent 0, #000 30%);
+}
+#s1 .s1-home .s1-frame {
+  inset: auto; left: 156px; top: 0; width: 1080px; height: 960px;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 11%);
+          mask-image: linear-gradient(to right, transparent 0, #000 11%);
+}
+#s1 .s1-home img {
+  -webkit-mask-image: linear-gradient(to bottom, #000 86%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 86%, transparent 100%);
+}
+
+/* step 1 · night (image 1842 × 2047, opaque navy sky): feathered on the left, top and bottom */
+#s1 .s1-night {
+  left: 930px; top: -40px; width: 1062px; height: 1180px; transform-origin: 44% 58%;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22%);
+          mask-image: linear-gradient(to right, transparent 0, #000 22%);
+}
+#s1 .s1-night .s1-frame {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 27%, #000 82%, transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 27%, #000 82%, transparent 100%);
+}
+
+/* step 2 · Johan thinking, alone in a pool of light (image 1111 × 1722) */
+#s1 .s1-think { left: 960px; top: 0; width: 920px; height: 1080px; transform-origin: 50% 62%; }
+#s1 .s1-think .s1-frame { inset: auto; left: 203px; top: 72px; width: 645px; height: 1000px; }
+#s1 .s1-glow {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 150px 20px at 460px 940px, rgba(20, 33, 61, 0.30), rgba(20, 33, 61, 0) 100%),
+    radial-gradient(ellipse 470px 560px at 460px 590px, rgba(219, 229, 234, 0.96) 0%, rgba(178, 197, 209, 0.80) 40%,
+                    rgba(70, 90, 118, 0.30) 72%, rgba(7, 11, 22, 0) 100%);
+}
+
+/* copy column */
+#s1 .s1-copy { position: absolute; left: var(--margin); width: 760px; }
+#s1 .s1-copy p { margin: 0; }
+
+#s1 .s1-c0 { top: 384px; }
+#s1 .s1-c0 .h-hero { margin-top: 34px; }
+#s1 .s1-c0 .lead { margin-top: 30px; }
+#s1 .s1-c0 .s1-micro {
+  margin-top: 46px; display: flex; align-items: center; gap: 14px;
+  font: 500 17px/1 var(--mono); letter-spacing: 0.02em; color: var(--ink-3);
+}
+#s1 .s1-micro::before { content: ""; width: 28px; height: 1px; background: currentColor; }
+
+#s1 .s1-c1 { top: 262px; }
+#s1 .s1-h2 { font: 650 80px/1.04 var(--font); letter-spacing: -0.03em; margin: 0 0 70px; }
+#s1 .s1-stat { display: grid; grid-template-columns: 236px 1fr; column-gap: 30px; align-items: center; }
+#s1 .s1-stat + .s1-stat { margin-top: 44px; }
+#s1 .s1-num { font: 500 128px/1 var(--mono); letter-spacing: -0.05em; color: var(--ink); white-space: nowrap; }
+#s1 .s1-pct { font-size: 0.46em; letter-spacing: 0; margin-left: 0.08em; color: var(--ink-2); }
+#s1 .s1-lbl { font: 500 32px/1.25 var(--font); letter-spacing: -0.01em; color: var(--ink-2); max-width: 470px; }
+#s1 .s1-src { right: auto; width: 760px; }
+
+#s1 .s1-qs { position: absolute; left: var(--margin); top: 356px; margin: 0; padding: 0; list-style: none; }
+#s1 .s1-q { display: flex; align-items: baseline; gap: 34px; }
+#s1 .s1-q + .s1-q { margin-top: 58px; }
+#s1 .s1-qn { width: 44px; flex: none; font: 500 24px/1 var(--mono); letter-spacing: 0.04em; color: var(--ink-3); }
+#s1 .s1-qt { font: 700 78px/1.04 var(--font); letter-spacing: -0.03em; color: var(--ink); }
+#s1 .s1-q-gold .s1-qn, #s1 .s1-q-gold .s1-qt { color: var(--gold); }
+
+/* staggered builds; the delays apply only while entering (they drop as soon as the next step starts) */
+#s1.is-active:not(.s1) .s1-c0 > :nth-child(2) { transition-delay: 90ms; }
+#s1.is-active:not(.s1) .s1-c0 > :nth-child(3) { transition-delay: 180ms; }
+#s1.is-active:not(.s1) .s1-c0 > :nth-child(4) { transition-delay: 320ms; }
+#s1.s1:not(.s2) .s1-c1 > :nth-child(1) { transition-delay: 160ms; }
+#s1.s1:not(.s2) .s1-c1 > :nth-child(2) { transition-delay: 320ms; }
+#s1.s1:not(.s2) .s1-c1 > :nth-child(3) { transition-delay: 480ms; }
+#s1.s1:not(.s2) .s1-src { transition-delay: 600ms; }
+#s1.s2 .s1-q:nth-child(1) { transition-delay: 220ms; }
+#s1.s2 .s1-q:nth-child(2) { transition-delay: 520ms; }
+#s1.s2 .s1-q:nth-child(3) { transition-delay: 900ms; }

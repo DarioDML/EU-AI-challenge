@@ -1,0 +1,95 @@
+/* Slide 5 · Every valley in Europe (agent 6).
+   0: Johan's shelter at dawn. 1: the camera pulls back into Europe, Johan's scene shrinks into the Ahr pin.
+   2: the ask and the closing lockup. */
+#s5 {
+  --map-x: 880px; --map-y: 130px; --map-w: 1000px;           /* europe.png box; its height follows the 2500 × 2166 ratio */
+  --pin-x: calc(var(--map-x) + var(--map-w) * 0.3296);         /* the Ahr pin on the stage, for the zoom origin */
+  --pin-y: calc(var(--map-y) + var(--map-w) * 0.8664 * 0.589);
+}
+
+/* step 0 · shelter (image 2047 × 976, full width, bottom-anchored). Transparent sky → dawn plate behind it. */
+#s5 .s5-shelter {
+  position: absolute; inset: 0; pointer-events: none; transform-origin: var(--pin-x) var(--pin-y);
+  transition: opacity 900ms var(--spring), transform 1700ms var(--spring);
+  will-change: transform, opacity;
+}
+#s5.s1 .s5-shelter { opacity: 0; transform: scale(0.06); }
+#s5 .s5-shot {
+  position: absolute; left: 0; top: 164px; width: 1920px; height: 916px; margin: 0;
+  background: linear-gradient(to bottom, rgba(20, 32, 58, 0) 0%, rgba(20, 32, 58, 0) 9%, rgba(52, 74, 108, 0.62) 25%,
+                              rgba(128, 152, 172, 0.9) 38%, rgba(196, 212, 220, 0.98) 52%, #D6E2E6 64%);
+  transform-origin: 42% 70%; transform: scale(1); transition: transform 12s var(--spring);
+}
+#s5.is-active .s5-shot { transform: scale(1.04); }
+#s5 .s5-shot img { display: block; width: 100%; height: 100%; object-fit: contain; }
+#s5 .s5-title { position: absolute; left: var(--margin); top: 124px; }
+
+/* step 1 · Europe (light-grey land on transparent, tinted to soft slate) */
+#s5 .s5-map {
+  position: absolute; left: var(--map-x); top: var(--map-y); width: var(--map-w);
+  opacity: 0; transform: scale(2.6); transform-origin: 32.96% 58.9%;
+  transition: opacity 1000ms var(--spring), transform 1800ms var(--spring);
+  will-change: transform, opacity;          /* own layer: smooth zoom, and the tint filter paints reliably */
+}
+#s5.s1 .s5-map { opacity: 1; transform: none; }
+#s5.s1:not(.s2) .s5-map { transition-delay: 120ms; }
+#s5.s2 .s5-map { opacity: 0.36; transform: translate3d(330px, 26px, 0) scale(0.9); }
+#s5 .s5-europe { display: block; width: 100%; height: auto; filter: brightness(0.2) sepia(1) hue-rotate(180deg) saturate(1.7); }
+
+#s5 .s5-pin { position: absolute; width: 0; height: 0; }
+#s5 .s5-dot, #s5 .s5-ring { position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; }
+#s5 .s5-dot { background: var(--gold); box-shadow: 0 0 0 4px rgba(255, 204, 0, 0.18), 0 0 26px rgba(255, 204, 0, 0.6); }
+#s5 .s5-ring { border: 2px solid var(--gold); opacity: 0.3; transform: scale(2); animation: s5-pulse 2.4s var(--spring) infinite; }
+@keyframes s5-pulse { from { opacity: 0.85; transform: scale(1); } to { opacity: 0; transform: scale(4.2); } }
+#s5 .s5-pin-label {
+  position: absolute; left: 26px; top: -11px; white-space: nowrap;
+  font: 500 20px/1 var(--mono); letter-spacing: 0.02em; color: var(--ink); text-shadow: 0 1px 10px rgba(5, 8, 16, 0.8);
+}
+
+#s5 .s5-stats { position: absolute; left: var(--margin); top: 170px; }
+#s5 .s5-stat + .s5-stat { margin-top: 42px; }
+#s5 .s5-num { display: block; font: 500 100px/1 var(--mono); letter-spacing: -0.05em; color: var(--ink); white-space: nowrap; }
+#s5 .s5-dim { color: var(--ink-3); margin-right: 0.05em; }
+#s5 .s5-cur { margin-right: 0.04em; }
+#s5 .s5-dash { margin: 0 -0.1em 0 -0.06em; color: var(--ink-2); }
+#s5 .s5-unit { font-size: 0.42em; letter-spacing: 0; margin-left: 0.32em; color: var(--ink-2); }
+#s5 .s5-lbl { display: block; margin-top: 12px; font: 500 28px/1.2 var(--font); letter-spacing: -0.005em; color: var(--ink-2); }
+#s5 .s5-data { position: absolute; left: var(--margin); top: 768px; width: 760px; margin: 0;
+  font: 600 28px/1.25 var(--font); letter-spacing: -0.01em; color: var(--ink); }
+#s5 .s5-data-list { display: block; margin-top: 12px; font: 500 20px/1.35 var(--mono); letter-spacing: 0.01em; color: var(--ink-2); }
+
+/* step 2 · the ask, then the closing lockup */
+#s5 .s5-ask { position: absolute; left: var(--margin); top: 196px; width: 1200px; }
+#s5 .s5-ask .kicker { margin: 0 0 46px; color: var(--ink-2); }
+#s5 .s5-ask ol { margin: 0; padding: 0; list-style: none; }
+#s5 .s5-ask li { display: flex; align-items: baseline; gap: 30px; font: 650 58px/1.08 var(--font); letter-spacing: -0.028em; }
+#s5 .s5-ask li + li { margin-top: 30px; }
+#s5 .s5-an { flex: none; width: 34px; font: 500 26px/1 var(--mono); color: var(--gold); }
+
+/* closing lockup: a left-aligned stack under a hairline; Europe and the pin stay quiet on the right */
+#s5 .s5-lockup {
+  position: absolute; left: var(--margin); top: 656px; width: 1090px;
+  display: flex; flex-direction: column; align-items: flex-start;
+  padding-top: 50px; border-top: 1px solid rgba(245, 247, 251, 0.16);
+}
+#s5 .s5-team { font: 600 20px/1 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }
+#s5 .s5-event { margin-top: 22px; font: 700 80px/0.95 var(--font); letter-spacing: -0.035em; color: var(--ink); white-space: nowrap; }
+#s5 .s5-orgs { margin-top: 30px; display: flex; align-items: center; font: 500 30px/1 var(--font); color: var(--ink-2); white-space: nowrap; }
+#s5 .s5-wm { display: inline-flex; align-items: center; }
+#s5 .s5-wm-fari .s5-wm-text { font-weight: 700; letter-spacing: 0.14em; margin-right: -0.14em; color: var(--ink); }
+#s5 .s5-x { margin: 0 16px; font-weight: 300; color: var(--ink-3); }
+#s5 .s5-wm img { display: block; height: 48px; width: auto; filter: var(--logo-filter); }
+#s5 .s5-wm.has-logo .s5-wm-text { display: none; }
+
+/* staggered builds, only while entering a step */
+#s5.s1:not(.s2) .s5-stat:nth-child(1) { transition-delay: 560ms; }
+#s5.s1:not(.s2) .s5-stat:nth-child(2) { transition-delay: 700ms; }
+#s5.s1:not(.s2) .s5-stat:nth-child(3) { transition-delay: 840ms; }
+#s5.s1:not(.s2) .s5-data { transition-delay: 1000ms; }
+#s5.s1:not(.s2) .s5-src, #s5.s1:not(.s2) .s5-pin-label { transition-delay: 1100ms; }
+#s5.s2 .s5-ask li:nth-child(1) { transition-delay: 200ms; }
+#s5.s2 .s5-ask li:nth-child(2) { transition-delay: 380ms; }
+#s5.s2 .s5-ask li:nth-child(3) { transition-delay: 560ms; }
+#s5.s2 .s5-lockup { transition-delay: 900ms; }
+
+@media (prefers-reduced-motion: reduce) { #s5 .s5-ring { animation: none; } }
