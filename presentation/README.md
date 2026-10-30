@@ -18,6 +18,14 @@ The white European editorial theme uses navy text, blue emphasis, original-colou
 
 `index.html#3.2` opens slide 3 at build 2. `?static` suppresses motion, as does the operating system's reduced-motion setting.
 
+### From the browser (Vercel)
+
+The deck is also hosted as a static site on Vercel, with `presentation/` as the project root and `index.html` as the start page. `vercel.json` marks it `noindex`; `.vercelignore` leaves out scripts, notes and QA. The hosted copy is a snapshot: redeploy after changes, from `presentation/`:
+
+```powershell
+npx vercel deploy --prod
+```
+
 Opening sequence: Meet Johan, his three questions, the proportion receiving no warning, then two separate shares among warned respondents. The separate dot grids preserve the differing survey denominators.
 
 Slide 5 (`slides/s4-policy.*`) is a guided demo of the policy tool (`policy-tool/`) for Anna in four builds: her question, where the risk is (region view), who gets a shelter (Schleiden, the map pushes in), and her answer with the first step (the tool's "Anna's action" view). The phone alert is slide 3, so this slide shows none. The screens in `assets/tool/` are headless captures of the tool at 1600 × 900, default plan; the Schleiden figures come from `data-analysis/shelter_alert_de_18_summary.json`.
