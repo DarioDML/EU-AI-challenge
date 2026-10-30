@@ -19,7 +19,8 @@
 
 /* ---------- right: the tool in a browser frame ---------- */
 #s4 .s4-browser {
-  position: absolute; left: 680px; top: 150px; width: 1144px; margin: 0; overflow: hidden;
+  position: absolute; left: var(--bl, 680px); top: 150px; width: var(--bw, 1144px); margin: 0; overflow: hidden;
+  transition: left 700ms var(--spring), width 700ms var(--spring), opacity 600ms var(--spring), transform 900ms var(--spring);
   border: 1px solid var(--glass-line); border-radius: 12px; background: var(--surface);
   box-shadow: 0 24px 60px rgba(19, 43, 80, 0.14), 0 4px 12px rgba(19, 43, 80, 0.06);
 }
@@ -75,3 +76,16 @@
 #s4.s3 .s4-steps li:nth-child(2) { transition-delay: 620ms; }
 #s4.s3 .s4-steps li:nth-child(3) { transition-delay: 860ms; }
 #s4 .s4-steps li:nth-child(3) .n { color: var(--gold-ink); }
+
+/* step 1: the window narrows to the ranking bars on the right (a 3x capture of the tool's Q4 panel, 978 x 1164) */
+#s4 .s4-shot.rank { object-fit: cover; object-position: top; }
+#s4.s1:not(.s2) { --bl: 1224px; --bw: 600px; --sh: 714px; }
+#s4.s1:not(.s2) .s4-shot.region { opacity: 0; }
+#s4.s1:not(.s2) .s4-shot.rank { opacity: 1; }
+#s4 .s4-ring.bar { left: 18px; top: 86px; width: 564px; height: 176px; border-radius: 16px; }
+#s4 .s4-ring.map, #s4 .s4-ring.rank { display: none; }
+
+/* images keep their own pixel size while the window morphs: the frame crops them, it never rescales them */
+#s4 .s4-shot { width: 1144px; height: 644px; max-width: none; }
+#s4 .s4-shot.rank { width: 600px; height: 714px; }
+#s4 .s4-shot.decide { width: 1144px; height: 736px; }
