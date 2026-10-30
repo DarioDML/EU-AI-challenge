@@ -157,6 +157,11 @@ input[type=checkbox], input[type=radio] { accent-color: #0072B2; }
 .card.over { border: 3px dashed var(--bad); background: var(--badbg); }
 .card.over .v, .card.over .l { color: var(--bad); }
 .card .s { font-size: 12px; display: block; line-height: 1.25; }
+.card .rbar { display: block; margin-top: 3px; color: var(--muted); }
+.rchart { display: block; max-width: 460px; margin: 4px 0; }
+.rtable { border-collapse: collapse; font-size: 12px; margin: 4px 0 8px; }
+.rtable th, .rtable td { border-bottom: 1px solid var(--line); padding: 2px 6px; text-align: right; }
+.rtable th:first-child, .rtable td:first-child { text-align: left; }
 .sidetabs { display: flex; gap: 4px; position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 0 0 8px; }
 .sidetabs button { flex: 1; padding: 6px 4px; font-size: 13px; border-radius: 16px; }
 .sidetabs button[aria-pressed=true] { background: #0072B2; color: #fff; border-color: #0072B2; font-weight: 600; }
@@ -367,6 +372,16 @@ const POP0 = populations[0].id;
 const edges = (B.network && B.network.edges) || [];
 const zones = Array.isArray(B.zones) ? B.zones : [];
 const shelters = Array.isArray(B.shelters) ? B.shelters : [];
+// residents per flood level as a range across methods (pipeline/research/21_tool_people_ranges.py); computed for 2020 residents only
+const PR = B.people_ranges && B.people_ranges.levels ? B.people_ranges : null;
+const prLevel = () => (PR && st.pop === POP0 && PR.levels[st.sc]) || null;
+const prPlan = () => (PR && st.pop === POP0 && PR.plans[keyOf(st.sc, st.cl, st.cap)]) || null;
+const fmtRange = r => r.low.toLocaleString('en') + '–' + r.high.toLocaleString('en');
+const LVL_SHORT = { obs2021: 'July 2021 (observed)', rp10: '10-year (model)', rp100: '100-year (model)', rp500: '500-year (model)' };
+function rangeBar(r, w) {
+  const x = v => (2 + (w - 4) * (v - r.low) / Math.max(1, r.high - r.low)).toFixed(1);
+  return '<svg class="rbar" width="' + w + '" height="10" viewBox="0 0 ' + w + ' 10" aria-hidden="true"><line x1="2" y1="5" x2="' + (w - 2) + '" y2="5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="' + x(r.base) + '" cy="5" r="3.5" fill="var(--accent)"/></svg>';
+}
 const results = B.results || {};
 const EMS = meta.ems_coverage || null, EMS_OUTLINE = EMS && EMS.outline, EMS_COL = '#5E3C99';      // areas of interest of the July 2021 satellite map
 ['meta', 'assumptions', 'scenarios', 'capacities', 'network', 'zones', 'shelters', 'results'].forEach(k => { if (B[k] == null) warn('Bundle key missing: ' + k); });
@@ -848,7 +863,38 @@ function countingHtml() {
   h += '<p>' + (pop.dropped_no_usable_building != null && pop.window_residents != null
     ? fmtR(pop.dropped_no_usable_building) + ' of ' + fmtR(pop.window_residents) + ' residents (' + pct + ' %) live in cells without a usable building and are dropped, so all counts are minimums.'
     : 'Residents in cells without a usable building are dropped, so all counts are minimums.') + (pop.window ? ' Window: ' + esc(pop.window) + '.' : '') + '</p>';
-  return h;
+  return h + rangeChartHtml();
+}
+// one line per flood level from the lowest to the highest count, dot = the count the plans use; plus the plan at both ends (set A, default closure)
+function rangeChartHtml() {
+  const ids = PR ? scenarios.map(x => x.id).filter(id => PR.levels[id]) : [];
+  if (!ids.length) return '';
+  const W = 460, L = 140, R = 100, rowH = 26, top = 12;
+  const max = Math.max(...ids.map(id => PR.levels[id].high)) * 1.02;
+  const x = v => (L + (W - L - R) * v / max).toFixed(1);
+  let svg = '<svg class="rchart" viewBox="0 0 ' + W + ' ' + (top + ids.length * rowH + 14) + '" role="img" aria-label="Residents inside each flood level: range across methods, dot = our count">';
+  ids.forEach((id, i) => {
+    const r = PR.levels[id], y = top + i * rowH;
+    svg += '<text x="0" y="' + (y + 4) + '" font-size="12" fill="var(--ink)">' + esc(LVL_SHORT[id] || id) + '</text>' +
+      '<line x1="' + x(0) + '" y1="' + y + '" x2="' + x(max) + '" y2="' + y + '" stroke="var(--line)" stroke-width="1"/>' +
+      '<line x1="' + x(r.low) + '" y1="' + y + '" x2="' + x(r.high) + '" y2="' + y + '" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/>' +
+      (r.spreading ? '<line x1="' + x(r.spreading[0]) + '" y1="' + y + '" x2="' + x(r.spreading[1]) + '" y2="' + y + '" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/>' : '') +
+      '<circle cx="' + x(r.base) + '" cy="' + y + '" r="5" fill="var(--accent)"><title>our count ' + fmt(r.base) + '</title></circle>' +
+      '<text x="' + (W - R + 8) + '" y="' + (y + 4) + '" font-size="12" fill="var(--ink)">' + fmtRange(r) + '</text>';
+  });
+  const yAxis = top + ids.length * rowH + 4;
+  svg += '<text x="' + x(0) + '" y="' + yAxis + '" font-size="10" fill="var(--muted)">0</text><text x="' + x(max) + '" y="' + yAxis + '" font-size="10" fill="var(--muted)" text-anchor="end">' + Math.round(max).toLocaleString('en') + ' residents</text></svg>';
+  const rows = ids.map(id => {
+    const r = PR.levels[id], cl = ((scById(id) || {}).closures || [])[0], p = cl && capacities.length ? PR.plans[id + '|' + cl.id + '|' + capacities[0].id] : null;
+    const pair = a => a ? fmtP(a[0]) + '–' + fmtP(a[1]).replace('~', '') : '';
+    return '<tr><td>' + esc(LVL_SHORT[id] || id) + '</td><td>' + fmtRange(r) + '</td><td>' + fmt(r.base) + '</td><td>' + pair(r.spreading) + '</td><td>' + pair(r.edge) + '</td>' +
+      (p ? '<td>' + p.low.places_per_resident + ' / ' + p.high.places_per_resident + '</td><td>' + fmt(p.low.shelters_full) + ' / ' + fmt(p.high.shelters_full) + '</td><td>' + fmtP(p.low.unplaced_at_most) + ' / ' + fmtP(p.high.unplaced_at_most) + '</td>' : '<td></td><td></td><td></td>') + '</tr>';
+  }).join('');
+  return '<h3 id="howRange">Range across methods</h3>' + svg +
+    '<p class="small">Not a confidence interval: GHS-POP publishes no error per cell, so there is no statistical interval. Thick bar: five ways of sharing the population grid (footprint, equal split, floor area, flooded share of the cell, whole cell if its centre is flooded). Thin line: also the flood edge moved one EFAS cell (about 60-90 m) in or out; for July 2021 the mapped edge moved 60 m. Rounded to 100. Dot: the count the plans use.</p>' +
+    '<p><b>Direction:</b> ' + esc(PR.direction || '') + '</p>' +
+    '<table class="rtable"><thead><tr><th>Flood level</th><th>Range</th><th>Our count</th><th>Sharing rules</th><th>Edge ±1 cell</th><th>Places per resident (low / high end)</th><th>Shelters full</th><th>Without a place if not re-routed</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<p class="small">Plans at both ends: ' + esc(capLabel(capacities[0] ? capacities[0].id : '')) + ', the first road-closure rule of each level. ' + esc(PR.plan_method || '') + '.</p>';
 }
 function openDisc(open, full) {
   const d = $('discBody'); d.hidden = !open; $('btnDisc').setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -962,20 +1008,24 @@ function renderSummary() {
   const timeSub = [];
   if (s.mean_access_min != null) timeSub.push('walk ' + s.mean_access_min.toFixed(1) + ' + road ' + (road == null ? 'n/a' : road.toFixed(1)));
   if (s.people_over_30min != null) timeSub.push('over 30 min: ' + fmtR(s.people_over_30min) + ' people');
+  const rl = prLevel(), rp = prPlan();
+  const rangeTip = rl ? 'Residents inside the flood at the selected level, in the modelled area (Kreis Euskirchen and Landkreis Ahrweiler), shown as a range across methods, not a confidence interval: GHS-POP publishes no error per cell. Low and high come from five ways of sharing the population grid (footprint, equal split, floor area, flooded share of the cell, whole cell if its centre is flooded) and from moving the flood edge one EFAS cell in or out; rounded to 100. The dot is the count this plan uses. ' + (PR.direction || '') + ' All of them are assumed to need a public shelter.' : '';
   const cards = [
-    { l: 'People to place (min.)', v: fmtP(s.people_to_place), sub: outEmsSub(), extra: '<span title="rounded; modelled estimate, ' + popYear() + (st.pop !== POP0 ? ' projected' : '') + ' population, error not quantified">rounded est., ' + popYear() + (st.pop !== POP0 ? ' proj.' : '') + '</span>' + (ass.population ? ' <button type="button" class="link" data-how="1" title="How residents are counted">how?</button>' : ''), tip: 'Residents inside the flood at the selected level, in the modelled area (Kreis Euskirchen and Landkreis Ahrweiler). A minimum: the population grid is spread over buildings, EMS maps only part of the area, EFAS misses small rivers. All of them are assumed to need a public shelter.' },
+    { l: rl ? 'People to place (range across methods)' : 'People to place (min.)', v: rl ? fmtRange(rl) : fmtP(s.people_to_place), html: rl ? esc(fmtRange(rl)) + rangeBar(rl, 120) : null,
+      sub: rl ? ['dot = our count ' + fmtP(s.people_to_place), rp ? 'places per resident: ' + rp.high.places_per_resident + '–' + rp.low.places_per_resident : ''].concat(outEmsSub()) : outEmsSub(), extra: '<span title="rounded; modelled estimate, ' + popYear() + (st.pop !== POP0 ? ' projected' : '') + ' population, error not quantified">rounded est., ' + popYear() + (st.pop !== POP0 ? ' proj.' : '') + '</span>' + (ass.population ? ' <button type="button" class="link" data-how="1" title="How residents are counted">how?</button>' : ''), tip: rangeTip || 'Residents inside the flood at the selected level, in the modelled area (Kreis Euskirchen and Landkreis Ahrweiler). A minimum: the population grid is spread over buildings, EMS maps only part of the area, EFAS misses small rivers. All of them are assumed to need a public shelter.' },
     { l: 'Placed', v: fmtP(s.placed), sub: s.placed > 0 ? ['within 2 km: ' + fmtR(near2km(res.assign || [])) + ' (' + Math.round(100 * near2km(res.assign || []) / s.placed) + ' %)'] : [], tip: 'People who were assigned a shelter place in this plan, within the assumed capacity of each building and reaching it by open roads within 1 hour. "Within 2 km" = sent to a building at most 2 km away in a straight line.' + (sameAsQ3() ? ' The shelter report (Q3) covers this case (July 2021 flood, cautious capacity) but allows only those 2 km, so it places far fewer people: there is room within an hour by road, but not enough room close by.' : '') },
-    { l: 'UNASSIGNED', v: fmtP(s.unassigned), cls: s.unassigned >= 0.5 ? 'unassigned wide' : 'wide', sub: split, tip: splitTip },
+    { l: 'UNASSIGNED', v: fmtP(s.unassigned), cls: s.unassigned >= 0.5 ? 'unassigned wide' : 'wide', sub: rp ? split.concat(['low / high end, not re-routed: ' + fmtP(rp.low.unplaced_at_most) + ' / ' + fmtP(rp.high.unplaced_at_most)]) : split,
+      tip: splitTip + (rp ? '. Low / high end: this plan with every zone\'s residents scaled to the lowest or highest count of the range, not re-routed; people beyond a building\'s capacity count as without a place, as if no other building took them. Most buildings in the plan are already full, so the high-end figure is a worst case; whether everyone gets a place within 1 h needs the route optimisation re-run.' : '') },
     { l: 'Mean time', v: m1(s.mean_time_min), sub: timeSub, tip: 'Average over the people placed: the walk from inside the flood to the nearest open road plus the drive or walk on open roads to the shelter at free-flow speeds. Not a forecast; no congestion.' },
     { l: 'Walk to open road', v: s.mean_access_min == null ? 'n/a' : m1(s.mean_access_min), sub: s.people_access_over_10min != null ? [fmtR(s.people_access_over_10min) + ' people > 10 min'] : [], tip: 'First leg on foot from inside the flood to the nearest road that stays open; an assumption.' },
     { l: 'Road detour', v: m1(s.mean_detour_min), sub: ['walk excluded'], tip: 'Extra road time caused by closures: time on open roads minus the time the same trip would take if no road were closed (same start point, same shelter). The walk is not included.' },
-    { l: 'Shelter buildings used', v: fmt(s.shelters_used), sub: s.shelters_at_capacity != null ? [fmt(s.shelters_at_capacity) + ' of ' + fmt(s.shelters_used) + ' at capacity'] : [], tip: 'Number of candidate buildings that receive people in this plan, and how many of them are filled to their assumed capacity.' },
+    { l: 'Shelter buildings used', v: fmt(s.shelters_used), sub: (s.shelters_at_capacity != null ? [fmt(s.shelters_at_capacity) + ' of ' + fmt(s.shelters_used) + ' at capacity'] : []).concat(rp ? ['full at the low / high end: ' + fmt(rp.low.shelters_full) + ' / ' + fmt(rp.high.shelters_full)] : []), tip: 'Number of candidate buildings that receive people in this plan, and how many of them are filled to their assumed capacity.' },
     { l: 'Closed roads', v: fmt(s.closed_edges), tip: 'Road segments removed because they touch the flood under the selected closure rule. Bridges and tunnels are closed on a touch test. A segment is a piece of road between two junctions.' },
     { l: 'Road segments over assumed capacity', v: over != null ? fmt(over) : (r == null ? 'n/a' : r.toFixed(2)),
       cls: 'wide',
       sub: [(s.worst_road_class ? 'worst: ' + String(s.worst_road_class).replace(/_/g, ' ') + (r != null ? ' ' + r.toFixed(2) : '') : ''), 'Short link segments dominate the max.'], tip: stressTip }
   ];
-  el.innerHTML = cards.map(c => '<div class="card ' + (c.cls || '') + '"' + (c.tip ? ' title="' + esc(c.tip) + '"' : '') + '><div class="v">' + esc(c.v) + '</div><div class="l">' + esc(c.l) +
+  el.innerHTML = cards.map(c => '<div class="card ' + (c.cls || '') + '"' + (c.tip ? ' title="' + esc(c.tip) + '"' : '') + '><div class="v">' + (c.html || esc(c.v)) + '</div><div class="l">' + esc(c.l) +
     (c.sub || []).filter(Boolean).map(x => '<span class="s">' + esc(x) + '</span>').join('') + (c.extra ? '<span class="s">' + c.extra + '</span>' : '') + '</div></div>').join('');
   el.querySelectorAll('[data-how]').forEach(b => b.addEventListener('click', () => { openDisc(true); const t = $('howCounted'); if (t) t.scrollIntoView({ block: 'nearest' }); $('discBody').scrollTop = t ? t.offsetTop - 8 : 0; }));
 }
