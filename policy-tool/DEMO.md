@@ -35,7 +35,7 @@ One presenter drives, one speaks (or one person does both). About 650 spoken wor
 
 **Press →** (step 4, Alert). **Click** a green home near the river.
 
-> "This is what that household receives: not just *danger*, but *go here, this far, a place is reserved for you* — in German here, and in French or Dutch across the border." *(Click FR, then NL.)*
+> "This is what that household receives: not just *danger*, but *go here, this way, a place is reserved for you* — with the walking route street by street, and a warning when part of it flooded in 2021. Plain text only, because cell broadcast must reach old phones on 2G: no map, no link. In German here, and in French or Dutch across the border." *(Click FR, then NL.)*
 
 **Press →** (step 5, Johan).
 
@@ -62,6 +62,6 @@ One presenter drives, one speaks (or one person does both). About 650 spoken wor
 | Why these six areas? | They are all the areas Copernicus EMS mapped inside Anna's mandate. Outside them the data says nothing — unknown, not dry. The Ahr is shown only for comparison. |
 | Can we trust the resident numbers? | They are estimates from GHS-POP 2020, shown as a range: spread by area or by building floor area. Home counts and EFAS counts are checked against the team's reference table; the build stops if they differ. |
 | Why is Liège so small? | Radar images of 15–17 July miss water between buildings, and Annex 2 warns the building data undercounts Belgian flood areas. That is a finding: Belgium needs its own damage records in this assessment. |
-| Your lines cross rivers. | Yes: straight-line distance. A real plan needs road routing, bridge closures and transport. The matching stays the same. |
+| Your lines cross rivers. | The matching uses straight-line distance. The route in the alert follows real streets (OpenStreetMap) and says how much of it flooded in 2021, but it does not yet avoid flooded streets or closed bridges. A real plan needs flood-aware routing and transport. |
 | Can cell broadcast target one home? | No. It reaches all phones in an area, so the zone is split into sectors with one shelter each. Exact per-home messages need registered addresses or the alert app. *(verify the BE-Alert registration detail)* |
 | Where did AI help, and where did it go wrong? | See the AI sheet. AI wrote the data build and the tool; we checked every area against the reference table and matched the browser result to the Python result. Reviews caught a double count of schools and care sites (66 → 31 in the Ahr) and cross-border counting that ignored the home's country; both fixed. |

@@ -5,7 +5,7 @@ Interactive assessment for Anna, cross-border crisis coordinator for the Belgian
 | View | Answers |
 |---|---|
 | 1 · Region | Q1 homes and residents in the mapped flood, Q2 status of measures since 2021, Q3 shelter coverage, Q4 ranking of the most exposed areas |
-| 2 · Zoom in | One area along the warning chain Detect → Interpret → Decide → Alert → Johan, with live shelter matching and the alert on a phone |
+| 2 · Zoom in | One area along the warning chain Detect → Interpret → Decide → Alert → Johan, with live shelter matching and the alert on a phone, including the walking route from the home to its shelter, as plain cell-broadcast text that also reaches phones on 2G |
 | 3 · Anna's action | The recommendation, the ranking and the full Q2 evidence grid |
 
 ## Open it
@@ -14,7 +14,7 @@ Interactive assessment for Anna, cross-border crisis coordinator for the Belgian
 python -m http.server 8765 --directory policy-tool
 ```
 
-Then open <http://localhost:8765>. In view 2, use ← / → for the steps and click any home to see its alert. The plan sliders re-run the matching for all areas. For submission, build one self-contained page (data inlined; Leaflet and map tiles still need internet):
+Then open <http://localhost:8765>. In view 2, use ← / → for the steps and click any home to see its alert. The plan sliders re-run the matching for all areas. For submission, build one self-contained page (data inlined; Leaflet, map tiles and walking routes still need internet):
 
 ```powershell
 python scripts/bundle_policy_tool.py
@@ -45,6 +45,7 @@ It refuses rows without a source for `verified`/`claimed` and links that are not
 | GHS-POP R2023A E2020 30″ | Residents per cell, shared among residential buildings by floor area |
 | EFAS RP100 / RP500 depth | Coverage check of homes; shelters with RP500 depth can be excluded |
 | OpenStreetMap via Overpass (cached in `data/raw/osm/`) | Schools, sports halls, community buildings, care sites, village names |
+| FOSSGIS OSRM foot router (`routing.openstreetmap.de`), fetched live per selected home | Walking route and turn-by-turn steps in the alert, and how many metres of it lie in the 2021 flood |
 
 Checks run by the build script: homes in the flood and homes with RP500 and RP100 depth must equal `data/reference/aoi_metrics.csv`; the build stops otherwise. The page recomputes the matching in the browser and reproduces each summary JSON at the default plan.
 
