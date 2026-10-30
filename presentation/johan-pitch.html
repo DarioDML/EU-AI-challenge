@@ -352,7 +352,7 @@ html.static *, html.static *::before, html.static *::after { transition: none !i
 #s2b .s2b-q .h2 { color: var(--ink); font-size: 76px; line-height: 1.04; }
 #s2b .s2b-n { font: 600 20px/1 var(--mono); letter-spacing: 0.14em; color: var(--ink-3); }
 #s2b .s2b-dot { width: 18px; height: 18px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 2px var(--ink); transform: scale(0); transition: transform 600ms var(--spring); }
-#s2b.s1 .s2b-q1, #s2b.s2 .s2b-q2, #s2b.s3 .s2b-q3 { opacity: 0.38; transform: none; }
+#s2b.s1 .s2b-q1, #s2b.s2 .s2b-q2, #s2b.s3 .s2b-q3 { opacity: 0.55; transform: none; }
 #s2b[data-step="1"] .s2b-q1, #s2b[data-step="2"] .s2b-q2, #s2b[data-step="3"] .s2b-q3 { opacity: 1; }
 #s2b[data-step="1"] .s2b-q1 .s2b-dot, #s2b[data-step="2"] .s2b-q2 .s2b-dot, #s2b[data-step="3"] .s2b-q3 .s2b-dot { transform: scale(1); }
 #s2b[data-step="1"] .s2b-q1 .s2b-n, #s2b[data-step="2"] .s2b-q2 .s2b-n, #s2b[data-step="3"] .s2b-q3 .s2b-n { color: var(--eu-blue); }
@@ -366,6 +366,8 @@ html.static *, html.static *::before, html.static *::after { transition: none !i
 #s2b .g-row { display: grid; grid-template-columns: 138px 1fr 112px; align-items: center; gap: 18px; }
 #s2b .g-l { font: 500 23px/1 var(--font); color: var(--ink-3); }
 #s2b .g-track { position: relative; height: 22px; }
+#s2b .g-note { position: absolute; left: 0; top: 27px; font: 500 17px/1 var(--font); color: var(--ink-2); white-space: nowrap; }
+#s2b .g-row.is-now { margin-bottom: 20px; }
 #s2b .g-bar { position: absolute; left: 0; top: 0; bottom: 0; width: calc(100% * var(--w)); border-radius: 4px; background: rgba(10, 31, 77, 0.2); transform: scaleX(0); transform-origin: 0 50%; transition: transform 800ms var(--spring); }
 #s2b[data-step="2"] .g-bar { transform: none; transition-delay: calc(300ms + var(--i) * 110ms); }
 #s2b .g-v { font: 500 24px/1 var(--mono); color: var(--ink-3); text-align: right; }
@@ -469,6 +471,9 @@ html.static *, html.static *::before, html.static *::after { transition: none !i
 @media (prefers-reduced-motion: reduce) {
   #s2b .s2b-phone { transform: none; opacity: 1; }
 }
+
+/* user request: no extra text or gauge under question 02; the alert text carries the severity */
+#s2b .s2b-gauge { display: none !important; }
 
 </style>
 <style>
@@ -659,6 +664,42 @@ html.static *, html.static *::before, html.static *::after { transition: none !i
 #s4 .s4-ring.map { left: 562px; top: 312px; width: 84px; height: 84px; border-radius: 50%; }
 #s4 .s4-ring.rank { left: 904px; top: 104px; width: 230px; height: 78px; border-radius: 10px; }
 #s4.s1:not(.s2) .s4-ring { opacity: 1; transform: none; transition-delay: 250ms; }
+
+</style>
+<style>
+/* Slide · How we used AI (agent 6). Light theme; only transform and opacity animate. Steps: 0 build, 1 catch, 2 check. */
+#s5ai .ai-left { position: absolute; left: var(--margin); top: 190px; width: 860px; }
+#s5ai .ai-rule { display: block; width: 56px; height: 4px; border-radius: 2px; background: var(--eu-blue); margin-bottom: 36px; }
+#s5ai .ai-title { color: var(--ink); margin: 0; }
+#s5ai .ai-rows { list-style: none; margin: 84px 0 0; padding: 0; }
+#s5ai .ai-row { display: flex; align-items: baseline; gap: 30px; padding: 26px 0; border-top: 1px solid var(--glass-line); }
+#s5ai .ai-row:last-child { border-bottom: 1px solid var(--glass-line); }
+#s5ai .ai-no { flex: none; width: 52px; font: 500 24px/1 var(--mono); letter-spacing: 0.04em; color: var(--eu-blue); }
+#s5ai .ai-t { font: 650 56px/1.1 var(--font); letter-spacing: -0.03em; color: var(--ink); transition: opacity 700ms var(--spring); }
+/* the current row is emphasised: each earlier row dims */
+#s5ai.s1 .r1 .ai-t, #s5ai.s2 .r1 .ai-t, #s5ai.s2 .r2 .ai-t { opacity: 0.4; }
+
+/* right: build, catch, check on one line; a gold dot travels node to node */
+#s5ai .ai-track { position: absolute; left: 1060px; top: 520px; width: 740px; height: 0; }
+#s5ai .ai-line, #s5ai .ai-prog { position: absolute; left: 0; top: -1px; width: 740px; height: 2px; }
+#s5ai .ai-line { background: var(--glass-line); }
+#s5ai .ai-prog { background: var(--eu-blue); transform: scaleX(0); transform-origin: left center; transition: transform 1000ms var(--spring); }
+#s5ai.s1 .ai-prog { transform: scaleX(0.5); }
+#s5ai.s2 .ai-prog { transform: scaleX(1); }
+#s5ai .ai-n { position: absolute; top: -14px; width: 28px; height: 28px; margin-left: -14px; border-radius: 50%; background: #fff; border: 2px solid var(--eu-blue); }
+#s5ai .ai-n b { position: absolute; inset: 5px; border-radius: 50%; background: var(--eu-blue); transform: scale(0); transition: transform 700ms var(--spring); }
+#s5ai .n1 { left: 0; } #s5ai .n2 { left: 370px; } #s5ai .n3 { left: 740px; }
+#s5ai .n1 b, #s5ai.s1 .n2 b, #s5ai.s2 .n3 b { transform: scale(1); }
+#s5ai .ai-lb { position: absolute; top: 34px; width: 140px; margin-left: -70px; text-align: center; font: 600 20px/1 var(--mono); letter-spacing: 0.06em; color: var(--ink); opacity: 0.4; transition: opacity 700ms var(--spring); }
+#s5ai .lb1 { left: 0; } #s5ai .lb2 { left: 370px; } #s5ai .lb3 { left: 740px; }
+#s5ai .lb1, #s5ai.s1 .lb2, #s5ai.s2 .lb3 { opacity: 1; }
+#s5ai .ai-dot { position: absolute; left: -13px; top: -13px; width: 26px; height: 26px; border-radius: 50%; background: var(--gold); border: 2px solid var(--ink);
+  box-shadow: 0 6px 16px rgba(10, 31, 77, 0.22); transition: transform 1000ms var(--spring); }
+#s5ai.s1 .ai-dot { transform: translate3d(370px, 0, 0); }
+#s5ai.s2 .ai-dot { transform: translate3d(740px, 0, 0); }
+
+#s5ai .ai-tools { position: absolute; left: 1060px; top: 640px; margin: 0; font: 500 17px/1.4 var(--mono); letter-spacing: 0.02em; color: var(--ink-3); }
+#s5ai .ai-team { position: absolute; left: 1060px; top: 678px; margin: 0; font: 500 17px/1.4 var(--mono); letter-spacing: 0.04em; color: var(--ink-3); }
 
 </style>
 <style>
@@ -1162,7 +1203,7 @@ window.PITCH = {"generated":"2026-10-30T12:16Z","source":{"bundle":"bundle.json"
    One crowd of 100 person figures stays in place from step 2 to 4; only the state of the figures changes.
    Illustration of rates per 100 respondents, not 100 real people. Thieken et al. 2023, NHESS 23, 973-990 (online survey,
    n = 1,315): 29% of respondents in Rhineland-Palatinate got no warning (35% in North Rhine-Westphalia); of those who were
-   warned, 85% did not expect very severe flooding and 46% reported a lack of knowledge on how to protect themselves.
+   warned, 85% did not expect very severe flooding and 46% lacked knowledge on how to protect themselves.
    The paper does not report how the 85% and 46% overlap, so they are never drawn on the crowd at the same time.
    Johan (first figure, gold raincoat) is one of the 71 warned figures but is not part of any highlighted group. */
 (function () {
@@ -1206,15 +1247,15 @@ window.PITCH = {"generated":"2026-10-30T12:16Z","source":{"bundle":"bundle.json"
     notes: {
       title: 'Meet Johan',
       script: 'This is Johan. He is 11 and lives in Bad Neuenahr-Ahrweiler. Johan is a fictional character; he stands for residents of flood-prone streets. ' +
-        'In July 2021, the water came at night. Anyone in his place has three questions. Am I in danger? How serious is it? Where should I go? ' +
+        'In July 2021, the water came at night. He has three questions. Am I in danger? How serious is it? Where should I go? ' +
         'In a survey, 29% in Rhineland-Palatinate got no warning. ' +
-        'Of those who were warned, 85% did not expect very severe flooding, and 46% reported a lack of knowledge on how to protect themselves. ' +
+        'Of those who were warned, 85% did not expect very severe flooding, and 46% lacked knowledge on how to protect themselves. ' +
         "Johan doesn't need a generic alert. He needs to know where to go, and which road out is still open.",
       notes: [
         'Johan, 11, is fictional; he stands for residents of flood-prone streets.',
         'A useful alert answers three questions: Am I in danger? How serious is it? Where should I go?',
         'Thieken et al. 2023 (online survey, n = 1,315): 29% of respondents in Rhineland-Palatinate got no warning; the figure was 35% in North Rhine-Westphalia.',
-        'Of those who were warned: 85% did not expect very severe flooding; 46% reported a lack of knowledge on how to protect themselves.',
+        'Of those who were warned: 85% did not expect very severe flooding; 46% lacked knowledge on how to protect themselves.',
         'The 100 figures illustrate rates per 100 respondents, not real people. The paper does not report how the 85% and 46% overlap, so they are never shown together.',
       ],
     },
@@ -1452,7 +1493,7 @@ window.PITCH = {"generated":"2026-10-30T12:16Z","source":{"bundle":"bundle.json"
     ${GAUGE.length ? `<div class="s2b-gauge" aria-label="How serious: residents inside the flood">
       <p class="g-head">About <b class="num">${g21 ? about(g21.v) : ''}</b> residents in the flood area</p>
       <ul class="g-rows">
-        ${GAUGE.map((g, i) => `<li class="g-row${g.id === 'obs2021' ? ' is-now' : ''}" style="--i:${i};--w:${(g.v / GMAX).toFixed(4)}"><span class="g-l">${esc(g.label)}</span><span class="g-track"><i class="g-bar"></i></span><b class="g-v mono num" data-v="${g.v}">0</b></li>`).join('')}
+        ${GAUGE.map((g, i) => `<li class="g-row${g.id === 'obs2021' ? ' is-now' : ''}" style="--i:${i};--w:${(g.v / GMAX).toFixed(4)}"><span class="g-l">${esc(g.label)}</span><span class="g-track"><i class="g-bar"></i>${g.id === 'obs2021' ? '<small class="g-note">The flood this alert describes</small>' : ''}</span><b class="g-v mono num" data-v="${g.v}">0</b></li>`).join('')}
       </ul>
       <p class="g-micro mono">Kreis Euskirchen + Landkreis Ahrweiler, modelled estimate</p>
       ${A.street_closed ? '<p class="g-street">Your street is closed by the flood<small class="mono">' + esc(A.street) + '</small></p>' : ''}
@@ -1508,7 +1549,7 @@ window.PITCH = {"generated":"2026-10-30T12:16Z","source":{"bundle":"bundle.json"
   const notes = {
     title: 'The message',
     script:
-      'Johan\'s phone shows one plain-text message that answers his three questions. ' +
+      'Johan\'s phone shows one plain-text message. In its first words it tells him how serious it is and what to do, and it answers his three questions. ' +
       `Am I in danger? ${L.danger} ` +
       `How serious is it? ${L.severity} ` +
       (g21 ? `In the model, about ${about(g21.v)} residents were inside that flood` : '') +
@@ -1717,7 +1758,7 @@ window.PITCH = {"generated":"2026-10-30T12:16Z","source":{"bundle":"bundle.json"
 
 </script>
 <script>
-/* Slide 5 (s4, after the message slide) · How it helps Anna (4 steps · 3:05-4:45). A guided demo of the policy tool (policy-tool/):
+/* Slide 5 (s4, after the message slide) · How it helps Anna (4 steps · 3:05-4:25). A guided demo of the policy tool (policy-tool/):
    0 Anna's question · 1 where is the risk (region view, Schleiden ringed) · 2 who gets a shelter (Schleiden, Decide)
    · 3 Anna's answer (view 3, the camera pushes into the tool's "one thing Anna can do first").
    The phone alert is slide 3, so this slide shows none. The deck has no other policy-ask slide: step 3 carries it.
@@ -1793,8 +1834,51 @@ window.PITCH = {"generated":"2026-10-30T12:16Z","source":{"bundle":"bundle.json"
       Shelters: OSM candidates, not designated · 3.5 m² per person · ≤ 5 km, walk ≤ 2 km · map © OpenStreetMap</p>`;
 
   Deck.register({
-    id: 's4', order: 4, title: 'The policy tool', steps: 4, time: [185, 285],
+    id: 's4', order: 4, title: 'The policy tool', steps: 4, time: [185, 265],
     notes, html,
+  });
+})();
+
+</script>
+<script>
+/* Slide · How we used AI (4:25-4:45), explainable in 20 seconds. Owner: agent 6.
+   Source of truth: the team's AI sheet (Annex 7). Tools: Claude, Gemini, ChatGPT, Perplexity, NotebookLM.
+   Takeaways: speed (communication dashboard and shelter-matching system in two days), a catch (AI treated missing flood
+   depth as dry; caught in code review, missing depth now stays "unknown"), verification (checked twice, every claim
+   traced to its original source, unconfirmed sources removed). No names, no personal data. */
+(function () {
+  'use strict';
+  const TEAM = 'Team 1';
+  Deck.register({
+    id: 's5ai', order: 5.5, title: 'How we used AI', steps: 3, time: [265, 285],
+    notes: {
+      title: 'How we used AI',
+      script: 'AI let us build this tool in two days, which we could not have done by hand. It also made mistakes. We caught and fixed them. Every result was checked twice, and every source traced.',
+      notes: [
+        'Speed: AI helped us build the communication dashboard and the shelter-matching system in two days.',
+        'It got something wrong: missing flood-depth values were treated as dry (safe). Caught in code review; missing depth now stays "unknown".',
+        'Checked twice: AI against a checklist, and by hand against the raw data. Every claim in the brief traced to its original source; sources we could not confirm were removed.',
+        'Tools used: Claude, Gemini, ChatGPT, Perplexity, NotebookLM.',
+      ],
+    },
+    html: `
+      <div class="ai-left">
+        <span class="ai-rule" data-b="0"></span>
+        <h2 class="h2 ai-title" data-b="0">AI built it fast.<br>We checked it.</h2>
+        <ol class="ai-rows">
+          <li class="ai-row r1" data-b="0"><span class="ai-no">01</span><span class="ai-t">Tool built in two days.</span></li>
+          <li class="ai-row r2" data-b="1"><span class="ai-no">02</span><span class="ai-t">Caught: AI mistakes, fixed.</span></li>
+          <li class="ai-row r3" data-b="2"><span class="ai-no">03</span><span class="ai-t">Every source traced.</span></li>
+        </ol>
+      </div>
+      <div class="ai-track" data-b="0" aria-hidden="true">
+        <i class="ai-line"></i><i class="ai-prog"></i>
+        <i class="ai-n n1"><b></b></i><i class="ai-n n2"><b></b></i><i class="ai-n n3"><b></b></i>
+        <span class="ai-lb lb1">build</span><span class="ai-lb lb2">catch</span><span class="ai-lb lb3">check</span>
+        <i class="ai-dot"></i>
+      </div>
+      <p class="ai-tools" data-b="0">Claude · Gemini · ChatGPT · Perplexity · NotebookLM</p>
+      <p class="ai-team" data-b="0">${TEAM}</p>`,
   });
 })();
 

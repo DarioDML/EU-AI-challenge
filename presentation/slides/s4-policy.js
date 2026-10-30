@@ -1,4 +1,4 @@
-/* Slide 5 (s4, after the message slide) · How it helps Anna (4 steps · 3:05-4:45). A guided demo of the policy tool (policy-tool/):
+/* Slide 5 (s4, after the message slide) · How it helps Anna (4 steps · 3:05-4:25). A guided demo of the policy tool (policy-tool/):
    0 Anna's question · 1 where is the risk (region view, Schleiden ringed) · 2 who gets a shelter (Schleiden, Decide)
    · 3 Anna's answer (view 3, the camera pushes into the tool's "one thing Anna can do first").
    The phone alert is slide 3, so this slide shows none. The deck has no other policy-ask slide: step 3 carries it.
@@ -74,7 +74,7 @@
       Shelters: OSM candidates, not designated · 3.5 m² per person · ≤ 5 km, walk ≤ 2 km · map © OpenStreetMap</p>`;
 
   Deck.register({
-    id: 's4', order: 4, title: 'The policy tool', steps: 4, time: [185, 285],
+    id: 's4', order: 4, title: 'The policy tool', steps: 4, time: [185, 265],
     notes, html,
   });
 })();

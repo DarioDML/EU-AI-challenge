@@ -9,7 +9,7 @@
 #s2b .s2b-q .h2 { color: var(--ink); font-size: 76px; line-height: 1.04; }
 #s2b .s2b-n { font: 600 20px/1 var(--mono); letter-spacing: 0.14em; color: var(--ink-3); }
 #s2b .s2b-dot { width: 18px; height: 18px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 2px var(--ink); transform: scale(0); transition: transform 600ms var(--spring); }
-#s2b.s1 .s2b-q1, #s2b.s2 .s2b-q2, #s2b.s3 .s2b-q3 { opacity: 0.38; transform: none; }
+#s2b.s1 .s2b-q1, #s2b.s2 .s2b-q2, #s2b.s3 .s2b-q3 { opacity: 0.55; transform: none; }
 #s2b[data-step="1"] .s2b-q1, #s2b[data-step="2"] .s2b-q2, #s2b[data-step="3"] .s2b-q3 { opacity: 1; }
 #s2b[data-step="1"] .s2b-q1 .s2b-dot, #s2b[data-step="2"] .s2b-q2 .s2b-dot, #s2b[data-step="3"] .s2b-q3 .s2b-dot { transform: scale(1); }
 #s2b[data-step="1"] .s2b-q1 .s2b-n, #s2b[data-step="2"] .s2b-q2 .s2b-n, #s2b[data-step="3"] .s2b-q3 .s2b-n { color: var(--eu-blue); }
@@ -23,6 +23,8 @@
 #s2b .g-row { display: grid; grid-template-columns: 138px 1fr 112px; align-items: center; gap: 18px; }
 #s2b .g-l { font: 500 23px/1 var(--font); color: var(--ink-3); }
 #s2b .g-track { position: relative; height: 22px; }
+#s2b .g-note { position: absolute; left: 0; top: 27px; font: 500 17px/1 var(--font); color: var(--ink-2); white-space: nowrap; }
+#s2b .g-row.is-now { margin-bottom: 20px; }
 #s2b .g-bar { position: absolute; left: 0; top: 0; bottom: 0; width: calc(100% * var(--w)); border-radius: 4px; background: rgba(10, 31, 77, 0.2); transform: scaleX(0); transform-origin: 0 50%; transition: transform 800ms var(--spring); }
 #s2b[data-step="2"] .g-bar { transform: none; transition-delay: calc(300ms + var(--i) * 110ms); }
 #s2b .g-v { font: 500 24px/1 var(--mono); color: var(--ink-3); text-align: right; }
@@ -126,3 +128,6 @@
 @media (prefers-reduced-motion: reduce) {
   #s2b .s2b-phone { transform: none; opacity: 1; }
 }
+
+/* user request: no extra text or gauge under question 02; the alert text carries the severity */
+#s2b .s2b-gauge { display: none !important; }
