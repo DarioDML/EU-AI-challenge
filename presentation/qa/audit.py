@@ -53,7 +53,7 @@ PITCH_DIR = HERE.parent
 CHROME = os.environ.get("PITCH_QA_CHROME", r"C:\Program Files\Google\Chrome\Application\chrome.exe")
 ROOT = next(p for p in HERE.parents if (p / "AGENTS.md").is_file())
 W, H = 1920, 1080
-EXPECTED_STEPS = {1: 4, 2: 3, 3: 4, 4: 2, 5: 3}                    # blueprint section 7
+EXPECTED_STEPS = {1: 5, 2: 3, 3: 4, 4: 4, 5: 2}                    # blueprint section 7
 EXPECTED_FAILS = (r"/assets/logos/", r"visualisation(%20| )busy[^\"' ]*\.svg")  # route-stress-map.svg is the real map now   # optional files the engine probes
 TIER2 = ("overflow", "overlapping", "blank", "image_broken", "chart_empty", "text_truncated")
 
@@ -360,7 +360,7 @@ INSPECT_JS = r"""
   const DECOR = '[aria-hidden="true"],.sr-only,.visually-hidden,.vh,[hidden]';
   const vhid = el => { for (let a = el; a && a !== slide; a = a.parentElement) { const s = css(a);
     if (s.clip === 'rect(0px, 0px, 0px, 0px)' || /inset\(50%\)/.test(s.clipPath)) return true; } return false; };
-  const catOf = el => el.closest('.src') ? 'src' : (el.closest(DECOR) || vhid(el)) ? 'decor' : 'main';
+  const catOf = el => el.closest('.src, .g-micro, .s2-micro') ? 'src' : el.closest('.s2b-phone, .s4-phone') ? 'artefact' : (el.closest(DECOR) || vhid(el)) ? 'decor' : 'main';
   const scaleOf = el => { let k = 1; for (let a = el; a && a !== stage; a = a.parentElement) { const t = css(a).transform;
     if (t && t !== 'none') { const m = new DOMMatrixReadOnly(t); k *= Math.hypot(m.a, m.b); } } return k; };
   const fontPx = el => { const f = parseFloat(css(el).fontSize) || 0;
@@ -473,7 +473,7 @@ INSPECT_JS = r"""
     const r = img.getBoundingClientRect(), s = css(img), src = img.currentSrc || img.src || '';
     let dec = src; try { dec = decodeURIComponent(src.slice(0, 400)); } catch (e) {}
     R.imgs.push({ src: short(src), complete: img.complete, nw: img.naturalWidth, nh: img.naturalHeight, ow: img.offsetWidth, oh: img.offsetHeight,
-      rect: B(r), fit: s.objectFit, pos: s.objectPosition, op: +opac(img).toFixed(3), visible: r.width > 1 && r.height > 1 && shown(img) && !!X(r, S),
+      rect: B(r), fit: s.objectFit, pos: s.objectPosition, op: +opac(img).toFixed(3), visible: r.width > 1 && r.height > 1 && shown(img) && !!X(r, S), anc: +scaleOf(img).toFixed(4),
       map: /visualisation|route-stress-map/i.test(dec) || (img.naturalWidth === MW && img.naturalHeight === MH), el: path(img) });
   }
   for (const im of slide.querySelectorAll('image')) {
@@ -508,7 +508,7 @@ INSPECT_JS = r"""
   for (const e of slide.querySelectorAll('.src')) { const r = e.getBoundingClientRect(); if (r.width > 1 && shown(e)) R.srcBoxes.push(B(r)); }
   const brand = stage.querySelector('.brand');
   if (brand) { const r = brand.getBoundingClientRect(); R.brand = { box: B(r), visible: r.width > 1 && shown(brand) }; if (R.brand.visible) collect(brand, R.brandTexts, stage, false); }
-  R.brandImgs = [...stage.querySelectorAll('.brand img')].map(img => { const r = img.getBoundingClientRect(), s = css(img); return { src: short(img.currentSrc || img.src), complete: img.complete, nw: img.naturalWidth, nh: img.naturalHeight, ow: img.offsetWidth, oh: img.offsetHeight, rect: B(r), fit: s.objectFit, pos: s.objectPosition, visible: r.width > 1 && shown(img), el: path(img) }; });
+  R.brandImgs = [...stage.querySelectorAll('.brand img')].map(img => { const r = img.getBoundingClientRect(), s = css(img); return { src: short(img.currentSrc || img.src), complete: img.complete, nw: img.naturalWidth, nh: img.naturalHeight, ow: img.offsetWidth, oh: img.offsetHeight, rect: B(r), fit: s.objectFit, pos: s.objectPosition, visible: r.width > 1 && shown(img), el: path(img), boxed: (() => { for (let a = img; a && a !== stage; a = a.parentElement) if (boxed(a) || css(a).boxShadow !== 'none') return true; return false; })() }; });
   R.visuals = [...slide.querySelectorAll('img, svg, canvas, video, image')].filter(e => { const r = e.getBoundingClientRect();
     return r.width * r.height > 0.03 * S.width * S.height && shown(e) && !!X(r, S); }).length;
   return R;
@@ -545,9 +545,9 @@ NUM_RE = re.compile(r"(?<![\w.#$\\-])(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?
 REQUIRED = {  # slide order -> phrases a juror or the brief needs on that slide (any build, captions included)
     1: [("warn", "fictional-character note", r"fictional")],
     2: [("warn", "'does not replace official warnings' footer", r"not\s+replace")],
-    3: [("warn", "'stress is an indicator, not a forecast'", r"not a forecast"), ("warn", "OpenStreetMap attribution", r"OpenStreetMap")],
-    4: [("warn", "'Demo message, not a real alert'", r"not a real alert|demo message")],
-    5: [("info", "FARI named on the closing slide (large lockup)", r"\bFARI\b")],
+    3: [("warn", "'Demo message, not a real alert'", r"not a real alert|demo message")],
+    4: [("warn", "'stress is an indicator, not a forecast'", r"not a forecast"), ("warn", "OpenStreetMap attribution", r"OpenStreetMap")],
+    5: [("warn", "'Demo message, not a real alert'", r"not a real alert|demo message")],
 }
 
 
@@ -795,6 +795,7 @@ def analyse_state(st, R, png, args, prev_main):
     res["words"] = sum(t["words"] for t in main) + sum(p["words"] for p in pseudo_main)
     res["src_words"] = sum(t["words"] for t in texts if t["cat"] == "src")
     res["decor_words"] = sum(t["words"] for t in texts if t["cat"] == "decor")
+    res["art_words"] = sum(t["words"] for t in texts if t["cat"] == "artefact")
     res["hidden_words"] = sum(R["hidden"].values())
     res["main_texts"] = [t["t"] for t in main] + [p["t"] for p in pseudo_main]
     res["new_words"] = sum(t["words"] for t in main if t["t"] not in prev_main) + sum(p["words"] for p in pseudo_main if p["t"] not in prev_main)
@@ -838,7 +839,8 @@ def analyse_state(st, R, png, args, prev_main):
         for b in cand[i + 1:]:
             if a["eid"] == b["eid"]:
                 continue
-            best = max((rect_inter(ra, rb) / max(1.0, min(ra["w"] * ra["h"], rb["w"] * rb["h"])), rect_inter(ra, rb))
+            ink = lambda r: {"x": r["x"], "y": r["y"] + 0.2 * r["h"], "w": r["w"], "h": 0.6 * r["h"]}   # glyph ink, not the line box
+            best = max((rect_inter(ink(ra), ink(rb)) / max(1.0, min(ra["w"] * ra["h"] * 0.6, rb["w"] * rb["h"] * 0.6)), rect_inter(ink(ra), ink(rb)))
                        for ra in a["rects"] for rb in b["rects"])
             if best[1] > 30 and best[0] > 0.35:
                 decor = "decor" in (a["cat"], b["cat"])
@@ -876,6 +878,8 @@ def analyse_state(st, R, png, args, prev_main):
         sx, sy, ox, oy = sc
         if im["map"]:
             map_img = (sx, sy, ox, oy)
+            if abs(im.get("anc", 1) - 1) > 0.002:
+                add("error", "map-transform", f"map image sits under a transform scale of {im['anc']} (blurs or resamples the vector)")
             vector = ".svg" in im["src"].lower() or im["src"].startswith("data:image/svg")
             map_vector = vector
             ok11 = abs(sx - 1) <= 0.002 and abs(sy - 1) <= 0.002
@@ -896,6 +900,10 @@ def analyse_state(st, R, png, args, prev_main):
             if abs(d) > 0.01:
                 add("error", "aspect-distorted", f"image {im['src']} natural {im['nw']}x{im['nh']} shown in a {im['ow']}x{im['oh']} box ({d:+.1%} aspect error, object-fit fill) [{im['el']}]")
     for im in R.get("brandImgs", []):
+        if im["visible"] and im["boxed"]:
+            add("error", "logo-box", f"logo {im['src']} sits in a box (background, border or shadow)")
+        if im["visible"] and not (im["rect"]["x"] < 500 and im["rect"]["y"] > 950):
+            add("error", "logo-place", f"logo {im['src']} is not bottom-left ({im['rect']['x']:.0f}, {im['rect']['y']:.0f})")
         if im["visible"] and im["complete"] and im["nw"] == 0:
             add("error", "image-broken", f"brand logo broken {im['src']}")
     for im in R["images"]:
@@ -984,7 +992,7 @@ def analyse_state(st, R, png, args, prev_main):
                 add("warn", "contrast", f"{len(low)} low-contrast runs: " + "; ".join(low[:4]))
         except Exception as e:
             add("info", "shot-analysis", f"screenshot analysis skipped: {e}")
-    if res["words"] == 0 and R["visuals"] == 0 and not R["pseudo"]:
+    if res["words"] == 0 and res["art_words"] == 0 and R["visuals"] == 0 and not R["pseudo"]:
         t2["blank"] = True
     if t2["blank"]:
         add("error", "blank", "the slide looks blank")
@@ -1140,7 +1148,7 @@ def run(args):
     log(f"source scan: {len(static)} findings in {deck_dir}")
     profile = Path(tempfile.mkdtemp(prefix="chrome-", dir=out))
     base = index.as_uri()
-    console, captured = {}, []
+    console, captured, hidpi = {}, [], []
     chrome = Chrome(args.chrome, profile)
     try:
         cdp = chrome.page
@@ -1240,6 +1248,31 @@ def run(args):
             collect_events(f"{st['s']}.{st['k']}")
             captured.append((st, R, png))
             log(f"  {st['s']}.{st['k']} {st['id']}: {sum(t['words'] for t in R['texts'] if t['cat'] == 'main')} words")
+        # live pass: real transitions (no ?static), stepping through the whole deck forward and back
+        if not only and not args.no_live:
+            cdp.send("Page.navigate", url=f"{base}?qa=live#1.0")
+            time.sleep(2.0)
+            n_states = sum(s["steps"] for s in slides)
+            for _ in range(n_states - 1):
+                cdp.ev("Deck.next()")
+                time.sleep(0.45)
+            for _ in range(6):
+                cdp.ev("Deck.prev()")
+                time.sleep(0.3)
+            time.sleep(1.0)
+            collect_events("live")
+        # hi-dpi pass: the map at device scale 2 (vector must stay 1:1 in CSS px with no transform above it)
+        if not only and not args.no_hidpi:
+            cdp.send("Emulation.setDeviceMetricsOverride", width=W, height=H, deviceScaleFactor=2, mobile=False)
+            for st in states:
+                load(st["s"], st["k"])
+                Rh = cdp.ev(INSPECT_JS, await_=True)
+                if any(i.get("map") and i["visible"] for i in Rh["imgs"] + Rh["images"]):
+                    png2 = shots.parent / "shots2x" / f"{st['s']}.{st['k']}_{st['id']}@2x.png"
+                    png2.parent.mkdir(exist_ok=True)
+                    png2.write_bytes(base64.b64decode(cdp.send("Page.captureScreenshot", format="png", fromSurface=True)["data"]))
+                    hidpi.append((st, Rh, png2))
+            cdp.send("Emulation.setDeviceMetricsOverride", width=W, height=H, deviceScaleFactor=1, mobile=False)
     finally:
         chrome.close()
         shutil.rmtree(profile, ignore_errors=True)
@@ -1280,6 +1313,27 @@ def run(args):
     loaded = sorted({f.rsplit(" ", 2)[0] for f in faces if f.endswith("loaded")})
     gadd("info", "fonts", f"web fonts loaded: {', '.join(loaded) or 'none (system fallback)'}")
 
+    from PIL import Image as _Im
+    for st, Rh, png2 in hidpi:
+        for im in Rh["imgs"]:
+            if not (im.get("map") and im["visible"]):
+                continue
+            sx = im["rect"]["w"] / im["nw"] if im["nw"] else 0
+            vec = ".svg" in im["src"].lower()
+            ok = abs(im.get("anc", 1) - 1) <= 0.002 and Rh["dpr"] == 2 and (vec or abs(sx - 1) <= 0.002) and (abs(sx - 1) <= 0.002 or im["rect"]["w"] < 1100)
+            size = _Im.open(png2).size
+            gadd("info" if ok and size == (3840, 2160) else "error", "map-hidpi",
+                 f"{st['s']}.{st['k']}: map {im['src']} at device scale {Rh['dpr']}: {im['nw']}x{im['nh']} CSS px drawn at scale {sx:.4f}, ancestor transform {im.get('anc')}, screenshot {size[0]}x{size[1]}")
+    # speaking time: script words at 130 wpm against the slide's time window
+    notes_by = {s["id"]: s for s in (R0.get("layer") or {}).get("slides", [])}
+    for s in slides:
+        n = (notes_by.get(s["id"]) or {}).get("notes") or {}
+        words = len(re.findall(r"\S+", n.get("script", "")))
+        win = (s["time"][1] - s["time"][0]) if s.get("time") else None
+        if win:
+            sec = words / 130 * 60
+            sev = "error" if sec > win else "warn" if sec < 0.6 * win else "info"
+            gadd(sev, "speaking-time", f"slide {s['n']} ({s['id']}): script {words} words = {sec:.0f} s at 130 wpm; window {win} s ({sec / win:.0%})")
     # CLI comparison shots
     if args.cli and not args.no_shots:
         import numpy as np
@@ -1348,6 +1402,8 @@ def main(argv=None):
     ap.add_argument("--settle", type=float, default=0.8, help="seconds to wait after load, fonts and images (default 0.8)")
     ap.add_argument("--offline", action="store_true", help="block Google Fonts to test the system-font fallback")
     ap.add_argument("--cli", action="store_true", help="also shoot each state with the plain Chrome CLI and compare")
+    ap.add_argument("--no-live", action="store_true", help="skip the live (non-static) console pass")
+    ap.add_argument("--no-hidpi", action="store_true", help="skip the device-scale-2 map pass")
     ap.add_argument("--no-shots", action="store_true", help="skip screenshots (no contrast, blank or contact sheet)")
     ap.add_argument("--max-words", type=int, default=20)
     ap.add_argument("--min-font", type=float, default=18.0, help="smallest comfortable type in px (source captions exempt)")

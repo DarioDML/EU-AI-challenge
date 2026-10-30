@@ -274,9 +274,9 @@ a_walk, a_drive = max(1, round(aj["walk_min"])), max(1, round(aj["drive_min"]))
 a_sh = aj["shelter"]
 a_town = "" if a_sh["in_area"] else f", {a_sh['town']}"
 a_lines = {
-    "danger": f"Flood danger. {street} is in the flood area.",
-    "severity": "Severity: as in July 2021.",
-    "go": f"Leave now. Go to: {a_sh['title']}, {a_sh['where']}{a_town}.",
+    "danger": f"EXTREME FLOOD DANGER. {street} is in the flood area.",
+    "severity": "LIFE-THREATENING. The same flood as July 2021.",
+    "go": f"LEAVE NOW. Go to: {a_sh['title']}, {a_sh['where']}{a_town}.",
     "route": f"Walk {a_walk} min to the nearest open road, then {a_drive} min by car via {', '.join(a_via)}.",
     "safe": "After your street, this route avoids flooded roads.",
 }
@@ -297,6 +297,7 @@ a_crop = {"x": round(cx0, 1), "y": round(cy0, 1), "w": round(cw, 1), "h": round(
 check("alert: crop is 3:2 and inside the map", abs(a_crop["w"] / a_crop["h"] - 1.5) < 0.01 and a_crop["x"] >= 0 and a_crop["y"] >= 0
       and a_crop["x"] + a_crop["w"] <= G["W"] and a_crop["y"] + a_crop["h"] <= G["H"], crop=a_crop)
 check("alert: crop holds home, route and shelter with margin", all(a_crop["x"] + 8 <= q[0] <= a_crop["x"] + a_crop["w"] - 8 and a_crop["y"] + 8 <= q[1] <= a_crop["y"] + a_crop["h"] - 8 for q in a_pts))
+check("alert: capitals only on the three openers", all(a_lines[k].split(". ")[0].isupper() for k in ("danger", "severity", "go")) and not any(a_lines[k].split(". ")[0].isupper() for k in ("route", "safe")))
 check("alert: every line is filled from data", all(v and "{" not in v and "None" not in v for v in a_lines.values()) and street in a_lines["danger"] and a_sh["title"] in a_lines["go"])
 alert = {"plan": AKEY, "street": street, "street_closed": aj["street_closed"], "severity_text": "as in July 2021",
          "shelter": {"title": a_sh["title"], "where": a_sh["where"], "town": a_sh["town"]},

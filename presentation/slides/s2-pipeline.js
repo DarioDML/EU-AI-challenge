@@ -57,7 +57,7 @@
   // column heads (number + rule) are always on the slide, so step 0 is never two thirds empty; lens and caption build in
   const stage = (n, cls, inner, name, sub, micro) => `
     <figure class="s2-fig s2-fig-${n}">
-      <div class="s2-stage-head"><span class="s2-n mono">0${n}</span><span class="s2-stage-rule" aria-hidden="true"></span></div>
+      <div class="s2-stage-head"><span class="s2-n mono" aria-hidden="true">0${n}</span><span class="s2-stage-rule" aria-hidden="true"></span></div>
       <div class="s2-lens ${cls}" data-b="${n - 1}">${inner}</div>
       <figcaption data-b="${n - 1}" data-stagger="110" data-stagger-delay="200">
         <b class="s2-name" data-stagger-item>${name}</b>
@@ -75,10 +75,10 @@
     title: 'How it works',
     script:
       'The Smart Shelter System starts from the flood map. Any road that touches the flood Copernicus mapped in July 2021, ' +
-      'or lies under modelled EFAS water, is closed. Next, it matches residents, using GHS-POP estimates, to candidate buildings from OpenStreetMap ' +
-      'that still have room, and routes each group on roads that are not flooded. Every route is checked: no closed road. ' +
-      'Last, it drafts a short plain-text message, written for Cell Broadcast, that answers Johan\'s three questions. Cell Broadcast reaches ' +
-      'phones in the area, even on 2G. It supports official warnings and evacuation decisions; it does not replace them.',
+      'or lies under modelled EFAS water, is closed. Next, it matches residents (GHS-POP estimates) to OpenStreetMap candidate buildings ' +
+      'with room, and routes each group on open roads. ' +
+      'Last, it drafts a short plain-text message, written for Cell Broadcast, that answers Johan\'s three questions. It ' +
+      'supports official warnings and evacuation decisions; it does not replace them.',
     notes: [
       `Closed road: touches the July 2021 flood (Copernicus EMS EMSR517) or lies under modelled EFAS water${efas.length ? ` (${efas.join(', ')} floods)` : ''}.`,
       `Residents: ${src.population || 'GHS-POP 2020 modelled estimate'}.`,
@@ -92,13 +92,13 @@
     id: 's2', order: 2, title: 'How it works', steps: 3, time: [45, 80],
     notes,
     html: `
-      <h2 class="h2 s2-title" data-b="0">From flood map to one clear message.</h2>
+      <h2 class="h2 s2-title" data-b="0">From flood map to one message.</h2>
       ${stage(1, 's2-lens-map', '<img class="s2-map" alt="Crop of the tool\'s map of Bad Neuenahr-Ahrweiler: the July 2021 flood in blue, closed roads dark">',
         'Flood + roads', 'closed roads', 'Copernicus EMS · EFAS · OpenStreetMap')}
       ${connector(1)}
-      ${stage(2, 's2-lens-match', lens2, 'Match + route', 'a shelter with room', 'GHS-POP · building capacity · open roads')}
+      ${stage(2, 's2-lens-match', lens2, 'Match + route', 'shelter with room', 'GHS-POP · building capacity · open roads')}
       ${connector(2)}
-      ${stage(3, 's2-lens-alert', lens3, 'Johan\'s alert', 'three answers, plain text', 'Cell Broadcast · works on 2G')}
+      ${stage(3, 's2-lens-alert', lens3, 'Johan\'s alert', 'three plain-text answers', 'Cell Broadcast · works on 2G')}
       <p class="src s2-src">Supports, and does not replace, official warnings and evacuation decisions.</p>`,
 
     mount(el, P, D) {

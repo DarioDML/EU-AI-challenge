@@ -47,8 +47,7 @@
       title: 'Meet Johan',
       script: 'This is Johan. He is 11 and lives in Bad Neuenahr-Ahrweiler. Johan is a fictional character; he stands for residents of flood-prone streets. ' +
         'In July 2021, the water came at night. Anyone in his place has three questions. Am I in danger? How serious is it? Where should I go? ' +
-        'Those are the questions a warning must answer, and the chain often failed to. ' +
-        'In a survey of 1,315 residents, 29% in Rhineland-Palatinate got no warning. ' +
+        'In a survey, 29% in Rhineland-Palatinate got no warning. ' +
         'Of those who were warned, 85% did not expect very severe flooding, and 46% reported a lack of knowledge on how to protect themselves. ' +
         "Johan doesn't need a generic alert. He needs to know where to go, and which road out is still open.",
       notes: [
@@ -97,7 +96,7 @@
       <p class="s1-per" data-b="2">per 100 respondents</p>
       <div class="s1-crowd" role="img" aria-label="100 person figures, an illustration per 100 respondents. 29 grey: no warning. Of the 71 warned, first 60 who did not expect very severe flooding, then 33 who did not know what to do.">${crowd}</div>
       <ul class="s1-legend">
-        <li class="lg-nw" data-b="2">${swatch('nw')}no warning</li>
+        <li class="lg-nw" data-b="2" data-b-out="3">${swatch('nw')}no warning</li>
         <li class="lg-slot">
           <span class="lg-a" data-b="3" data-b-out="4">${swatch('a')}didn’t expect</span>
           <span class="lg-b" data-b="4">${swatch('b')}didn’t know</span>
