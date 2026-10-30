@@ -20,12 +20,7 @@ The white European editorial theme uses navy text, blue emphasis, original-colou
 
 ### From the browser (Vercel)
 
-The deck is hosted at <https://johan-pitch.vercel.app> as a static site, with `presentation/` as the project root and `index.html` as the start page. `vercel.json` marks it `noindex`; `.vercelignore` leaves out scripts, notes, QA and env files. The hosted copy is a snapshot: redeploy after changes, from `presentation/` (the link step is needed once per checkout):
-
-```powershell
-npx vercel link --yes --project johan-pitch
-npx vercel deploy --prod
-```
+The deck is hosted at <https://johan-pitch.vercel.app> as a static site, with `presentation/` as the Vercel root directory and `index.html` as the start page. Every push to `presentation/johan-pitch` redeploys it within a minute; other branches get preview URLs. `vercel.json` marks it `noindex`; `.vercelignore` leaves out scripts, notes, QA and env files. Branches without `presentation/`, such as `main`, show a failing "Vercel – johan-pitch" check that can be ignored.
 
 Opening sequence: Meet Johan, his three questions, the proportion receiving no warning, then two separate shares among warned respondents. The separate dot grids preserve the differing survey denominators.
 
