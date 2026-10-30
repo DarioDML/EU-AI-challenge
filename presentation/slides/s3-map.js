@@ -46,25 +46,38 @@
   // the commit is not in PITCH; it is the one named in the blueprint for this bundle only
   const commit = (P.source && P.source.commit) || ((P.source && P.source.bundle_generated_utc) === '2026-10-30T09:46:28Z' ? '01abbb0' : '');
 
+  // ranges: the same model under its alternative closure rule and shelter set (PITCH.ranges, build_pitch_data.py); not a statistical interval
+  const R = P.ranges || {};
+  const dots = n => `<svg class="cdots" viewBox="0 0 26 8" width="30" height="9" aria-hidden="true">${[0, 1, 2].map(i => `<circle cx="${4 + i * 9}" cy="4" r="3" class="${i < n ? 'on' : 'off'}"/>`).join('')}</svg>`;
+  const dash = (a, b, d = 0) => `${fmt(a, d)}–${fmt(b, d)}`;
+  const RK = R.closed_km_town || {}, RJ = R.jam || {}, RT = R.trip_min || {};
+  // residents sent away: Monte Carlo over uncertain inputs (PITCH.ranges.sentAway, stats/mc_results.json), main variant = every resident needs a public shelter;
+  // the tile is the same in the route A and route B steps
+  const SA = R.sentAway && num(R.sentAway.median) ? R.sentAway : null;
   const srcLine = ['Smart Shelter System · bundle ' + bundleUtc + (commit ? ` (commit ${commit})` : ''), 'flood: Copernicus EMS EMSR517',
     'residents: GHS-POP 2020 estimate', 'roads © OpenStreetMap contributors',
-    'capacity, car share and speeds are assumptions; trip minutes are model free-flow times; stress is an indicator, not a forecast'].join(' · ');
+    'capacity, car share, speeds are assumptions; trip minutes are model free-flow times; stress is an indicator, not a forecast',
+    'model ranges = same model under the other closure rule (mapped water only vs also flood traces) and shelter set (A vs B), not a statistical interval; dots: ●○○ low, ●●○ medium',
+    SA ? `sent away: median of ${fmt(SA.n_draws)} model draws (10–90%: ${dash(SA.p10, SA.p90)}) if all residents in the flood need a public shelter; if only 10–100% seek one: median ${fmt(SA.wide.median)} (${dash(SA.wide.p10, SA.wide.p90)}). Model range under uncertain inputs, not a validated interval` : ''].filter(Boolean).join(' · ');
+  const CONF = R.confidence || { closed_km: 1, road_stress: 1, trip: 2, sent_away: 2 };
   const swatch = inner => `<svg viewBox="0 0 36 18" aria-hidden="true">${inner}</svg>`;
 
   const html = `
     <h2 class="h2 s3-title" data-b="0">Streets close.<br>Exits overload.</h2>
 
-    <div class="s3-key" data-b="0" aria-label="Key">
+    <div class="s3-key" data-b="0" data-b-out="1" aria-label="Key">
       <span>${swatch('<rect x="3" y="3" width="30" height="12" rx="2" fill="rgba(86,180,233,.35)" stroke="#0072B2" stroke-width="1.5"/>')}Flood</span>
       <span>${swatch('<path d="M3 9 H33" stroke="#111" stroke-width="2.6" stroke-linecap="round"/>')}Closed</span>
       <span>${swatch('<path d="M3 9 H11" stroke="#269B4E" stroke-width="4"/><path d="M11 9 H19" stroke="#E4CF2A" stroke-width="4"/><path d="M19 9 H27" stroke="#E17327" stroke-width="4"/><path d="M27 9 H35" stroke="#7A0019" stroke-width="4"/>')}Stress</span>
     </div>
 
+    <div class="s3-conf" data-b="0" data-b-out="2" aria-label="Confidence"><span>${dots(1)}Low</span><span>${dots(2)}Medium</span></div>
+
     <div class="s3-hud">
       <div class="s3-chip glass" data-b="2"><span class="chip-a">Core public</span><span class="chip-b">+ Extended</span></div>
-      <div class="s3-tile glass" data-b="2"><span class="t-l">Trip</span><span class="t-v"><b class="mono num v-trip">0.0</b><small>min</small></span></div>
+      <div class="s3-tile glass" data-b="2"><span class="t-l">Trip<small class="mono t-r">range ${dash(Math.round(RT.lo), Math.round(RT.hi))}</small></span><span class="t-v"><b class="mono num v-trip">0.0</b><small>min</small>${dots(CONF.trip)}</span></div>
       <div class="s3-tile glass" data-b="2"><span class="t-l">Closed roads</span><span class="t-v"><b class="mono num v-wet">0</b></span></div>
-      <div class="s3-tile glass" data-b="2"><span class="t-l">Sent away</span><span class="t-v"><b class="mono num v-out">0</b></span></div>
+      <div class="s3-tile glass" data-b="2"><span class="t-l">Sent away${SA ? `<small class="mono t-r">${dash(SA.p10, SA.p90)}</small>` : ''}</span><span class="t-v"><b class="mono num v-out">${SA ? '~' + fmt(SA.median) : '–'}</b>${SA ? dots(CONF.sent_away) : ''}</span></div>
     </div>
 
     <div class="s3-map">
@@ -83,8 +96,8 @@
         </svg>
       </div>
 
-      ${label('flood', pins.flood, `<b class="mono num" data-to="${num(C.flood && C.flood.closed_km_town) ? C.flood.closed_km_town : ''}" data-dec="0">${fmt(C.flood && C.flood.closed_km_town)}</b> km closed`)}
-      ${label('jam', pins.jam, `<b class="mono num" data-to="${num(C.jam && C.jam.ratio) ? C.jam.ratio : ''}" data-dec="1" data-suf="×">${fmt(C.jam && C.jam.ratio, 1)}×</b> capacity<small class="mono">${esc(C.jam && C.jam.road)} · model</small>`)}
+      ${label('flood', pins.flood, `up to <b class="mono num" data-to="${num(C.flood && C.flood.closed_km_town) ? C.flood.closed_km_town : ''}" data-dec="0">${fmt(C.flood && C.flood.closed_km_town)}</b> km closed${dots(CONF.closed_km)}<small class="mono">${dash(RK.lo, RK.hi)} km</small>`)}
+      ${label('jam', pins.jam, `up to <b class="mono num" data-to="${num(C.jam && C.jam.ratio) ? C.jam.ratio : ''}" data-dec="1" data-suf="×">${fmt(C.jam && C.jam.ratio, 1)}×</b> capacity${dots(CONF.road_stress)}<small class="mono"><span>${dash(RJ.lo, RJ.hi, 1)}×</span> <span>model</span></small>`)}
       ${label('home', pins.home, 'Johan')}
       ${label('dest', pins.dest, esc(shB.title))}
       <div class="s3-anchor a-l" style="${at(endAnchor)}"><div class="s3-row"><div class="s3-call glass s3-end">${esc(shA.town)}
@@ -103,21 +116,24 @@
   const notes = {
     title: 'The map',
     script:
-      `${town}, July 2021, in our tool. Blue is the mapped flood; dark lines are closed streets. ` +
-      `${fmt(C.flood && C.flood.closed_km_town)} kilometres of the town's streets touch it, so the roads that stay open carry the routed residents. ` +
-      `On ${road} the model's traffic reaches ${fmt(C.jam && C.jam.ratio, 1)} times an assumed capacity: an indicator, not a forecast. ` +
-      `With core public buildings only he goes to a ${lower(shA.title)} in ${shA.town || ''}, ${fmt(A.total_min, 1)} minutes; ${fmt(townA.outside)} residents are sent to other districts. ` +
+      `${town}, July 2021. ` +
+      `Up to ${fmt(RK.hi)} kilometres of the town's streets touch it, so the roads that stay open carry the routed residents. ` +
+      `On ${road} traffic reaches up to ${fmt(RJ.hi, 1)} times an assumed capacity. ` +
+      `These are the upper end under our assumptions; with the stricter rule, ${fmt(RK.lo)} kilometres and ${fmt(RJ.lo, 1)} times. ` +
+      `Johan goes to a ${lower(shA.title)} in ${shA.town || ''}, ${fmt(A.total_min)} minutes; with extended buildings, ${fmt(B.total_min, 1)}. ` +
+      (SA ? `If everyone needed a public shelter, about ${fmt(SA.p10)} to ${fmt(SA.p90)} would be sent to other districts; if only a share seek one, probably none. ` : '') +
       'The tool does not yet reroute around jams; it flags them. ' +
-      `Add extended buildings and he reaches the ${lower(shB.title)} on ${shB.where || ''} in ${fmt(B.total_min, 1)} minutes, ` +
-      `${townB.outside === 0 ? 'and nobody leaves the town' : `and ${fmt(townB.outside)} residents leave the town`}. ` +
       'Same flood, same roads: what changes is which buildings count as shelters, and how much room we assume per person. ' +
       'Minutes are model free-flow times.',
     notes: [
       `Base map: the tool's full-analysis map of ${town}, July 2021 flood (Copernicus EMS EMSR517), assumption set A; overlays come from the same bundle (${bundleUtc}).`,
-      `${fmt(C.flood && C.flood.closed_km_town)} km = length of the town's roads that touch the 2021 flood. ${fmt(C.jam && C.jam.ratio, 1)}× = ${fmt(C.jam && C.jam.people)} people routed on ${road}, as vehicles per hour ` +
-        `(${fmt(veh.car_share * 100)} % by car, ${fmt(veh.persons_per_car)} per car, ${fmt(veh.evacuation_window_h)} h window), over an assumed ${fmt(capJam)} vehicles per hour for a ${String((C.jam && C.jam.road_class) || '').replace('_', ' ')}.`,
+      `Ranges are the same model under its alternative closure rule (mapped water only vs also flood traces) and shelter assumption set (A vs B); they are not a statistical interval. The headline numbers are the upper ends: ${dash(RK.lo, RK.hi)} km of closed streets (${fmt(RK.mapped, 1)} km with mapped water only, ${fmt(RK.any, 1)} km with flood traces too); road stress ${dash(RJ.lo, RJ.hi, 1)}× on ${road}.`,
+      `${fmt(C.jam && C.jam.ratio, 1)}× = ${fmt(C.jam && C.jam.people)} people routed on ${road}, as vehicles per hour (${fmt(veh.car_share * 100)} % by car, ${fmt(veh.persons_per_car)} per car, ${fmt(veh.evacuation_window_h)} h window), over an assumed ${fmt(capJam)} vehicles per hour for a ${String((C.jam && C.jam.road_class) || '').replace('_', ' ')}. ` +
+        `Varying only the traffic assumptions (car share ${dash(...((RJ.envelope || {}).car_share || [0, 0]), 1)}, persons per car ${dash(...((RJ.envelope || {}).persons_per_car || [0, 0]), 1)}, window ${dash(...((RJ.envelope || {}).window_h || [0, 0]), 1)} h; capacity unchanged) gives ${dash((RJ.envelope || {}).lo, (RJ.envelope || {}).hi, 1)}× in plan A.`,
       'Road stress is an indicator, not a forecast, and it is not fed back into the routes: the tool flags jams; it does not reroute around them.',
-      `${setLabel('restrictive')}; ${setLabel('generous')}. They are alternative assumptions, not lower and upper bounds.`,
+      `${setLabel('restrictive')}; ${setLabel('generous')}. Johan's trip (${dash(RT.lo, RT.hi, 1)} min under B and A) shows the two sets side by side.`,
+      SA ? `The ${fmt(townA.outside)} residents sent away under set A is a pessimistic corner: it assumes every resident in the flood needs a public shelter and set A's strict capacity (core buildings, 5 m² per person). Monte Carlo over uncertain inputs (m² per person, usable share, building tiers, floors, population ±15 %; ${fmt(SA.n_draws)} draws, seed ${SA.seed}): median ${fmt(SA.median)}, 10–90%: ${dash(SA.p10, SA.p90)}; ${fmt(SA.share_zero * 100)} % of draws give zero. If only 10–100% of residents seek a public shelter: median ${fmt(SA.wide.median)} (${dash(SA.wide.p10, SA.wide.p90)}). Several inputs are judgement, not sourced for this region: a model range, not a validated interval.` : '',
+      'Confidence dots: one filled = low (model rule and assumptions: closed kilometres, road stress); two = medium (Johan\'s trip).',
       `Johan is fictional; his zone, his street (${(P.johan && P.johan.street) || ''}) and both routes are the model's, and neither route uses a closed road.`,
     ],
   };
@@ -140,7 +156,7 @@
       const opt = (d, ms) => ({ decimals: d, duration: fwd && n >= 2 ? ms : 0 });
       D.tick(el.querySelector('.v-trip'), val(A.total_min, B.total_min), opt(1, n === 2 ? 1800 : 1400));
       D.tick(el.querySelector('.v-wet'), val(wet(A), wet(B)), opt(0, 600));
-      D.tick(el.querySelector('.v-out'), val(townA.outside, townB.outside), opt(0, n === 2 ? 1600 : 1200));
+      if (SA) D.tick(el.querySelector('.v-out'), n < 2 ? 0 : SA.median, { decimals: 0, prefix: '~', duration: fwd && n === 2 ? 1600 : 0 });   // same at steps 2 and 3: it does not depend on the route
       // pin labels count up once when they appear (step 1); anywhere else they show the final value
       timers.forEach(clearTimeout); timers.length = 0;
       el.querySelectorAll('.s3-call b[data-to]').forEach((b, i) => {

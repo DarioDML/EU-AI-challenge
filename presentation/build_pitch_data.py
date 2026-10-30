@@ -304,6 +304,66 @@ alert = {"plan": AKEY, "street": street, "street_closed": aj["street_closed"], "
          "walk_min": aj["walk_min"], "drive_min": aj["drive_min"], "total_min": aj["total_min"], "via": a_via, "lines": a_lines,
          "crop": a_crop, "route": ov["path"], "home": [round(v, 1) for v in home_px], "shelterPx": ov["shelter_px"]}
 
+# Ranges for the map slide: the same model under its alternative closure rule ('any' = flood or flood traces, 'mapped' = mapped water only)
+# and its alternative shelter assumption set (A, B). Not a statistical interval; the headline values are the upper ends.
+RK = {(c_, s_): B["results"][f"obs2021|{c_}|{s_}"] for c_ in ("any", "mapped") for s_ in SETS}
+
+
+def town_km(res):
+    """Length of the town's closed roads in km, the same test as the callout (edge mid-point inside the municipality)."""
+    return sum(sum(metres(p, q) for p, q in zip(E[e]["c"], E[e]["c"][1:])) for e in res["closed"]
+               if in_poly(E[e]["c"][len(E[e]["c"]) // 2], bna["geometry"])) / 1000
+
+
+km_any, km_mapped = town_km(RK[("any", "restrictive")]), town_km(RK[("mapped", "restrictive")])
+check("ranges: 'any' closed km equals the callout", abs(km_any - closed_km) < 1e-9, km=round(km_any, 2))
+check("ranges: the mapped-water-only rule closes fewer km than 'any'", 0 < km_mapped < km_any, mapped=round(km_mapped, 2))
+jam_by_plan = {f"{c_}|{s_}": ratio(worst_edge, RK[(c_, s_)]["load"].get(str(worst_edge), 0)) for (c_, s_) in RK}
+check("ranges: every plan has a stress value on the jam road", all(v is not None for v in jam_by_plan.values()), plans=jam_by_plan)
+jam_lo, jam_hi = min(jam_by_plan.values()), max(jam_by_plan.values())
+check("ranges: the jam callout is the upper end of the range", round(jam_hi, 1) == callouts["jam"]["ratio"] and jam_lo < jam_hi, lo=round(jam_lo, 2), hi=round(jam_hi, 2))
+# traffic-assumption envelope for the same road in plan A 'any': car share 0.6-1.0, persons per car 1.5-2.5, window 1.5-3 h, class capacity unchanged
+env_people = RK[("any", "restrictive")]["load"][str(worst_edge)]
+env_cap = cap.get(E[worst_edge]["h"]) or cap.get(E[worst_edge]["h"].replace("_link", ""))
+env_lo, env_hi = env_people * 0.6 / 2.5 / 3.0 / env_cap, env_people * 1.0 / 1.5 / 1.5 / env_cap
+check("ranges: the default traffic assumptions sit inside the envelope", env_lo < jam_by_plan["any|restrictive"] < env_hi, lo=round(env_lo, 2), hi=round(env_hi, 2))
+trip_a, trip_b = johan["obs2021|any|restrictive"]["total_min"], johan["obs2021|any|generous"]["total_min"]
+out_a, out_b = plans["obs2021|any|restrictive"]["town"]["outside"], plans["obs2021|any|generous"]["town"]["outside"]
+check("ranges: set B is the low end for Johan's trip and for residents sent away", trip_b < trip_a and out_b < out_a, trip=[trip_b, trip_a], outside=[out_b, out_a])
+ranges = {
+    "basis": "the same model under its alternative closure rule (mapped water only vs also flood traces) and shelter assumption set (A vs B); not a statistical interval",
+    "closed_km_town": {"any": round(km_any, 1), "mapped": round(km_mapped, 1), "lo": round(km_mapped), "hi": round(km_any)},
+    "jam": {"road": callouts["jam"]["road"], "edge": worst_edge, "by_plan": {k_: round(v_, 2) for k_, v_ in jam_by_plan.items()},
+            "lo": round(jam_lo, 1), "hi": round(jam_hi, 1),
+            "envelope": {"lo": round(env_lo, 1), "hi": round(env_hi, 1), "plan": "any|restrictive", "car_share": [0.6, 1.0], "persons_per_car": [1.5, 2.5],
+                         "window_h": [1.5, 3.0], "capacity_veh_per_h": env_cap}},
+    "trip_min": {"lo": trip_b, "hi": trip_a},
+    "confidence": {"closed_km": 1, "road_stress": 1, "trip": 2, "sent_away": 2},
+}
+# Residents sent away: no A/B range (two assumption sets are not an interval). Monte Carlo over uncertain inputs (stats/mc_results.json, STATS_METHOD.md):
+# the top-level keys are the 'fixed1' variant (every resident in the flood needs a shelter = the model's present assumption); variant_results holds the others.
+# Display values are rounded to the nearest 100. The MC's own nominal runs must reproduce the plans (A within 1 % of 8,645, B exactly 0).
+MC = HERE / "stats" / "mc_results.json"
+if MC.exists():
+    mc = json.loads(MC.read_text(encoding="utf-8"))
+    sa = mc["sentAway"]
+    check("ranges: Monte Carlo is the fixed1 variant at N=1000", mc.get("headline_variant") == "fixed1" and sa["n_draws"] == 1000, variant=mc.get("headline_variant"), n=sa["n_draws"])
+    check("ranges: Monte Carlo nominal A reproduces the plan within 1 % and B exactly", abs(sa["nominalA"] - out_a) <= 0.01 * out_a and round(sa["nominalB"]) == out_b, mc=[sa["nominalB"], sa["nominalA"]], plans=[out_b, out_a])
+    check("ranges: Monte Carlo percentiles are ordered and the nominal A is above the 90th", sa["p10"] <= sa["median"] <= sa["p90"] < sa["nominalA"])
+    check("ranges: Monte Carlo built on this bundle", mc.get("bundle_git_blob") == blob, mc=mc.get("bundle_git_blob"), bundle=blob)
+    r100 = lambda v: int(round(v / 100.0) * 100)
+    vr = mc["variant_results"]
+    ranges["sentAway"] = {
+        "median": r100(sa["median"]), "p10": r100(sa["p10"]), "p90": r100(sa["p90"]), "share_zero": sa["share_zero"], "n_draws": sa["n_draws"], "seed": sa["seed"],
+        "nominalA": out_a, "nominalB": out_b,
+        "variant": "every resident in the flood needs a public shelter (the model's present assumption)",
+        "wide": {"median": r100(vr["wide"]["sentAway"]["median"]), "p10": r100(vr["wide"]["sentAway"]["p10"]), "p90": r100(vr["wide"]["sentAway"]["p90"]),
+                 "share_zero": vr["wide"]["sentAway"]["share_zero"], "what": "shelter-seeking share 0.10-1.0"},
+        "research": {"median": r100(vr["research"]["sentAway"]["median"]), "p90": r100(vr["research"]["sentAway"]["p90"]),
+                     "share_zero": vr["research"]["sentAway"]["share_zero"], "what": "research ranges (displaced share x share needing public shelter)"},
+    }
+    ranges["confidence"]["sent_away"] = 1
+
 meta = B["meta"]
 out = {
     "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
@@ -318,6 +378,7 @@ out = {
     "johan": {"zone": zone["id"], "street": street, "plans": johan},
     "callouts": callouts,
     "alert": alert,
+    "ranges": ranges,
     "checks": len(CHECKS),
 }
 Path(args.out).write_text("// Generated by powerpoint/pitch/build_pitch_data.py; do not edit by hand.\n"

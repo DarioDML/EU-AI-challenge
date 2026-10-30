@@ -1,0 +1,2032 @@
+{
+ "title": "Monte Carlo parameter uncertainty, Smart Shelter System, July 2021 flood (closure 'any', 2020 residents)",
+ "what_it_is": "model range under parameter uncertainty, not a validated prediction interval; structural errors (OSM completeness, free-flow speeds, no traffic, GHS-POP spatial allocation, who actually goes to a shelter) are not included",
+ "bundle_git_blob": "92c3d36692b7a17d34fec8c90d9f8c59c728d91c",
+ "bundle_generated_utc": "2026-10-30T09:46:28Z",
+ "n_draws": 1000,
+ "seed": 20261030,
+ "variants": {
+  "fixed1": "shelter-seeking share fixed at 1.0 (the model's present assumption: every resident in the flood needs a shelter)",
+  "research": "shelter-seeking share sampled: displaced share tri(0.34, 0.40, 1.0) x share needing public shelter tri(0.05, 0.10, 0.25); judgement / not sourced for this region",
+  "wide": "shelter-seeking share sampled, wide: tri(0.10, 0.35, 1.0); judgement"
+ },
+ "headline_variant": "fixed1",
+ "headline_note": "Top-level quantity keys below repeat the 'fixed1' variant, the one comparable with nominal A/B (both assume share 1.0). The tile must name the variant.",
+ "validation": {
+  "A": {
+   "town_outside": {
+    "mine": 8643.0,
+    "bundle": 8645.3
+   },
+   "town_placed": {
+    "mine": 14841.5,
+    "bundle": 14841.2
+   },
+   "placed_all": {
+    "mine": 25559.2,
+    "bundle": 25559.0
+   },
+   "mean_time_min": {
+    "mine": 22.37,
+    "bundle": 22.7
+   },
+   "people_over_30min": {
+    "mine": 5624,
+    "bundle": 5639
+   },
+   "johan_main_min": {
+    "mine": 28.25,
+    "bundle": 28.25
+   },
+   "town_over30_share": {
+    "mine": 0.3478,
+    "bundle": 0.3489
+   },
+   "town_unassigned": 0.0
+  },
+  "B": {
+   "town_outside": {
+    "mine": 0.0,
+    "bundle": 0
+   },
+   "town_placed": {
+    "mine": 14841.5,
+    "bundle": 14841.5
+   },
+   "placed_all": {
+    "mine": 25559.2,
+    "bundle": 25559.0
+   },
+   "mean_time_min": {
+    "mine": 10.62,
+    "bundle": 10.8
+   },
+   "people_over_30min": {
+    "mine": 159,
+    "bundle": 159
+   },
+   "johan_main_min": {
+    "mine": 2.38,
+    "bundle": 2.38
+   },
+   "town_over30_share": {
+    "mine": 0.0003,
+    "bundle": 0.0003
+   },
+   "town_unassigned": 0.0
+  },
+  "pass": {
+   "A_town_outside_within_1pct": true,
+   "B_town_outside_zero": true,
+   "all_placed": true,
+   "mean_time_within_0_5_min": true,
+   "capacity_within_1_person": true
+  },
+  "capacity_reproduction": {
+   "A": {
+    "max_abs_diff_persons": 1.0,
+    "exact_share": 0.9809160305343512
+   },
+   "B": {
+    "max_abs_diff_persons": 1.0,
+    "exact_share": 0.897264631043257
+   }
+  },
+  "time_factor": 1.06,
+  "anchored_extra_pairs": {
+   "A": 41,
+   "B": 3
+  }
+ },
+ "parameters": {
+  "m2pp": {
+   "dist": "triangular",
+   "args": [
+    3.5,
+    4.0,
+    5.5
+   ],
+   "status": "sourced (DRK card, Sphere; secondary)"
+  },
+  "usable": {
+   "dist": "triangular",
+   "args": [
+    0.4,
+    0.55,
+    0.7
+   ],
+   "status": "judgement / not sourced for this region"
+  },
+  "cap_max": {
+   "dist": "uniform",
+   "args": [
+    500.0,
+    1500.0
+   ],
+   "status": "judgement (the two assumption sets' limits)"
+  },
+  "ext": {
+   "dist": "bernoulli",
+   "p": 0.5,
+   "status": "judgement (tier inclusion switch, p=0.5)"
+  },
+  "floors": {
+   "dist": "discrete {1,2}",
+   "p": 0.5,
+   "status": "judgement (the two assumption sets' defaults, p=0.5)"
+  },
+  "pop": {
+   "dist": "triangular",
+   "args": [
+    0.85,
+    1.0,
+    1.15
+   ],
+   "status": "judgement anchored on GHS-POP local MAPE 5-12 %"
+  },
+  "seek_research": {
+   "dist": "tri(0.34,0.40,1.0) x tri(0.05,0.10,0.25)",
+   "status": "judgement / not sourced for this region (US planning rule 10-20 %)"
+  },
+  "seek_wide": {
+   "dist": "triangular",
+   "args": [
+    0.1,
+    0.35,
+    1.0
+   ],
+   "status": "judgement / provisional"
+  }
+ },
+ "variant_results": {
+  "fixed1": {
+   "sentAway": {
+    "median": 3047.375531833434,
+    "p10": 378.9000000000001,
+    "p90": 7028.424665895153,
+    "p5": 1.4772055239810733,
+    "p95": 7742.964143649801,
+    "mean": 3340.332532775463,
+    "min": 0.0,
+    "max": 9637.968963519099,
+    "nominalA": 8643.0,
+    "nominalB": 0.0,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "residents of the town sent outside the two districts",
+    "share_zero": 0.05,
+    "share_below_100": 0.058,
+    "spearman": {
+     "m2pp": 0.2782396700480642,
+     "usable": -0.2859331321534805,
+     "cap_max": -0.045926896645607694,
+     "ext": -0.6583020123647086,
+     "floors": -0.6090160071446118,
+     "pop": 0.2334104850508042
+    }
+   },
+   "sentAwayAll": {
+    "median": 5117.767617476782,
+    "p10": 1298.962216755686,
+    "p90": 10167.043772653482,
+    "p5": 761.8195386028625,
+    "p95": 11139.51761530212,
+    "mean": 5442.8236536245495,
+    "min": 539.1582892475525,
+    "max": 13299.45727777994,
+    "nominalA": 12003.5,
+    "nominalB": 578.9,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "residents of the two districts sent outside",
+    "spearman": {
+     "m2pp": 0.2781558621558622,
+     "usable": -0.2885436845436845,
+     "cap_max": -0.04528656928656929,
+     "ext": -0.6076268622563182,
+     "floors": -0.6523716393974198,
+     "pop": 0.2522734082734083
+    }
+   },
+   "townPlaced": {
+    "median": 14865.272991638118,
+    "p10": 13603.110616487385,
+    "p90": 16046.192748909934,
+    "p5": 13340.949665526314,
+    "p95": 16323.198391285901,
+    "mean": 14838.556989078,
+    "min": 12782.130729703815,
+    "max": 16900.04801801779,
+    "nominalA": 14841.5,
+    "nominalB": 14841.5,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "town residents placed in any shelter",
+    "spearman": {
+     "m2pp": 0.013723345723345723,
+     "usable": 0.03465329865329866,
+     "cap_max": 0.016830784830784835,
+     "ext": -0.01184938442498239,
+     "floors": -0.025596310825058727,
+     "pop": 1.0
+    }
+   },
+   "townOver30Share": {
+    "median": 0.07850961001712276,
+    "p10": 0.0009400346645910889,
+    "p90": 0.20579178412620167,
+    "p5": 0.0008220193376680255,
+    "p95": 0.23114207062400294,
+    "mean": 0.09438496961313075,
+    "min": 0.00033015530775191184,
+    "max": 0.3268722276411744,
+    "nominalA": 0.34777482060438636,
+    "nominalB": 0.0003301553077519119,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "share of placed town residents with a trip over 30 min (incl. walk)",
+    "spearman": {
+     "m2pp": 0.2870176771376149,
+     "usable": -0.31168323448341023,
+     "cap_max": -0.044002610772629645,
+     "ext": -0.3275748366867159,
+     "floors": -0.8265994237363166,
+     "pop": 0.18985904363321562
+    }
+   },
+   "johanMin": {
+    "median": 14.529026202767694,
+    "p10": 13.523787183809832,
+    "p90": 20.845942582203474,
+    "p5": 13.086933528055544,
+    "p95": 22.906366972559617,
+    "mean": 15.779703097127761,
+    "min": 3.345854391950879,
+    "max": 28.199471267841318,
+    "nominalA": 22.872531010641264,
+    "nominalB": 5.960727013542409,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "minutes, zone 246, flow-weighted over its shelters (walk + drive)",
+    "spearman": {
+     "m2pp": 0.234265880316218,
+     "usable": -0.23222102461297492,
+     "cap_max": 0.13734425884759857,
+     "ext": 0.129017816320929,
+     "floors": -0.5334879320589428,
+     "pop": 0.15380142012186002
+    }
+   },
+   "johanMainMin": {
+    "median": 14.529026202767694,
+    "p10": 14.006791783199109,
+    "p90": 22.940953293302012,
+    "p5": 13.523787183809832,
+    "p95": 23.300053602155753,
+    "mean": 16.090824912640432,
+    "min": 2.3833333333333333,
+    "max": 28.25,
+    "nominalA": 28.25,
+    "nominalB": 2.3833333333333333,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "minutes, zone 246, to its largest-flow shelter (walk + drive)",
+    "spearman": {
+     "m2pp": 0.25925755800061345,
+     "usable": -0.25022830115203926,
+     "cap_max": 0.053144893594597564,
+     "ext": 0.26382519825907286,
+     "floors": -0.5316082577866915,
+     "pop": 0.168456809719112
+    }
+   }
+  },
+  "research": {
+   "sentAway": {
+    "median": 0.0,
+    "p10": 0.0,
+    "p90": 0.0,
+    "p5": 0.0,
+    "p95": 0.0,
+    "mean": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "nominalA": 8643.0,
+    "nominalB": 0.0,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "residents of the town sent outside the two districts",
+    "share_zero": 1.0,
+    "share_below_100": 1.0,
+    "spearman": {}
+   },
+   "sentAwayAll": {
+    "median": 61.08137364102144,
+    "p10": 24.440986705308674,
+    "p90": 112.40454688170117,
+    "p5": 16.16391585288809,
+    "p95": 134.35456176997255,
+    "mean": 66.26631325794649,
+    "min": 5.393840874969224,
+    "max": 178.2694836270897,
+    "nominalA": 12003.5,
+    "nominalB": 578.9,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "residents of the two districts sent outside",
+    "spearman": {
+     "m2pp": -0.049146733146733144,
+     "usable": -0.05057628257628257,
+     "cap_max": -0.019854427854427856,
+     "ext": 0.4716970493530524,
+     "floors": -0.08486030941689858,
+     "pop": 0.11396852996852998,
+     "seek": 0.8278123318123318
+    }
+   },
+   "townPlaced": {
+    "median": 1053.5184488375407,
+    "p10": 590.8730236131731,
+    "p90": 1788.530461679404,
+    "p5": 508.8979467666211,
+    "p95": 2062.1044251240733,
+    "mean": 1132.687634686276,
+    "min": 322.4089301141377,
+    "max": 3095.8252175817224,
+    "nominalA": 14841.5,
+    "nominalB": 14841.5,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "town residents placed in any shelter",
+    "spearman": {
+     "m2pp": -0.03550661950661951,
+     "usable": -0.034644346644346645,
+     "cap_max": -0.0416912216912217,
+     "ext": -0.030922142498556623,
+     "floors": -0.0453486676154884,
+     "pop": 0.13820172620172622,
+     "seek": 0.988987984987985
+    }
+   },
+   "townOver30Share": {
+    "median": 0.0,
+    "p10": 0.0,
+    "p90": 0.0003301553077519119,
+    "p5": 0.0,
+    "p95": 0.0004918640299161136,
+    "mean": 5.7197722602162854e-05,
+    "min": 0.0,
+    "max": 0.0008220193376680256,
+    "nominalA": 0.34777482060438636,
+    "nominalB": 0.0003301553077519119,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "share of placed town residents with a trip over 30 min (incl. walk)",
+    "spearman": {
+     "m2pp": 0.0746054912635153,
+     "usable": -0.14208798433114175,
+     "cap_max": -0.015905271881081345,
+     "ext": -0.25953522405207996,
+     "floors": -0.32716716843589205,
+     "pop": 0.023025398052434084,
+     "seek": 0.3595261318642832
+    }
+   },
+   "johanMin": {
+    "median": 2.3833333333333333,
+    "p10": 1.5634941409827205,
+    "p90": 3.345854391950879,
+    "p5": 1.5634941409827205,
+    "p95": 3.3458543919508794,
+    "mean": 2.738794724975114,
+    "min": 1.5634941409827203,
+    "max": 13.16273054098509,
+    "nominalA": 22.872531010641264,
+    "nominalB": 5.960727013542409,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "minutes, zone 246, flow-weighted over its shelters (walk + drive)",
+    "spearman": {
+     "m2pp": 0.1012053435898448,
+     "usable": -0.10085375761164599,
+     "cap_max": -0.0361647699248892,
+     "ext": -0.8995035331114796,
+     "floors": -0.05729077298745816,
+     "pop": 0.049781004814483214,
+     "seek": 0.28721855034776717
+    }
+   },
+   "johanMainMin": {
+    "median": 2.3833333333333333,
+    "p10": 1.5634941409827205,
+    "p90": 3.345854391950879,
+    "p5": 1.5634941409827205,
+    "p95": 3.345854391950879,
+    "mean": 2.7408110504510446,
+    "min": 1.5634941409827205,
+    "max": 13.162730540985091,
+    "nominalA": 28.25,
+    "nominalB": 2.3833333333333333,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "minutes, zone 246, to its largest-flow shelter (walk + drive)",
+    "spearman": {
+     "m2pp": 0.10305716917933505,
+     "usable": -0.10135648905589115,
+     "cap_max": -0.03449953126761675,
+     "ext": -0.9263492687088617,
+     "floors": -0.0587038729778446,
+     "pop": 0.04894298966522552,
+     "seek": 0.25806266086137675
+    }
+   }
+  },
+  "wide": {
+   "sentAway": {
+    "median": 0.0,
+    "p10": 0.0,
+    "p90": 1520.546633012855,
+    "p5": 0.0,
+    "p95": 2802.9263149540548,
+    "mean": 439.8009344846661,
+    "min": 0.0,
+    "max": 7846.245594430898,
+    "nominalA": 8643.0,
+    "nominalB": 0.0,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "residents of the town sent outside the two districts",
+    "share_zero": 0.682,
+    "share_below_100": 0.723,
+    "spearman": {
+     "m2pp": 0.16285757835874393,
+     "usable": -0.18389807437609584,
+     "cap_max": -0.0936186670241974,
+     "ext": -0.24369433941532398,
+     "floors": -0.3858944622049234,
+     "pop": 0.12912682673543577,
+     "seek": 0.6100460279609478
+    }
+   },
+   "sentAwayAll": {
+    "median": 337.34628488992496,
+    "p10": 174.09078160529376,
+    "p90": 2806.2637408663486,
+    "p5": 153.41924324184342,
+    "p95": 4431.7420039003155,
+    "mean": 980.7281516887883,
+    "min": 86.74797993991177,
+    "max": 11233.341456116392,
+    "nominalA": 12003.5,
+    "nominalB": 578.9,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "residents of the two districts sent outside",
+    "spearman": {
+     "m2pp": 0.06645153045153046,
+     "usable": -0.09272398472398474,
+     "cap_max": -0.10918496518496519,
+     "ext": -0.08637185187972972,
+     "floors": -0.194894308205255,
+     "pop": 0.1594805554805555,
+     "seek": 0.8866975186975188
+    }
+   },
+   "townPlaced": {
+    "median": 6809.545325218738,
+    "p10": 3851.236263804368,
+    "p90": 11304.207521334898,
+    "p5": 3181.1620885834604,
+    "p95": 12353.623715743752,
+    "mean": 7210.258784260347,
+    "min": 1835.5763713991946,
+    "max": 16122.682429755303,
+    "nominalA": 14841.5,
+    "nominalB": 14841.5,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "town residents placed in any shelter",
+    "spearman": {
+     "m2pp": 0.005827817827817828,
+     "usable": -0.009977505977505978,
+     "cap_max": -0.10884489684489686,
+     "ext": 0.007944670681192466,
+     "floors": 0.039598244558295616,
+     "pop": 0.1892829572829573,
+     "seek": 0.9884634164634165
+    }
+   },
+   "townOver30Share": {
+    "median": 0.0008220193376680254,
+    "p10": 0.0,
+    "p90": 0.04784716614749682,
+    "p5": 0.0,
+    "p95": 0.10414615742679503,
+    "mean": 0.014246087411503669,
+    "min": 0.0,
+    "max": 0.2482394880286633,
+    "nominalA": 0.34777482060438636,
+    "nominalB": 0.0003301553077519119,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "share of placed town residents with a trip over 30 min (incl. walk)",
+    "spearman": {
+     "m2pp": 0.16402791838688105,
+     "usable": -0.19272677467361368,
+     "cap_max": -0.09691597898413429,
+     "ext": -0.3044153432706977,
+     "floors": -0.40769268515433416,
+     "pop": 0.137654712241093,
+     "seek": 0.6263698668398086
+    }
+   },
+   "johanMin": {
+    "median": 12.86506855576337,
+    "p10": 2.3833333333333333,
+    "p90": 14.529026202767694,
+    "p5": 2.3833333333333333,
+    "p95": 14.646505559617665,
+    "mean": 10.130545463297032,
+    "min": 2.0258423610945915,
+    "max": 22.940953293302012,
+    "nominalA": 22.872531010641264,
+    "nominalB": 5.960727013542409,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "minutes, zone 246, flow-weighted over its shelters (walk + drive)",
+    "spearman": {
+     "m2pp": 0.1807313766905316,
+     "usable": -0.1846959455280581,
+     "cap_max": -0.09885164900826433,
+     "ext": -0.39581129190535846,
+     "floors": -0.44316880207428083,
+     "pop": 0.14068872993562373,
+     "seek": 0.5995805636765501
+    }
+   },
+   "johanMainMin": {
+    "median": 12.86506855576337,
+    "p10": 2.3833333333333333,
+    "p90": 14.529026202767694,
+    "p5": 2.3833333333333333,
+    "p95": 14.529026202767694,
+    "mean": 10.013779268620539,
+    "min": 2.3833333333333333,
+    "max": 23.300053602155753,
+    "nominalA": 28.25,
+    "nominalB": 2.3833333333333333,
+    "n_draws": 1000,
+    "seed": 20261030,
+    "unit": "minutes, zone 246, to its largest-flow shelter (walk + drive)",
+    "spearman": {
+     "m2pp": 0.1703625874885719,
+     "usable": -0.16850624213942555,
+     "cap_max": -0.10928865442450948,
+     "ext": -0.4067957926298255,
+     "floors": -0.45327721818902245,
+     "pop": 0.13802881776072648,
+     "seek": 0.5557367916240055
+    }
+   }
+  }
+ },
+ "tornado": {
+  "fixed1": {
+   "sentAway": {
+    "baseline": 2771.9249999999997,
+    "rows": [
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 1547.6999999999998,
+      "out_at_high": 4718.875,
+      "swing": 3171.175
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 4303.5,
+      "out_at_high": 1240.35,
+      "swing": 3063.15
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 4184.45,
+      "out_at_high": 1359.4,
+      "swing": 2825.0499999999997
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 1663.3375,
+      "out_at_high": 4359.088749999999,
+      "swing": 2695.751249999999
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 2045.575,
+      "out_at_high": 4718.875,
+      "swing": 2673.3
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 2770.1,
+      "out_at_high": 2922.9500000000003,
+      "swing": 152.85000000000036
+     }
+    ]
+   },
+   "sentAwayAll": {
+    "baseline": 4706.474999999999,
+    "rows": [
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 3021.6500000000005,
+      "out_at_high": 7340.55,
+      "swing": 4318.9
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 6828.599999999999,
+      "out_at_high": 2584.35,
+      "swing": 4244.25
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 3002.685,
+      "out_at_high": 6921.739999999999,
+      "swing": 3919.054999999999
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 6609.15,
+      "out_at_high": 2803.7999999999997,
+      "swing": 3805.35
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 3646.6250000000005,
+      "out_at_high": 7340.55,
+      "swing": 3693.9249999999997
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 4706.474999999999,
+      "out_at_high": 4892.725,
+      "swing": 186.2500000000009
+     }
+    ]
+   },
+   "townPlaced": {
+    "baseline": 14841.5,
+    "rows": [
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 12615.275000000001,
+      "out_at_high": 17067.725,
+      "swing": 4452.449999999997
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 14841.5,
+      "out_at_high": 14841.499999999998,
+      "swing": 1.8189894035458565e-12
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 14841.5,
+      "out_at_high": 14841.5,
+      "swing": 0.0
+     },
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 14841.5,
+      "out_at_high": 14841.5,
+      "swing": 0.0
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 14841.5,
+      "out_at_high": 14841.5,
+      "swing": 0.0
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 14841.5,
+      "out_at_high": 14841.5,
+      "swing": 0.0
+     }
+    ]
+   },
+   "townOver30Share": {
+    "baseline": 0.07879425934036317,
+    "rows": [
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 0.14054509315096186,
+      "out_at_high": 0.01704342552976451,
+      "swing": 0.12350166762119735
+     },
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 0.03724017114173095,
+      "out_at_high": 0.14634639355860257,
+      "swing": 0.10910622241687162
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 0.04872485934710104,
+      "out_at_high": 0.14634639355860257,
+      "swing": 0.09762153421150153
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 0.04577436877119205,
+      "out_at_high": 0.10012633493919075,
+      "swing": 0.0543519661679987
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 0.1026715628474211,
+      "out_at_high": 0.05491695583330527,
+      "swing": 0.04775460701411583
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 0.07778357982683691,
+      "out_at_high": 0.08449786072836306,
+      "swing": 0.006714280901526148
+     }
+    ]
+   },
+   "johanMin": {
+    "baseline": 14.889717760854413,
+    "rows": [
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 13.969990537484074,
+      "out_at_high": 19.951332389401443,
+      "swing": 5.981341851917369
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 15.070270534027983,
+      "out_at_high": 19.951332389401443,
+      "swing": 4.88106185537346
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 15.572798321588703,
+      "out_at_high": 14.20663720012012,
+      "swing": 1.3661611214685827
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 14.352247658778644,
+      "out_at_high": 15.427187862930179,
+      "swing": 1.0749402041515346
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 15.02027636574656,
+      "out_at_high": 13.95586415895358,
+      "swing": 1.06441220679298
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 14.52778668621687,
+      "out_at_high": 14.680611637246189,
+      "swing": 0.15282495102931826
+     }
+    ]
+   },
+   "johanMainMin": {
+    "baseline": 14.532967043088059,
+    "rows": [
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 14.051964991653637,
+      "out_at_high": 20.152026501922787,
+      "swing": 6.10006151026915
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 15.6486970386303,
+      "out_at_high": 20.152026501922787,
+      "swing": 4.503329463292488
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 14.2679089929834,
+      "out_at_high": 14.798025093192717,
+      "swing": 0.530116100209316
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 14.798025093192717,
+      "out_at_high": 14.2679089929834,
+      "swing": 0.530116100209316
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 14.663525647980205,
+      "out_at_high": 14.255285373018452,
+      "swing": 0.4082402749617522
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 14.704890267922547,
+      "out_at_high": 15.033057490525621,
+      "swing": 0.3281672226030743
+     }
+    ]
+   }
+  },
+  "research": {
+   "sentAway": {
+    "baseline": 0.0,
+    "rows": [
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     },
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     },
+     {
+      "param": "seek",
+      "label": "shelter-seeking share",
+      "status": "judgement / not sourced for this region (US planning rule 10-20 %)",
+      "value_low": 0.017,
+      "value_high": 0.25,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     }
+    ]
+   },
+   "sentAwayAll": {
+    "baseline": 29.455000000000005,
+    "rows": [
+     {
+      "param": "seek",
+      "label": "shelter-seeking share",
+      "status": "judgement / not sourced for this region (US planning rule 10-20 %)",
+      "value_low": 0.017,
+      "value_high": 0.25,
+      "out_at_low": 11.1248,
+      "out_at_high": 174.70625,
+      "swing": 163.58145000000002
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 15.258000000000003,
+      "out_at_high": 43.65200000000001,
+      "swing": 28.394000000000005
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 24.47425000000001,
+      "out_at_high": 34.98660000000001,
+      "swing": 10.512350000000001
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 32.73400000000001,
+      "out_at_high": 26.176000000000005,
+      "swing": 6.558000000000003
+     },
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 28.205000000000005,
+      "out_at_high": 31.73400000000001,
+      "swing": 3.5290000000000035
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 28.705000000000005,
+      "out_at_high": 31.73400000000001,
+      "swing": 3.0290000000000035
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 29.455000000000005,
+      "out_at_high": 29.455000000000005,
+      "swing": 0.0
+     }
+    ]
+   },
+   "townPlaced": {
+    "baseline": 593.6600000000002,
+    "rows": [
+     {
+      "param": "seek",
+      "label": "shelter-seeking share",
+      "status": "judgement / not sourced for this region (US planning rule 10-20 %)",
+      "value_low": 0.017,
+      "value_high": 0.25,
+      "out_at_low": 252.30550000000002,
+      "out_at_high": 3710.375,
+      "swing": 3458.0695
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 504.6110000000001,
+      "out_at_high": 682.7090000000001,
+      "swing": 178.09799999999996
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 593.6600000000001,
+      "out_at_high": 593.6600000000002,
+      "swing": 1.1368683772161603e-13
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 593.6600000000002,
+      "out_at_high": 593.6600000000002,
+      "swing": 0.0
+     },
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 593.6600000000002,
+      "out_at_high": 593.6600000000002,
+      "swing": 0.0
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 593.6600000000002,
+      "out_at_high": 593.6600000000002,
+      "swing": 0.0
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 593.6600000000001,
+      "out_at_high": 593.6600000000001,
+      "swing": 0.0
+     }
+    ]
+   },
+   "townOver30Share": {
+    "baseline": 0.0,
+    "rows": [
+     {
+      "param": "seek",
+      "label": "shelter-seeking share",
+      "status": "judgement / not sourced for this region (US planning rule 10-20 %)",
+      "value_low": 0.017,
+      "value_high": 0.25,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0002880436613549843,
+      "swing": 0.0002880436613549843
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     },
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     }
+    ]
+   },
+   "johanMin": {
+    "baseline": 2.4546742664668,
+    "rows": [
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 3.345854391950879,
+      "out_at_high": 1.5634941409827205,
+      "swing": 1.7823602509681584
+     },
+     {
+      "param": "seek",
+      "label": "shelter-seeking share",
+      "status": "judgement / not sourced for this region (US planning rule 10-20 %)",
+      "value_low": 0.017,
+      "value_high": 0.25,
+      "out_at_low": 2.4546742664668,
+      "out_at_high": 4.235319807504818,
+      "swing": 1.7806455410380182
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 2.4546742664668,
+      "out_at_high": 2.4546742664667995,
+      "swing": 4.440892098500626e-16
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 2.4546742664668,
+      "out_at_high": 2.4546742664668,
+      "swing": 0.0
+     },
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 2.4546742664668,
+      "out_at_high": 2.4546742664668,
+      "swing": 0.0
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 2.4546742664668,
+      "out_at_high": 2.4546742664668,
+      "swing": 0.0
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 2.4546742664667995,
+      "out_at_high": 2.4546742664667995,
+      "swing": 0.0
+     }
+    ]
+   },
+   "johanMainMin": {
+    "baseline": 2.4546742664668,
+    "rows": [
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 3.345854391950879,
+      "out_at_high": 1.5634941409827205,
+      "swing": 1.7823602509681584
+     },
+     {
+      "param": "seek",
+      "label": "shelter-seeking share",
+      "status": "judgement / not sourced for this region (US planning rule 10-20 %)",
+      "value_low": 0.017,
+      "value_high": 0.25,
+      "out_at_low": 2.4546742664668,
+      "out_at_high": 3.7278414099284656,
+      "swing": 1.2731671434616656
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 2.4546742664668,
+      "out_at_high": 2.4546742664668,
+      "swing": 0.0
+     },
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 2.4546742664668,
+      "out_at_high": 2.4546742664668,
+      "swing": 0.0
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 2.4546742664668,
+      "out_at_high": 2.4546742664668,
+      "swing": 0.0
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 2.4546742664667995,
+      "out_at_high": 2.4546742664667995,
+      "swing": 0.0
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 2.4546742664668,
+      "out_at_high": 2.4546742664668,
+      "swing": 0.0
+     }
+    ]
+   }
+  },
+  "wide": {
+   "sentAway": {
+    "baseline": 0.0,
+    "rows": [
+     {
+      "param": "seek",
+      "label": "shelter-seeking share",
+      "status": "judgement / not sourced for this region (US planning rule 10-20 %)",
+      "value_low": 0.1,
+      "value_high": 1.0,
+      "out_at_low": 0.0,
+      "out_at_high": 2771.9249999999997,
+      "swing": 2771.9249999999997
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 0.0,
+      "out_at_high": 41.468749999999964,
+      "swing": 41.468749999999964
+     },
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 0.0,
+      "out_at_high": 41.468749999999964,
+      "swing": 41.468749999999964
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 0.0,
+      "out_at_high": 0.0,
+      "swing": 0.0
+     }
+    ]
+   },
+   "sentAwayAll": {
+    "baseline": 235.51625,
+    "rows": [
+     {
+      "param": "seek",
+      "label": "shelter-seeking share",
+      "status": "judgement / not sourced for this region (US planning rule 10-20 %)",
+      "value_low": 0.1,
+      "value_high": 1.0,
+      "out_at_low": 87.555,
+      "out_at_high": 4706.474999999999,
+      "swing": 4618.919999999999
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 185.053125,
+      "out_at_high": 313.2277499999999,
+      "swing": 128.1746249999999
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 218.81250000000003,
+      "out_at_high": 346.1774999999999,
+      "swing": 127.36499999999987
+     },
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 225.58875,
+      "out_at_high": 346.1774999999999,
+      "swing": 120.58874999999989
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 227.0775,
+      "out_at_high": 243.955,
+      "swing": 16.877500000000026
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 237.775,
+      "out_at_high": 233.2575,
+      "swing": 4.5175000000000125
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 235.51625,
+      "out_at_high": 235.51625,
+      "swing": 0.0
+     }
+    ]
+   },
+   "townPlaced": {
+    "baseline": 5194.525,
+    "rows": [
+     {
+      "param": "seek",
+      "label": "shelter-seeking share",
+      "status": "judgement / not sourced for this region (US planning rule 10-20 %)",
+      "value_low": 0.1,
+      "value_high": 1.0,
+      "out_at_low": 1484.15,
+      "out_at_high": 14841.5,
+      "swing": 13357.35
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 4415.346249999999,
+      "out_at_high": 5973.703749999999,
+      "swing": 1558.3575
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 5194.525,
+      "out_at_high": 5194.525,
+      "swing": 0.0
+     },
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 5194.525,
+      "out_at_high": 5194.525,
+      "swing": 0.0
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 5194.525,
+      "out_at_high": 5194.525,
+      "swing": 0.0
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 5194.525,
+      "out_at_high": 5194.525,
+      "swing": 0.0
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 5194.525,
+      "out_at_high": 5194.525,
+      "swing": 0.0
+     }
+    ]
+   },
+   "townOver30Share": {
+    "baseline": 0.00041100966883401275,
+    "rows": [
+     {
+      "param": "seek",
+      "label": "shelter-seeking share",
+      "status": "judgement / not sourced for this region (US planning rule 10-20 %)",
+      "value_low": 0.1,
+      "value_high": 1.0,
+      "out_at_low": 8.253882693797797e-05,
+      "out_at_high": 0.07879425934036317,
+      "swing": 0.07871172051342519
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 0.0002880436613549843,
+      "out_at_high": 0.000830441666947411,
+      "swing": 0.0005423980055924267
+     },
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 0.0002880436613549843,
+      "out_at_high": 0.000830441666947411,
+      "swing": 0.0005423980055924267
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 0.0006569416837920695,
+      "out_at_high": 0.00016507765387595595,
+      "swing": 0.0004918640299161135
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 0.0005760873227099686,
+      "out_at_high": 0.0002459320149580568,
+      "swing": 0.00033015530775191184
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 0.0003705824882929623,
+      "out_at_high": 0.0004935484957719907,
+      "swing": 0.00012296600747902843
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 0.00041100966883401275,
+      "out_at_high": 0.00041100966883401275,
+      "swing": 0.0
+     }
+    ]
+   },
+   "johanMin": {
+    "baseline": 7.300546993334384,
+    "rows": [
+     {
+      "param": "seek",
+      "label": "shelter-seeking share",
+      "status": "judgement / not sourced for this region (US planning rule 10-20 %)",
+      "value_low": 0.1,
+      "value_high": 1.0,
+      "out_at_low": 2.864593862642106,
+      "out_at_high": 14.889717760854413,
+      "swing": 12.025123898212307
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 11.736500124026662,
+      "out_at_high": 2.8645938626421064,
+      "swing": 8.871906261384556
+     },
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 4.237650571343891,
+      "out_at_high": 10.558907525442601,
+      "swing": 6.32125695409871
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 5.190199196118023,
+      "out_at_high": 10.558907525442601,
+      "swing": 5.368708329324578
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 8.676323087574994,
+      "out_at_high": 5.924770899093774,
+      "swing": 2.75155218848122
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 6.30575872836194,
+      "out_at_high": 7.87223384817349,
+      "swing": 1.5664751198115505
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 7.231839380978048,
+      "out_at_high": 7.864310168984042,
+      "swing": 0.6324707880059934
+     }
+    ]
+   },
+   "johanMainMin": {
+    "baseline": 7.883994877120831,
+    "rows": [
+     {
+      "param": "seek",
+      "label": "shelter-seeking share",
+      "status": "judgement / not sourced for this region (US planning rule 10-20 %)",
+      "value_low": 0.1,
+      "value_high": 1.0,
+      "out_at_low": 2.864593862642106,
+      "out_at_high": 14.532967043088059,
+      "swing": 11.668373180445952
+     },
+     {
+      "param": "floors",
+      "label": "default floors, untagged buildings (1 / 2)",
+      "status": "judgement (the two assumption sets' defaults, p=0.5)",
+      "value_low": 1,
+      "value_high": 2,
+      "out_at_low": 12.903395891599555,
+      "out_at_high": 2.8645938626421064,
+      "swing": 10.038802028957448
+     },
+     {
+      "param": "usable",
+      "label": "usable share (0.40 / 0.55 / 0.70)",
+      "status": "judgement / not sourced for this region",
+      "value_low": 0.7,
+      "value_high": 0.4,
+      "out_at_low": 4.591088957214826,
+      "out_at_high": 10.3943570229661,
+      "swing": 5.803268065751274
+     },
+     {
+      "param": "m2pp",
+      "label": "m2 per person (3.5 / 4.0 / 5.5)",
+      "status": "sourced (DRK card, Sphere; secondary)",
+      "value_low": 3.5,
+      "value_high": 5.5,
+      "out_at_low": 5.2443974035952285,
+      "out_at_high": 10.3943570229661,
+      "swing": 5.149959619370871
+     },
+     {
+      "param": "ext",
+      "label": "extended buildings included (no / yes)",
+      "status": "judgement (tier inclusion switch, p=0.5)",
+      "value_low": 0,
+      "value_high": 1,
+      "out_at_low": 8.676323087574994,
+      "out_at_high": 7.091666666666667,
+      "swing": 1.5846564209083276
+     },
+     {
+      "param": "pop",
+      "label": "population factor (0.85 / 1.00 / 1.15)",
+      "status": "judgement anchored on GHS-POP local MAPE 5-12 %",
+      "value_low": 0.85,
+      "value_high": 1.15,
+      "out_at_low": 6.393075757740523,
+      "out_at_high": 7.763243727273511,
+      "swing": 1.3701679695329876
+     },
+     {
+      "param": "cap_max",
+      "label": "cap per building (500 to 1500)",
+      "status": "judgement (the two assumption sets' limits)",
+      "value_low": 1500.0,
+      "value_high": 500.0,
+      "out_at_low": 7.883994877120831,
+      "out_at_high": 7.883994877120831,
+      "swing": 0.0
+     }
+    ]
+   }
+  }
+ },
+ "runtime_s": 929,
+ "sentAway": {
+  "median": 3047.375531833434,
+  "p10": 378.9000000000001,
+  "p90": 7028.424665895153,
+  "p5": 1.4772055239810733,
+  "p95": 7742.964143649801,
+  "mean": 3340.332532775463,
+  "min": 0.0,
+  "max": 9637.968963519099,
+  "nominalA": 8643.0,
+  "nominalB": 0.0,
+  "n_draws": 1000,
+  "seed": 20261030,
+  "unit": "residents of the town sent outside the two districts",
+  "share_zero": 0.05,
+  "share_below_100": 0.058,
+  "spearman": {
+   "m2pp": 0.2782396700480642,
+   "usable": -0.2859331321534805,
+   "cap_max": -0.045926896645607694,
+   "ext": -0.6583020123647086,
+   "floors": -0.6090160071446118,
+   "pop": 0.2334104850508042
+  }
+ },
+ "sentAwayAll": {
+  "median": 5117.767617476782,
+  "p10": 1298.962216755686,
+  "p90": 10167.043772653482,
+  "p5": 761.8195386028625,
+  "p95": 11139.51761530212,
+  "mean": 5442.8236536245495,
+  "min": 539.1582892475525,
+  "max": 13299.45727777994,
+  "nominalA": 12003.5,
+  "nominalB": 578.9,
+  "n_draws": 1000,
+  "seed": 20261030,
+  "unit": "residents of the two districts sent outside",
+  "spearman": {
+   "m2pp": 0.2781558621558622,
+   "usable": -0.2885436845436845,
+   "cap_max": -0.04528656928656929,
+   "ext": -0.6076268622563182,
+   "floors": -0.6523716393974198,
+   "pop": 0.2522734082734083
+  }
+ },
+ "townPlaced": {
+  "median": 14865.272991638118,
+  "p10": 13603.110616487385,
+  "p90": 16046.192748909934,
+  "p5": 13340.949665526314,
+  "p95": 16323.198391285901,
+  "mean": 14838.556989078,
+  "min": 12782.130729703815,
+  "max": 16900.04801801779,
+  "nominalA": 14841.5,
+  "nominalB": 14841.5,
+  "n_draws": 1000,
+  "seed": 20261030,
+  "unit": "town residents placed in any shelter",
+  "spearman": {
+   "m2pp": 0.013723345723345723,
+   "usable": 0.03465329865329866,
+   "cap_max": 0.016830784830784835,
+   "ext": -0.01184938442498239,
+   "floors": -0.025596310825058727,
+   "pop": 1.0
+  }
+ },
+ "townOver30Share": {
+  "median": 0.07850961001712276,
+  "p10": 0.0009400346645910889,
+  "p90": 0.20579178412620167,
+  "p5": 0.0008220193376680255,
+  "p95": 0.23114207062400294,
+  "mean": 0.09438496961313075,
+  "min": 0.00033015530775191184,
+  "max": 0.3268722276411744,
+  "nominalA": 0.34777482060438636,
+  "nominalB": 0.0003301553077519119,
+  "n_draws": 1000,
+  "seed": 20261030,
+  "unit": "share of placed town residents with a trip over 30 min (incl. walk)",
+  "spearman": {
+   "m2pp": 0.2870176771376149,
+   "usable": -0.31168323448341023,
+   "cap_max": -0.044002610772629645,
+   "ext": -0.3275748366867159,
+   "floors": -0.8265994237363166,
+   "pop": 0.18985904363321562
+  }
+ },
+ "johanMin": {
+  "median": 14.529026202767694,
+  "p10": 13.523787183809832,
+  "p90": 20.845942582203474,
+  "p5": 13.086933528055544,
+  "p95": 22.906366972559617,
+  "mean": 15.779703097127761,
+  "min": 3.345854391950879,
+  "max": 28.199471267841318,
+  "nominalA": 22.872531010641264,
+  "nominalB": 5.960727013542409,
+  "n_draws": 1000,
+  "seed": 20261030,
+  "unit": "minutes, zone 246, flow-weighted over its shelters (walk + drive)",
+  "spearman": {
+   "m2pp": 0.234265880316218,
+   "usable": -0.23222102461297492,
+   "cap_max": 0.13734425884759857,
+   "ext": 0.129017816320929,
+   "floors": -0.5334879320589428,
+   "pop": 0.15380142012186002
+  }
+ },
+ "johanMainMin": {
+  "median": 14.529026202767694,
+  "p10": 14.006791783199109,
+  "p90": 22.940953293302012,
+  "p5": 13.523787183809832,
+  "p95": 23.300053602155753,
+  "mean": 16.090824912640432,
+  "min": 2.3833333333333333,
+  "max": 28.25,
+  "nominalA": 28.25,
+  "nominalB": 2.3833333333333333,
+  "n_draws": 1000,
+  "seed": 20261030,
+  "unit": "minutes, zone 246, to its largest-flow shelter (walk + drive)",
+  "spearman": {
+   "m2pp": 0.25925755800061345,
+   "usable": -0.25022830115203926,
+   "cap_max": 0.053144893594597564,
+   "ext": 0.26382519825907286,
+   "floors": -0.5316082577866915,
+   "pop": 0.168456809719112
+  }
+ }
+}
