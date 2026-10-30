@@ -1,0 +1,2057 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart shelter system: planning aid</title>
+<!-- Leaflet CSS is inlined here by build.py -->
+<style id="leaflet-css">/*__LEAFLET_CSS__*/</style>
+<style>
+:root {
+  --bg: #ffffff; --panel: #ffffff; --ink: #14181d; --muted: #4a5360; --line: #c5ccd4;
+  --accent: #0072B2; --focus: #b35c00;
+  --bad: #9d1c0b; --badbg: #fdeceb; --warn: #6b4a00; --warnbg: #fff5d6; --ok: #00573f; --okbg: #e3f4ee;
+  --mapbg: #ffffff; --road: #7c828a; --roadlite: #9aa0a8; --halo: #ffffff; --ringcol: #111111;
+  --btn: #eef2f6; --btnink: #14181d;
+}
+/* always light with a white background (user decision 2026-10-29); the dark scheme was removed */
+:root { color-scheme: light; }
+/* ---- profiles: citizen / municipality / full (POLICY_TOOL_PLAN.md section 0) */
+.profiles { display: inline-flex; gap: 4px; margin-left: 16px; vertical-align: middle; }
+.profiles button { padding: 4px 12px; font-size: 14px; border-radius: 16px; }
+.profiles button[aria-pressed=true] { background: #0072B2; color: #fff; border-color: #0072B2; font-weight: 600; }
+.prof-only { display: none; }
+body[data-profile=municipality] .main { grid-template-columns: minmax(0, 1fr); }
+body[data-profile=municipality] .side { display: none !important; }
+body[data-profile=municipality] #muniPanel { display: flex; flex-direction: column; gap: 6px; position: absolute; top: 12px; left: 12px; width: 470px; max-height: calc(100% - 24px); overflow-y: auto; z-index: 1000;
+  background: #fff; border-radius: 14px; box-shadow: 0 6px 24px rgba(0,0,0,.22); padding: 16px 18px; border: 0; margin: 0; }
+body[data-profile=municipality] .controls { display: none !important; }
+#muniLevel { width: 100%; min-width: 0; font-size: 15px; padding: 8px 10px; border-radius: 10px; }
+#muniPanel h2 { font-size: 20px; margin: 0 0 4px; }
+#muniPanel .mlist li { background: #f6f1ea; border: 0; border-radius: 8px; padding: 4px 10px; margin: 3px 0; }
+#muniResult ul { padding-left: 18px; } #muniResult li { margin: 3px 0; }
+.mapwrap { position: relative; }
+body[data-profile=citizen] .main { grid-template-columns: minmax(0, 1fr); }
+body[data-profile=citizen] .side { display: none !important; }
+body[data-profile=citizen], body[data-profile=municipality], body[data-profile=full] { overflow: hidden; height: 100vh; }
+body[data-profile=full] #map { height: calc(100vh - var(--mainTop, 340px) - 12px) !important; min-height: 0 !important; }
+body[data-profile=full] .side { height: calc(100vh - var(--mainTop, 340px) - 12px); max-height: none; }
+body[data-profile=full] .main { padding-bottom: 0; }
+body[data-profile=full] #mapHint, body[data-profile=full] footer { display: none !important; }
+.main > div:first-child { position: relative; }
+#selNote { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 1500; margin: 0; box-shadow: 0 4px 14px rgba(0,0,0,.2); }
+body[data-profile=citizen] #map, body[data-profile=municipality] #map { height: calc(100vh - var(--hdr, 110px) - 8px) !important; min-height: 0 !important; }
+body[data-profile=citizen] .main, body[data-profile=municipality] .main { padding-bottom: 0; }
+body[data-profile=citizen] footer, body[data-profile=municipality] footer, body[data-profile=citizen] #selNote, body[data-profile=municipality] #selNote { display: none !important; }
+body[data-profile=citizen] #citCard { display: flex; flex-direction: column; gap: 6px; position: absolute; top: 12px; left: 12px; width: 470px; max-height: calc(100% - 24px); overflow-y: auto;
+  z-index: 1000; background: #fff; border-radius: 14px; box-shadow: 0 6px 24px rgba(0,0,0,.22); padding: 16px 18px; }
+#citCard > *, #muniPanel > * { flex-shrink: 0; }
+.card-title { font-size: 20px; margin: 0; } .card-sub { margin: 0 0 4px; }
+#citCard #citSearch { font-size: 16px; padding: 10px 14px; border-radius: 24px; border: 1px solid #b9c1ca; box-shadow: inset 0 1px 2px rgba(0,0,0,.06); }
+.cit-status { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0; }
+.chip { display: inline-block; border-radius: 12px; padding: 2px 10px; font-size: 13px; font-weight: 700; } .chip.red { background: #fde4e1; color: #9d1c0b; } .chip.flood { background: #e3f0fa; color: #0b4f7c; }
+.infobox { background: #f4f7fa; border-left: 4px solid #8fb3cf; border-radius: 8px; padding: 8px 12px; margin: 6px 0; font-size: 14px; }
+.dest { display: flex; gap: 12px; align-items: center; background: #f2f7fb; border-radius: 12px; padding: 10px 12px; margin: 6px 0; }
+.dest-n { flex: none; width: 34px; height: 34px; border-radius: 50%; background: #111; color: #fff; font: 700 18px/34px system-ui, sans-serif; text-align: center; }
+.dest-n.small2 { width: 24px; height: 24px; font-size: 14px; line-height: 24px; background: #555; }
+.dest-name { font-size: 18px; font-weight: 700; }
+.pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; } .pill { background: #fff; border: 1px solid #c9d3dc; border-radius: 12px; padding: 1px 8px; font-size: 13px; }
+.steps { list-style: none; margin: 4px 0; padding: 0; } .steps li { display: flex; gap: 8px; padding: 5px 0; border-bottom: 1px dashed #e1e6eb; } .steps .ic { flex: none; width: 22px; text-align: center; }
+.backup { display: flex; gap: 10px; align-items: flex-start; background: #f6f6f6; border-radius: 10px; padding: 8px 10px; font-size: 14px; }
+.areabtns { display: flex; flex-direction: column; gap: 4px; } .areabtns button { text-align: left; background: #f2f7fb; border-color: #c9d3dc; }
+.mapkey { border-top: 1px solid #e1e6eb; padding-top: 6px; } .mapkey .k { display: inline-block; width: 16px; height: 10px; vertical-align: middle; margin-right: 2px; }
+.mapkey .area { background: rgba(140,81,10,.3); border: 1px solid #8C510A; } .mapkey .flood { background: rgba(86,180,233,.35); border: 1px solid #0072B2; } .mapkey .ems { height: 0; border-top: 2px dashed #5E3C99; } .mapkey .route { height: 4px; background: #111; } .mapkey .back { height: 0; border-top: 3px dashed #555; } .mapkey .closed { height: 0; border-top: 3px dashed #111; }
+.shclu { border-radius: 50%; background: #C2185B; color: #fff; font: 700 13px/1 system-ui, sans-serif; display: flex; align-items: center; justify-content: center; border: 2px solid #12000A; box-shadow: 0 0 0 2px #fff; }
+.shclu.fl { background: #BDBDBD; color: #111; border-color: #333; }
+#citResult.fold, #muniResult.fold { animation: foldOpen .55s cubic-bezier(.2,.7,.2,1) .18s both; transform-origin: top; overflow: hidden; }
+#citResult.fold .dest { animation: popIn .45s ease-out .45s both; }
+@keyframes foldOpen { 0% { opacity: 0; max-height: 0; transform: translateY(-6px); } 40% { opacity: .4; } 100% { opacity: 1; max-height: 1400px; transform: none; } }
+@keyframes popIn { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: none; } }
+.prep-d summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+body[data-profile=citizen] .controls, body[data-profile=citizen] #summary, body[data-profile=citizen] #mapHint, body[data-profile=citizen] .maplegend,
+body[data-profile=citizen] .side > :not(.prof-only) { display: none !important; }
+body[data-profile=municipality] .controls .adv, body[data-profile=municipality] #summary, body[data-profile=municipality] #mapHint, body[data-profile=municipality] .maplegend,
+body[data-profile=municipality] .side > :not(.prof-only) { display: none !important; }
+#citSearch { width: 100%; padding: 8px 10px; font: inherit; border: 1px solid var(--line); border-radius: 4px; margin: 4px 0; }
+.hits { list-style: none; margin: 0 0 8px; padding: 0; max-height: 220px; overflow-y: auto; }
+.hits li button { width: 100%; text-align: left; background: #fff; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 6px 8px; }
+.hits li button:hover, .hits li button:focus { background: #eef6fc; }
+.cit-dest { font-size: 18px; margin: 6px 0; }
+.stlab span { position: absolute; transform: translate(-50%, -50%); font: 600 12px/1 "Segoe UI", Arial, sans-serif; font-style: normal; color: #555;   /* system-ui italic fell back to a faux-italic CJK face on the demo machine */ text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 2px #fff; white-space: nowrap; pointer-events: none; }
+.citnum span { position: absolute; transform: translate(4px, -30px); background: #111; color: #fff; border-radius: 10px; padding: 0 6px; font: 700 13px/18px system-ui, sans-serif; }
+.citnum.left span { transform: translate(-22px, -30px); }
+.citnum.below span { transform: translate(4px, 6px); }
+.cit-steps { margin: 6px 0 6px 20px; padding: 0; }
+.cit-steps li { margin: 3px 0; }
+.prep { margin: 4px 0 4px 18px; padding: 0; } .prep li { margin: 4px 0; }
+.mlist { list-style: none; margin: 6px 0; padding: 0; }
+.mlist li { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-bottom: 1px solid var(--line); padding: 4px 0; }
+#muniResult table { width: 100%; border-collapse: collapse; } #muniResult .mtab th { font-size: 12px; font-weight: 600; color: var(--muted); vertical-align: bottom; } #muniResult .n { text-align: right; } #muniResult td, #muniResult th { padding: 2px 4px; border-bottom: 1px solid var(--line); text-align: left; }
+.leaflet-container, .leaflet-grab { cursor: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg stroke='white' stroke-width='4' stroke-linecap='round' fill='none'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cpath d='M12 1v6M12 17v6M1 12h6M17 12h6'/%3E%3C/g%3E%3Cg stroke='black' stroke-width='2' stroke-linecap='round' fill='none'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cpath d='M12 1v6M12 17v6M1 12h6M17 12h6'/%3E%3C/g%3E%3C/svg%3E") 12 12, crosshair; }
+.leaflet-dragging .leaflet-grab, .leaflet-dragging .leaflet-container { cursor: grabbing; }
+.leaflet-interactive { cursor: pointer; }
+#citResult:focus, #muniResult:focus, #citResult:focus-visible { outline: none; }
+.lic { display: inline-flex; justify-content: center; align-items: center; width: 26px; vertical-align: middle; margin-right: 6px; flex: none; }
+.leaflet-tooltip { visibility: hidden !important; }   /* their text is shown in #tip, above every panel */
+#tip { position: fixed; z-index: 10000; max-width: 340px; background: #14181d; color: #ffffff; padding: 6px 9px; border-radius: 6px; font-size: 13px; line-height: 1.35; pointer-events: none; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+[hidden] { display: none !important; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; overflow-x: hidden; }
+h1 { font-size: 1.25rem; margin: 0; line-height: 1.2; }
+h2 { font-size: 1.1rem; margin: 0 0 6px; }
+h3 { font-size: 1rem; margin: 10px 0 4px; }
+p { margin: 4px 0; }
+small, .small { font-size: 14px; }
+.muted { color: var(--muted); }
+.wrap { padding: 0 16px; }
+header.top { padding: 6px 16px 4px; position: sticky; top: 0; z-index: 2000; background: var(--bg); box-shadow: 0 1px 0 var(--line); }
+.titlerow { display: block; line-height: 1.4; }
+.titlerow h1 { display: inline; }
+.titlerow p { display: inline; margin: 0 0 0 10px; font-size: 13px; color: var(--muted); white-space: nowrap; }
+#bannerText { display: none; }   /* the long text lives in the disclaimer; every profile shows only the button */
+.titlerow #banner { display: inline-block; margin: 0 0 0 12px; padding: 0; border: 0; background: none; vertical-align: middle; }
+.titlerow #btnDisc { margin: 0; padding: 4px 12px; border-radius: 16px; background: #fff5d6; border: 1px solid #E69F00; color: #6b4a00; font-size: 14px; }
+.discClose { position: sticky; top: 0; float: right; margin: 0 0 6px 8px; z-index: 1; }
+#discBody { position: absolute; left: 16px; right: 16px; top: 100%; z-index: 3000; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+.banner { border-left: 6px solid #E69F00; background: var(--warnbg); color: var(--warn); padding: 3px 12px; border-radius: 4px; margin-top: 4px; font-size: 14px; line-height: 1.35; }
+.banner button { padding: 0 8px; font-size: 14px; margin-left: 8px; }
+.disc { border: 1px solid var(--line); background: var(--panel); border-radius: 4px; padding: 6px 12px; margin-top: 4px; font-size: 14px; max-height: 50vh; overflow-y: auto; }
+.mock { display: inline-block; background: var(--bad); color: #fff; font-weight: 700; padding: 2px 8px; border-radius: 4px; font-size: 14px; margin-left: 8px; vertical-align: middle; }
+.controls { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px 14px; align-items: start; padding: 4px 16px 6px; }
+.controls select { text-overflow: ellipsis; }
+#popNote.proj { color: var(--warn); font-weight: 600; }
+.controls label { display: flex; flex-direction: column; font-weight: 600; font-size: 14px; gap: 2px; }
+select, button, input[type=checkbox] { font: inherit; }
+/* controls: one calm style (same sizes as before, only the look changes) */
+select { min-width: 220px; max-width: 100%; padding: 6px 8px; background: #fff; color: var(--ink); border: 1px solid #c3ccd6; border-radius: 8px; box-shadow: 0 1px 2px rgba(16,24,40,.05); transition: border-color .15s, box-shadow .15s; }
+select:hover { border-color: #8fa3b8; }
+select:focus { outline: none; border-color: #0072B2; box-shadow: 0 0 0 3px rgba(0,114,178,.18); }
+button { cursor: pointer; background: #fff; color: var(--ink); border: 1px solid #c3ccd6; border-radius: 8px; padding: 6px 12px; font-weight: 500;
+  box-shadow: 0 1px 2px rgba(16,24,40,.06); transition: background .15s, border-color .15s, box-shadow .15s, transform .05s; }
+button:hover { border-color: #0072B2; background: #f3f8fc; }
+button:active { transform: translateY(1px); box-shadow: none; }
+button:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,114,178,.25); }
+button.primary, #btnMuniAdd, #btnCsv { background: #0072B2; border-color: #0072B2; color: #fff; font-weight: 600; }
+button.primary:hover, #btnMuniAdd:hover, #btnCsv:hover { background: #005f94; border-color: #005f94; }
+button.link { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; text-align: left; box-shadow: none; font-weight: 400; }
+button.link:hover { background: none; color: #005f94; }
+input[type=checkbox], input[type=radio] { accent-color: #0072B2; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.levelnote { display: inline; margin: 0 0 0 4px; padding: 0; border: 0; background: none; font-weight: 400; }
+.levelnote .badge { font-size: 11px; padding: 0 6px; }
+.lh { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+.controls select { width: 100%; min-width: 0; }
+.cnote { font-weight: 400; font-size: 12px; color: var(--muted); line-height: 1.2; }
+.cnote.proj { color: var(--warn); font-weight: 600; }
+.iicon { display: inline-block; flex: none; width: 16px; height: 16px; margin: 0; padding: 0; background: none; border-radius: 50%; border: 1px solid var(--muted); color: var(--muted); font: 700 11px/14px system-ui, sans-serif; text-align: center; cursor: help; }
+.badge { display: inline-block; font-weight: 700; padding: 1px 8px; border-radius: 4px; margin-right: 6px; border: 2px solid var(--accent); }
+.badge.observed { background: var(--accent); color: #fff; }
+.badge.modelled { background: repeating-linear-gradient(45deg, transparent 0 5px, rgba(0,114,178,.22) 5px 10px); color: var(--ink); }
+.summary { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); align-items: stretch; gap: 6px; padding: 0 16px 6px; }
+.card.wide { grid-column: auto; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+.card .v { font-size: 1.15rem; font-weight: 700; line-height: 1.15; white-space: normal; overflow-wrap: anywhere; }   /* nine cards share the row: a value wraps rather than being cut at 1280 px */
+.card .l { font-size: 13px; color: var(--muted); line-height: 1.25; }
+.card.unassigned { border: 3px solid var(--bad); background: var(--badbg); }
+.card.over { border: 3px dashed var(--bad); background: var(--badbg); }
+.card.over .v, .card.over .l { color: var(--bad); }
+.card .s { font-size: 12px; display: block; line-height: 1.25; }
+.sidetabs { display: flex; gap: 4px; position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 0 0 8px; }
+.sidetabs button { flex: 1; padding: 6px 4px; font-size: 13px; border-radius: 16px; }
+.sidetabs button[aria-pressed=true] { background: #0072B2; color: #fff; border-color: #0072B2; font-weight: 600; }
+.tabhide { display: none !important; }
+.dtab { width: 100%; border-collapse: collapse; font-size: 13px; margin: 4px 0 8px; } .dtab th, .dtab td { text-align: left; vertical-align: top; padding: 3px 4px; border-bottom: 1px solid var(--line); }
+.conf .lvl { display: inline-block; min-width: 54px; text-align: center; border-radius: 10px; padding: 0 6px; font-weight: 700; font-size: 12px; margin-right: 4px; }
+.lvl.hi { background: #e3f4ee; color: #00573f; } .lvl.mid { background: #fff5d6; color: #6b4a00; } .lvl.lo { background: #fdeceb; color: #9d1c0b; }
+.hint { font-size: 14px; color: var(--muted); margin: 2px 0 6px; }
+.card.unassigned .v, .card.unassigned .l { color: var(--bad); }
+.main { display: grid; grid-template-columns: var(--sidew, 500px) 10px minmax(0, 1fr); gap: 6px; padding: 0 16px 16px; }
+.main > .side { grid-column: 1; grid-row: 1; } .main > .resizer { grid-column: 2; grid-row: 1; } .main > div:first-child { grid-column: 3; grid-row: 1; }
+body[data-profile=citizen] .main > div:first-child, body[data-profile=municipality] .main > div:first-child { grid-column: 1 / -1; }
+.resizer { cursor: col-resize; border-radius: 5px; background: linear-gradient(to right, transparent 3px, var(--line) 3px, var(--line) 7px, transparent 7px); }
+.resizer:hover, .resizer.drag { background: linear-gradient(to right, transparent 2px, #0072B2 2px, #0072B2 8px, transparent 8px); }
+body.resizing { cursor: col-resize; user-select: none; }
+body[data-profile=citizen] .resizer, body[data-profile=municipality] .resizer { display: none; }
+#map { height: clamp(520px, 78vh, 820px); background: var(--mapbg); border: 1px solid var(--line); border-radius: 6px; z-index: 0; }
+.leaflet-container { font: 14px/1.4 system-ui, sans-serif; }
+.leaflet-control-attribution { font-size: 14px !important; }
+.side { max-height: clamp(520px, 78vh, 820px); overflow-y: auto; overflow-x: hidden; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; }
+details.panel > summary { cursor: pointer; font-weight: 700; }
+fieldset { border: 0; padding: 0; margin: 0; }
+legend { font-weight: 700; padding: 0; margin-bottom: 4px; }
+.toggle { display: flex; align-items: center; gap: 8px; padding: 2px 0; font-size: 14px; }
+.toggle input { width: 18px; height: 18px; flex: none; }
+.sw { display: inline-block; width: 26px; height: 14px; flex: none; vertical-align: middle; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.n, th.n { text-align: right; }
+tr.cur td { background: var(--okbg); font-weight: 700; }
+.alert { border: 2px solid var(--bad); background: var(--badbg); color: var(--bad); border-radius: 4px; padding: 6px 10px; margin: 6px 0; font-weight: 600; font-size: 14px; }
+.info { border: 1px solid var(--ok); background: var(--okbg); color: var(--ok); border-radius: 4px; padding: 6px 10px; margin: 6px 0; font-size: 14px; }
+.note { border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; margin: 6px 0; font-size: 14px; background: var(--bg); }
+pre.msg { white-space: pre-wrap; word-wrap: break-word; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 8px; font-family: inherit; font-size: 14px; line-height: 1.4; margin: 4px 0; }
+.row { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.legendbar { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 6px 0; font-size: 14px; }
+.legendbar span.i { display: inline-flex; align-items: center; gap: 6px; }
+.card[title], .legendbar span.i[title], .badge[title] { cursor: help; }
+.legendbar span.i[title]:hover, .legendbar span.i[title]:focus { text-decoration: underline dotted; }
+dl { margin: 4px 0; font-size: 14px; }
+dt { font-weight: 600; margin-top: 4px; }
+dd { margin: 0 0 0 12px; }
+ul { margin: 4px 0; padding-left: 20px; font-size: 14px; }
+footer { padding: 8px 16px 24px; font-size: 14px; color: var(--muted); }
+.shel { background: none; border: 0; }
+.shel svg { filter: drop-shadow(0 0 1.5px var(--halo)) drop-shadow(0 0 1px var(--halo)); display: block; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+#dataWarn { margin: 0 16px 8px; }
+.skip { position: absolute; left: -999px; top: 0; background: var(--panel); color: var(--ink); padding: 6px 10px; z-index: 2000; border: 2px solid var(--focus); }
+.skip:focus { left: 8px; top: 8px; }
+.maplegend { background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 3px 7px; max-width: min(430px, 92%); font-size: 12px; line-height: 1.2; opacity: 0.97; }
+.maplegend button { padding: 1px 8px; font-size: 14px; }
+.maplegend #legendbar { max-height: 19vh; overflow-y: auto; }   /* with the stress layer on, an uncapped legend covered the middle of the map */
+.maplegend span.i[data-tip] { cursor: help; }
+.maplegend .lg { margin: 3px 0; display: flex; flex-wrap: wrap; gap: 2px 12px; align-items: center; }
+.maplegend .lg > b { flex: none; }
+.maplegend span.i { display: inline-flex; align-items: center; gap: 4px; }
+.maplegend span.i[title] { cursor: help; }
+.mlab.mchip span { pointer-events: auto; cursor: pointer; background: #ffffff; border: 2px solid #8C510A; border-radius: 10px; padding: 1px 7px; font: 600 13px/1.35 system-ui, sans-serif; text-shadow: none; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+.mlab.mchip.part span { border: 2px dashed #000; }
+.mlab.mchip.none span { border: 2px dashed #d7191c; }
+.zlab { background: none; border: 0; }
+.zlab.zside span { transform: translate(0, -50%) !important; }
+.zlab span { position: absolute; transform: translate(-50%, -50%); font: 700 14px/1 system-ui, sans-serif; color: #111; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 2px #fff; white-space: nowrap; pointer-events: none; }
+.mlab { background: none; border: 0; }
+.mlab span { position: absolute; transform: translate(-50%, -50%); font: 700 14px/1 system-ui, sans-serif; color: var(--ink); text-shadow: 0 0 3px var(--panel), 0 0 3px var(--panel), 0 0 2px var(--panel); white-space: nowrap; pointer-events: none; letter-spacing: 0.2px; }
+h3.grp { margin: 8px 0 2px; font-size: 14px; text-transform: none; border-top: 1px solid var(--line); padding-top: 6px; }
+h3.grp:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+.mobileonly { display: none; }
+.proposal { border-left: 6px solid var(--accent); }
+@media (max-width: 900px) {
+  .mobileonly { display: inline-block; }
+  .main { grid-template-columns: minmax(0, 1fr); }
+  #map { height: 62vh; min-height: 380px; }
+  .side { max-height: none; overflow: visible; }
+  select, .controls select, #selScenario, #selClosure, #selCapacity { min-width: 0; width: 100%; }
+  .controls label { flex: 1 1 100%; }
+  h1 { font-size: 1.3rem; }
+}
+</style>
+</head>
+<body>
+<script>(function () { try { var p = new URLSearchParams(location.search).get('profile'); if (p === 'citizen' || p === 'municipality') document.body.dataset.profile = p; } catch (e) {} })();</script>
+<a class="skip" id="skipLink" href="#selZone">Skip to the list picker (keyboard)</a>
+<header class="top">
+  <div class="titlerow">
+    <h1><span id="title">Smart shelter system: planning aid</span><span id="mockBadge" class="mock" hidden>MOCK DATA</span></h1>
+    <nav class="profiles" role="group" aria-label="Who is using the map">
+      <button type="button" aria-pressed="false" data-profile="citizen" title="Simple view for residents: where to go and how, and what to prepare">Citizen</button>
+      <button type="button" aria-pressed="false" data-profile="municipality" title="For municipal planners: pick your areas and see the results, without the model details">Municipality</button>
+      <button type="button" aria-pressed="true" data-profile="full" title="Everything: all assumptions, layers, comparisons and exports">Full analysis</button>
+    </nav>
+    <p id="purpose">Where flooded residents could shelter, and how to get there</p>
+  </div>
+  <div class="banner" id="banner" role="note"><span id="bannerText"></span> <button id="btnDisc" aria-expanded="false" aria-controls="discBody">⚠ Planning exercise, not live guidance. Counts are modelled minimums. (details)</button></div>
+  <div class="disc" id="discBody" hidden></div>
+</header>
+
+<section class="controls" aria-label="Scenario controls">
+  <label><span class="lh">Flood level <span class="levelnote" id="levelNote" role="status"></span></span><select id="selScenario"></select></label>
+  <label class="adv"><span class="lh">Road closure rule</span><select id="selClosure"></select></label>
+  <label class="adv"><span class="lh">Shelter capacity</span><select id="selCapacity"></select><span class="cnote" id="capTotal"></span></label>
+  <label id="popWrap" class="adv"><span class="lh">Population year</span><select id="selPop"></select><span class="cnote" id="popNote"></span></label>
+</section>
+<div id="dataWarn" hidden></div>
+
+<section class="summary" id="summary" aria-label="Summary of the selected result" aria-live="polite"></section>
+
+<div class="main">
+  <div>
+    <div class="mapwrap">
+    <div id="map" role="application" aria-label="Map of zones, shelters and roads"></div>
+    <div id="citCard" class="prof-only" aria-label="Where to go">
+      <h2 class="card-title">Where to go in a flood</h2>
+      <p class="small muted card-sub">If the July 2021 flood happened again. Move the mouse over the flooded places on the map (blue): your area lights up; click it. Or find your street:</p>
+      <input id="citSearch" type="search" placeholder="🔍  Your street, for example Aachener Straße" autocomplete="off" aria-controls="citHits" aria-label="Your street">
+      <p class="small muted" id="citHint" style="margin:0"></p>
+      <ul id="citHits" class="hits" role="listbox" aria-label="Matching streets"></ul>
+      <div id="citResult" aria-live="polite" tabindex="-1"></div>
+      <p class="small mapkey"><span class="k flood"></span> flooded in July 2021 (satellite map) · <span class="k ems"></span> edge of the area mapped in 2021<br><span class="k area"></span> your area (lights up under the mouse)<br><span class="k route"></span> your route · <span class="k back"></span> backup · <span class="k closed"></span> road closed in 2021</p>
+      <details class="prep-d"><summary>Prepare now, in normal times</summary>
+        <ul class="prep">
+          <li>Know your way to higher ground and to the building in this plan; walk it once.</li>
+          <li>Install an official warning app and keep your phone charged; keep a power bank.</li>
+          <li>Keep a small bag ready: ID and important papers in a waterproof bag, medicines, glasses, cash, phone numbers on paper.</li>
+          <li>Store drinking water and food for a few days, a torch and a battery radio.</li>
+          <li>Agree with family and neighbours who helps whom (children, older people, pets).</li>
+          <li>Move valuables and important papers above ground floor if your area flooded in 2021.</li>
+        </ul>
+        <p class="small muted">Example list (AI-drafted), not complete: check it against the official civil-protection checklist (BBK) before use.</p>
+      </details>
+    </div>
+    </div>
+    <div id="selNote" class="note" role="status" hidden></div>
+    <p class="hint" id="mapHint">Residents inside the flood (assumed to need shelter) are the white town chips when zoomed out and the lightly filled 500 m squares from zoom 12; they are not shelters. Shelters are the round badges with a house symbol, filled like a battery by the share of places taken. Click a town chip to zoom in; click a square or a badge for details. The map shows only shelter buildings used in this plan and flooded ones; switch on "Unused candidate buildings" to see where spare places are. Cells with no residents at this flood level are not drawn or selectable.</p>
+  </div>
+  <div class="resizer" id="resizer" title="Drag to make the panel wider or narrower" role="separator" aria-orientation="vertical"></div>
+  <aside class="side" id="side" aria-label="Details">
+    <div class="panel prof-only" id="muniPanel">
+      <h2>Your areas</h2>
+      <label class="small" for="muniLevel"><b>Flood</b></label>
+      <select id="muniLevel"></select>
+      <p class="small">Hover a municipality on the map to highlight it, click it to pick it, then press "Add". Results below are for all areas in your list.</p>
+      <label class="small" for="muniSelect"><b>Or choose from the list</b></label>
+      <select id="muniSelect" style="min-width:0;width:100%"></select>
+      <div id="muniPick" aria-live="polite"></div>
+      <ul id="muniList" class="mlist"></ul>
+      <div id="muniResult" aria-live="polite"></div>
+    </div>
+    <div class="panel" id="selected" tabindex="-1"></div>
+    <div class="panel proposal" id="proposal"></div>
+    <div class="panel" id="methodPanel"></div>
+    <div class="panel" id="dataPanel"></div>
+    <fieldset class="panel" id="layers"><legend>Map layers</legend></fieldset>
+    <div class="panel" id="pickPanel">
+      <h2>Pick from a list</h2>
+      <p class="small muted">Same as clicking on the map, for keyboard use.</p>
+      <label class="small" for="selZone"><b>Zone</b></label><br>
+      <select id="selZone" style="min-width:0;width:100%"></select>
+      <label class="small" for="selShelter"><b>Candidate shelter</b></label><br>
+      <select id="selShelter" style="min-width:0;width:100%"></select>
+    </div>
+    <details class="panel" id="compareBox" open><summary>Compare flood levels (current closure rule and capacity)</summary><div id="compare" style="overflow-x:auto"></div></details>
+    <details class="panel" id="assumptionsBox"><summary>All assumption values (raw)</summary><div id="assumptions"></div></details>
+    <details class="panel" id="aboutBox"><summary>About the data and limits (full text)</summary><div id="about"></div></details>
+  </aside>
+</div>
+<footer id="footer"></footer>
+
+<script>/*__LEAFLET_JS__*/</script>
+<script>window.BUNDLE = /*__BUNDLE__*/null;</script>
+<script>
+(function () {
+'use strict';
+/* ====================================================================
+   Smart shelter system page. Everything shown comes from window.BUNDLE
+   (contract: tool/BUNDLE_SCHEMA.md). Missing keys are reported, not fatal.
+   ==================================================================== */
+const B = window.BUNDLE || {};
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const warnings = [];
+function warn(msg) { if (warnings.indexOf(msg) < 0) { warnings.push(msg); } }
+function safe(name, fn) { try { fn(); } catch (err) { warn('Could not draw "' + name + '": ' + err.message); console.error(name, err); } }
+// people are estimates and may be fractional in the bundle: show whole numbers, thousands separated
+const fmt = n => (n == null || isNaN(n)) ? 'n/a' : Math.round(Number(n)).toLocaleString('en');
+// residents are modelled estimates: shown rounded on screen (under 1,000 to tens, above to hundreds); the CSV keeps whole numbers so sums can be checked
+const rnd = n => n < 1000 ? Math.round(n / 10) * 10 : Math.round(n / 100) * 100;
+const fmtR = (n, de) => (n == null || isNaN(n)) ? 'n/a' : n < 0.5 ? '0' : n < 10 ? (de ? 'weniger als 10' : 'fewer than 10') : (de ? 'etwa ' + rnd(n).toLocaleString('de') : 'about ' + rnd(n).toLocaleString('en'));
+const fmtP = n => (n == null || isNaN(n)) ? 'n/a' : n < 0.5 ? '0' : n < 10 ? '<10' : '~' + rnd(n).toLocaleString('en');   // short form for labels and table cells
+const min1 = s => (s == null || isNaN(s)) ? 'n/a' : (s / 60).toFixed(1);
+// citizen text: a flooded area always holds someone (a fraction of a modelled person), so it reads 'fewer than 10', never '0 residents'
+const fmtC = n => (n > 0 && n < 10) ? 'fewer than 10' : fmtR(n);
+// closure rules with the difference first (the long bundle label is cut in the select at 1280-1440 px); the long label stays as the tooltip
+const CL_SHORT = { any: 'Flood + flood traces (default)', mapped: 'Mapped flood only (traces ignored)', wet: 'Any water closes a road', d05: '0.5 m or deeper closes a road' };
+// German flood-level names for the draft message (the bundle labels are English only)
+const LVL_DE = { obs2021: 'Beobachtetes Hochwasser Juli 2021 (EMS-Aufnahme)', rp10: '10-jährliches Hochwasser (EFAS-Modell)', rp100: '100-jährliches Hochwasser (EFAS-Modell)', rp500: '500-jährliches Hochwasser (EFAS-Modell)' };
+
+// ---- data access with checks -------------------------------------------------
+const meta = B.meta || {};
+const ass = B.assumptions || {};
+const scenarios = Array.isArray(B.scenarios) ? B.scenarios : [];
+const capacities = Array.isArray(B.capacities) ? B.capacities : [];
+// population year: 2020 is the default and the reference; other years (2025 projection) are a sensitivity, selectable like the capacity sets
+const populations = Array.isArray(B.populations) && B.populations.length ? B.populations : [{ id: 'pop2020', label: '2020 residents', year: 2020 }];
+const POP0 = populations[0].id;
+const edges = (B.network && B.network.edges) || [];
+const zones = Array.isArray(B.zones) ? B.zones : [];
+const shelters = Array.isArray(B.shelters) ? B.shelters : [];
+const results = B.results || {};
+const EMS = meta.ems_coverage || null, EMS_OUTLINE = EMS && EMS.outline, EMS_COL = '#5E3C99';      // areas of interest of the July 2021 satellite map
+['meta', 'assumptions', 'scenarios', 'capacities', 'network', 'zones', 'shelters', 'results'].forEach(k => { if (B[k] == null) warn('Bundle key missing: ' + k); });
+if (!meta.disclaimer) warn('meta.disclaimer is missing in the bundle');
+if (!meta.bounds) warn('meta.bounds is missing; map falls back to the extent of the roads');
+
+const E = new Map(edges.map(e => [e.id, e]));
+const Z = new Map(zones.map(z => [z.id, z]));
+const S = new Map(shelters.map(s => [s.id, s]));
+// straight-line metres from a zone point to its shelter; the shelter report (Q3) counts reach this way (2 km), the plan by road (1 h)
+const lineM = (z, s) => { const r = Math.PI / 180, a = Math.sin((s.lat - z.lat) * r / 2) ** 2 + Math.cos(z.lat * r) * Math.cos(s.lat * r) * Math.sin((s.lon - z.lon) * r / 2) ** 2; return 12742000 * Math.asin(Math.sqrt(a)); };
+const near2km = as => as.reduce((n, a) => { const z = Z.get(a[0]), s = S.get(a[1]); return n + (z && s && lineM(z, s) <= 2000 ? a[2] : 0); }, 0);
+// the shelter report (Q3) covers only the observed 2021 flood; its cautious case has Set A's capacity per building
+const sameAsQ3 = () => (scenarios.find(x => x.id === st.sc) || {}).kind === 'observed' && st.cap === capacities[0].id && st.pop === POP0;
+const ll = c => [c[1], c[0]];                     // bundle is [lon, lat], Leaflet wants [lat, lon]
+// OSM names can be missing; the pipeline may write 'nan' / 'None' for them
+const nm = e => (e && e.n && e.n !== 'nan' && e.n !== 'None') ? e.n : '';
+const edgeLL = new Map(edges.map(e => [e.id, e.c.map(ll)])); // converted once; reused by every layer
+const vehicles = ass.vehicles || null;
+const roadCap = ass.road_capacity_veh_per_h || {};
+const maxPeople = Math.max(1, ...zones.map(z => Math.max(0, ...Object.values(z.people || {}))));
+const maxCap = Math.max(1, ...shelters.map(s => Math.max(0, ...Object.values(s.cap || {}))));
+// capacity sets are shown as "Set A", "Set B" (never the raw ids)
+const capLabel = id => { const i = capacities.findIndex(c => c.id === id); return i < 0 ? String(id) : 'Set ' + String.fromCharCode(65 + i); };
+
+// ---- state -------------------------------------------------------------------
+const st = { sc: null, cl: null, cap: null, zone: null, shelter: null,
+             layers: { flood: true, roads: true, closed: true, routes: true, stress: false, zones: true, shelters: true, floodshelters: true, allshelters: false, munis: true },
+             basemap: false, showAll: false, resMode: 'cells', pop: POP0 };
+let res = null;   // current result object
+
+const scById = id => scenarios.find(s => s.id === id);
+const sc = () => scById(st.sc) || {};
+const isFlooded = s => { const f = s.flooded || {}; const k = st.sc + '_' + st.cl; return !!(f[k] != null ? f[k] : f[st.sc]); };
+const keyOf = (a, b, c) => a + '|' + b + '|' + c + (st.pop && st.pop !== POP0 ? '|' + st.pop : '');   // 2020 keys carry no suffix
+const popById = id => populations.find(p => p.id === id) || populations[0];
+const popYear = () => popById(st.pop).year || 2020;
+const popPeople = z => (st.pop === POP0 ? z.people : z['people_' + st.pop]) || {};
+
+function defaultKey() {
+  // the real July 2021 event first: first observed scenario, its first closure rule, first capacity
+  const o = scenarios.find(x => x.kind === 'observed') || scenarios[0];
+  if (o && o.closures && o.closures[0] && capacities[0]) { const k = keyOf(o.id, o.closures[0].id, capacities[0].id); if (results[k]) return k; }
+  return bestKey();
+}
+function bestKey() {
+  // "Most informative": closed roads + a detour + unassigned people all present; tie-break on people to place.
+  let best = null, bestScore = -1;
+  Object.keys(results).forEach(k => {
+    const r = results[k], s = r.summary || {};
+    if (k.split('|')[2] !== (capacities[0] && capacities[0].id)) return;
+    const score = ((s.closed_edges > 0) ? 1 : 0) + ((s.unassigned > 0) ? 1 : 0) + ((s.mean_detour_min > 0) ? 1 : 0) + (s.people_to_place || 0) / 1e6;
+    if (score > bestScore) { bestScore = score; best = k; }
+  });
+  return best || Object.keys(results)[0] || null;
+}
+
+function readParams() {
+  const p = new URLSearchParams(location.search);
+  new URLSearchParams(location.hash.replace(/^#/, '')).forEach((v, k) => p.set(k, v));
+  return p;
+}
+
+// ---- helpers on the result ---------------------------------------------------
+const assignsOfZone = zid => ((res && res.assign) || []).filter(a => a[0] === zid);
+const assignsOfShelter = sid => ((res && res.assign) || []).filter(a => a[1] === sid);
+const unassignedOf = zid => (res && res.unassigned && res.unassigned[String(zid)]) || 0;
+const peopleOf = z => popPeople(z)[st.sc] || 0;
+function roadRatio(eid, people) {
+  const e = E.get(eid); if (!e || !vehicles) return null;
+  const cap = roadCap[e.h] || roadCap[String(e.h).replace('_link', '')]; if (!cap) return null;
+  return people * vehicles.car_share / vehicles.persons_per_car / vehicles.evacuation_window_h / cap;
+}
+function roadNames(edgeIds, limit) {
+  // names along a route, de-duplicated, in travel order
+  const out = [];
+  edgeIds.forEach(id => { const n = nm(E.get(id)); if (n && out.indexOf(n) < 0) out.push(n); });
+  return limit ? out.slice(0, limit) : out;
+}
+function nearbyClosedNames(z, assigns, metres) {
+  // closed roads within ~metres of the zone or of any vertex of its routes (names only)
+  if (!res || !res.closed) return [];
+  const pts = [[z.lat, z.lon]];
+  assigns.forEach(a => (a[5] || []).forEach(id => (edgeLL.get(id) || []).forEach(p => pts.push(p))));
+  const kx = 111200 * Math.cos(z.lat * Math.PI / 180), ky = 111200, lim = metres * metres, out = [];
+  res.closed.forEach(id => {
+    const e = E.get(id); if (!e || !nm(e) || out.indexOf(nm(e)) >= 0) return;
+    const m = edgeLL.get(id)[Math.floor(e.c.length / 2)];
+    for (let i = 0; i < pts.length; i++) {
+      const dx = (m[1] - pts[i][1]) * kx, dy = (m[0] - pts[i][0]) * ky;
+      if (dx * dx + dy * dy < lim) { out.push(nm(e)); return; }
+    }
+  });
+  return out;
+}
+
+// ====================================================================
+// MAP
+// ====================================================================
+const map = L.map('map', { preferCanvas: true, renderer: L.canvas({ padding: 0.3 }), zoomSnap: 0.25, zoomControl: true, zoomAnimationThreshold: 8 });   // animate also larger zoom jumps (route views)
+map.attributionControl.setPrefix('Leaflet');
+const canvas = map.getRenderer(map);
+// stacking, bottom to top: roads (own canvas pane) < EFAS flood image < [vector canvas: observed flood, closed roads, routes, residents, selection] < shelter badges < labels
+map.createPane('roadsPane').style.zIndex = 340;
+map.createPane('floodImgPane').style.zIndex = 350;
+const roadCanvas = L.canvas({ pane: 'roadsPane', padding: 0.3 });
+// the working area is the zones' extent (meta.zone_bounds); meta.bounds is the wider data extent
+const fitB = meta.zone_bounds || meta.bounds;
+if (fitB) map.fitBounds([[fitB[1], fitB[0]], [fitB[3], fitB[2]]]);
+else if (edges.length) map.fitBounds(L.latLngBounds(edges.map(e => ll(e.c[0]))));
+else map.setView([50.5, 6.5], 10);
+
+// compact legend as a map overlay so it is visible without scrolling
+const legendCtl = L.control({ position: 'bottomright' });   // right: the Eifel working case (Schleiden/Kall) lies bottom-left of the default view
+legendCtl.onAdd = function () {
+  const d = L.DomUtil.create('div', 'maplegend');
+  d.innerHTML = '<button type="button" id="btnLegend" aria-expanded="true" aria-controls="legendbar">Legend</button><div id="legendbar" aria-label="Map legend"></div>';
+  L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d);
+  return d;
+};
+legendCtl.addTo(map);
+$('btnLegend').addEventListener('click', () => { const b = $('legendbar'); b.hidden = !b.hidden; $('btnLegend').setAttribute('aria-expanded', b.hidden ? 'false' : 'true'); if (typeof drawMuniLabels === 'function' && g.munis) drawMuniLabels(); });
+if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches) { $('legendbar').hidden = true; $('btnLegend').setAttribute('aria-expanded', 'false'); }
+
+const basemap = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '(c) OpenStreetMap contributors' });
+let baseMsg = '', tileErrors = 0;
+function showBaseMsg() { const el = $('baseStatus'); if (el) el.textContent = baseMsg; }
+// tiles are optional: if they fail (offline, blocked) say so and keep working with vector layers only
+basemap.on('tileerror', () => { tileErrors++; if (tileErrors === 3) { baseMsg = 'Basemap tiles could not be loaded (offline?). The vector layers still work.'; showBaseMsg(); } });
+const g = { flood: L.layerGroup(), roads: L.layerGroup(), closed: L.layerGroup(), routes: L.layerGroup(), stress: L.layerGroup(),
+            zones: L.layerGroup(), shelters: L.layerGroup(), floodshelters: L.layerGroup(), allshelters: L.layerGroup(), sel: L.layerGroup(), zlabels: L.layerGroup(), munis: L.layerGroup() };
+let floodImg = null;
+const col = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+function multi(ids, style) {
+  const lines = ids.map(id => edgeLL.get(id)).filter(Boolean);
+  return L.polyline(lines, Object.assign({ renderer: canvas, interactive: false, lineJoin: 'round', lineCap: 'round' }, style));
+}
+
+// Roads: ONE multi-polyline per road class, built once (25,000 edges stay one canvas path per class).
+function drawRoads() {
+  g.roads.clearLayers();
+  const groups = { major: [], mid: [], minor: [] };
+  edges.forEach(e => { (e.h === 'motorway' || e.h === 'primary' ? groups.major : (e.h === 'secondary' || e.h === 'tertiary') ? groups.mid : groups.minor).push(e.id); });
+  // roads are dimmed so routes, closed roads and stress stay readable; a bit darker/thinner again over a light basemap
+  const dim = st.basemap, c1 = dim ? '#6a6a6a' : col('--roadlite'), c2 = dim ? '#555' : col('--road');
+  g.roads.addLayer(multi(groups.minor, { renderer: roadCanvas, color: c1, weight: 1, opacity: dim ? 0.4 : 0.6 }));
+  g.roads.addLayer(multi(groups.mid, { renderer: roadCanvas, color: c2, weight: 1.6, opacity: dim ? 0.5 : 0.7 }));
+  g.roads.addLayer(multi(groups.major, { renderer: roadCanvas, color: c2, weight: 2.6, opacity: dim ? 0.6 : 0.85 }));
+}
+
+const STRESS = [{ max: 0.5, c: '#009E73', w: 3, label: 'under 0.5' }, { max: 1, c: '#F0E442', w: 4, label: '0.5 to 1' },
+                { max: 1.5, c: '#D55E00', w: 5, label: '1 to 1.5' }, { max: Infinity, c: '#7a0019', w: 6.5, label: 'over 1.5 (above the assumed capacity)' }];
+
+// Result-dependent road layers: only subsets (closed / used / stress buckets) are rebuilt.
+function drawRoadResults() {
+  ['closed', 'routes', 'stress'].forEach(k => g[k].clearLayers());
+  if (!res) return;
+  // closed = blocked: black dashes on a white edge (barrier tape), so it never reads as a stress colour (green-yellow-orange-red)
+  g.closed.addLayer(multi(res.closed || [], { color: '#ffffff', weight: 6, opacity: 0.95 }));
+  g.closed.addLayer(multi(res.closed || [], { color: '#111111', weight: 3.4, dashArray: '4 4', lineCap: 'butt', opacity: 1 }));
+  const loadIds = Object.keys(res.load || {}).map(Number);
+  g.routes.addLayer(multi(loadIds, { color: '#0072B2', weight: 2.5, opacity: 0.7 }));
+  const buckets = STRESS.map(() => []);
+  loadIds.forEach(id => {
+    const r = roadRatio(id, res.load[String(id)]); if (r == null) return;
+    buckets[STRESS.findIndex(b => r < b.max)].push(id);
+  });
+  STRESS.forEach((b, i) => { if (buckets[i].length) g.stress.addLayer(multi(buckets[i], { color: b.c, weight: b.w, opacity: 0.95 })); });
+  // self-check against the bundle summary (visible in the console only)
+  const worst = Math.max(0, ...loadIds.map(id => roadRatio(id, res.load[String(id)]) || 0));
+  if (res.summary && res.summary.worst_road_ratio != null && Math.abs(worst - res.summary.worst_road_ratio) > 0.011) {
+    console.warn('worst road ratio computed by the page', worst.toFixed(3), 'differs from bundle summary', res.summary.worst_road_ratio);
+  }
+}
+
+function drawFlood() {
+  g.flood.clearLayers();
+  const fc = B.floods && B.floods[st.sc];
+  if (fc && fc.features && fc.features.length) {
+    // closure rule "mapped": draw only the mapped flood; flood-trace features are left out
+    const kinds = fc.features.some(f => f.properties && f.properties.kind);
+    const feats = (st.cl === 'mapped' && kinds) ? fc.features.filter(f => f.properties && f.properties.kind === 'mapped flood') : fc.features;
+    g.flood.addLayer(L.geoJSON({ type: 'FeatureCollection', features: feats }, { renderer: canvas, interactive: false,
+      style: { color: '#0072B2', weight: 1.5, fillColor: '#56B4E9', fillOpacity: 0.35 } }));   // always visible: nothing drawn later may cover it
+  }
+  const ov = (B.overlays || []).find(o => o.scenario === st.sc);
+  if (ov) g.flood.addLayer(L.imageOverlay(ov.png, ov.bounds, { opacity: 0.6, interactive: false, pane: 'floodImgPane' }));
+  // edge of the area the July 2021 satellite map covered, at EVERY level: outside it 2021 was not assessed (the Rhine banks lie outside)
+  if (EMS_OUTLINE) g.flood.addLayer(L.geoJSON(EMS_OUTLINE, { renderer: canvas, interactive: false, style: { color: EMS_COL, weight: 2, opacity: 0.9, dashArray: '6 4', fill: false } }));
+}
+
+// ---- RESIDENTS INSIDE THE FLOOD. Default "rings": hollow circle (no fill, brown outline on a thin white halo) at the zone point,
+// radius ~ sqrt(people) between 5 and 22 px, so flood colours and roads show through. Placement status = outline pattern
+// (solid brown = all placed, dashed black = partly, dashed red = not placed). Alternative "squares": 500 m cells at 25 % fill.
+const zoneShown = z => Math.round(peopleOf(z)) >= 1;
+const BROWN = '#8C510A';
+const ringRadius = p => Math.max(5, Math.min(22, 22 * Math.sqrt(p / maxPeople)));
+function cellBounds(z) {
+  // 500 m square around the zone point; zoomed far out it is drawn at least 13 px wide, otherwise it would vanish
+  const cl = Math.cos(z.lat * Math.PI / 180), mPerPx = 156543.03 * cl / Math.pow(2, map.getZoom());
+  const half = Math.max(250, 6.5 * mPerPx);
+  return [[z.lat - half / 111200, z.lon - half / (111200 * cl)], [z.lat + half / 111200, z.lon + half / (111200 * cl)]];
+}
+// the zone's true 500 m grid cell (bundle zones[].cell, EPSG:3035 corners) once it is at least 13 px wide; else the old minimum-size box
+function cellShape(z, opts) {
+  const mPerPx = 156543.03 * Math.cos(z.lat * Math.PI / 180) / Math.pow(2, map.getZoom());
+  return z.cell && 500 / mPerPx >= 13 ? L.polygon(z.cell, opts) : L.rectangle(cellBounds(z), opts);
+}
+const cellCentre = z => z.cell ? [z.cell.reduce((a, c) => a + c[0], 0) / 4, z.cell.reduce((a, c) => a + c[1], 0) / 4] : [z.lat, z.lon];
+function zoneOutline(status) {
+  return status === 'full' ? { color: BROWN, dashArray: null }
+    : status === 'part' ? { color: '#000', dashArray: '5 3' }
+    : status === 'none' ? { color: '#d7191c', dashArray: '3 3' } : { color: '#555', dashArray: null };
+}
+// default 'cells' mode (user decision 2026-10-29): zoomed out, one chip per town with its rounded total; from CELL_ZOOM, each 500 m
+// cell as an unfilled outline, so the flood stays visible and residents (squares, text) never look like round shelter badges
+const CELL_ZOOM = 12;
+const chipsNow = () => st.resMode === 'cells' && map.getZoom() < CELL_ZOOM;
+const squareMode = () => st.resMode === 'squares' || st.resMode === 'cells';
+function drawZones() {
+  g.zones.clearLayers();
+  safe('munis', drawMuniLabels);
+  if (st.resMode === 'off' || chipsNow()) { drawZoneLabels(); return; }
+  // large first, small last: a small ring inside a big one stays clickable
+  zones.filter(zoneShown).sort((a, b) => peopleOf(b) - peopleOf(a)).forEach(z => {
+    const p = peopleOf(z), un = res ? unassignedOf(z.id) : 0, placed = p - un;
+    let status = 'full';
+    if (!res) status = 'unknown'; else if (placed < 0.5) status = 'none'; else if (un >= 0.5) status = 'part';
+    const o = zoneOutline(status);
+    let m;
+    if (st.resMode === 'cells') {
+      g.zones.addLayer(cellShape(z, { renderer: canvas, fill: false, color: '#ffffff', weight: 4, opacity: 0.8, interactive: false }));   // white halo underneath
+      m = cellShape(z, { renderer: canvas, fill: true, fillColor: BROWN, fillOpacity: 0.18, color: o.color, dashArray: o.dashArray, weight: 2 });   // light fill: the flood still shows through
+    } else if (st.resMode === 'squares') {
+      m = cellShape(z, { renderer: canvas, fillColor: BROWN, fillOpacity: 0.25, color: o.color, dashArray: o.dashArray, weight: status === 'full' ? 1 : 2 });
+    } else {
+      g.zones.addLayer(L.circleMarker([z.lat, z.lon], { renderer: canvas, radius: ringRadius(p), fill: false, color: '#ffffff', weight: 5, opacity: 0.85, interactive: false }));   // thin halo underneath
+      m = L.circleMarker([z.lat, z.lon], { renderer: canvas, radius: ringRadius(p), fill: false, color: o.color, dashArray: o.dashArray, weight: 2.5, opacity: 1 });
+    }
+    m.bindTooltip('Zone ' + z.id + ', ' + esc(z.muni) + ': ' + fmtR(p) + ' residents inside the flood in this 500 m cell (from a modelled grid of about 930 x 600 m cells, shared over buildings)' + (st.resMode === 'rings' ? '; ring size ~ residents' : '') + '; assumed to need shelter; not a shelter' + (res ? '; ' + fmtR(un) + ' unassigned' : ''), { sticky: true });
+    m.on('click', () => selectZone(z.id, true));
+    g.zones.addLayer(m);
+  });
+  drawZoneLabels();
+}
+// people count next to the ring only from zoom 14 (squares: centred, from zoom 13); tooltips cover the overview
+function drawZoneLabels() {
+  g.zlabels.clearLayers();
+  if (!st.layers.zones) return;   // residents hidden (citizen and municipality profiles)
+  const minZoom = squareMode() ? 13 : 14;
+  if (st.resMode === 'off' || map.getZoom() < minZoom) return;
+  // largest first; a label that would overlap one already placed is skipped, and "<10" waits for zoom 14 (the tooltip and panel always have it)
+  const b = map.getBounds().pad(0.05), placed = []; let n = 0;
+  zones.filter(zoneShown).sort((a, c) => peopleOf(c) - peopleOf(a)).forEach(z => {
+    const at = squareMode() ? cellCentre(z) : [z.lat, z.lon], txt = fmtP(peopleOf(z));
+    if (n > 400 || !b.contains(at) || (peopleOf(z) < 10 && map.getZoom() < 14)) return;
+    const pt = map.latLngToContainerPoint(at), off = st.resMode === 'rings' ? ringRadius(peopleOf(z)) + 5 : -txt.length * 4.2;
+    const box = [pt.x + off - 2, pt.y - 9, pt.x + off + txt.length * 8.4 + 2, pt.y + 9];
+    if (placed.some(q => box[0] < q[2] && box[2] > q[0] && box[1] < q[3] && box[3] > q[1])) return;
+    placed.push(box); n++;
+    const side = st.resMode === 'rings' ? ' style="margin-left:' + Math.round(ringRadius(peopleOf(z)) + 5) + 'px"' : '';
+    g.zlabels.addLayer(L.marker(at, { icon: L.divIcon({ className: st.resMode === 'rings' ? 'zlab zside' : 'zlab', html: '<span' + side + '>' + esc(fmtP(peopleOf(z))) + '</span>', iconSize: [0, 0] }), interactive: false, keyboard: false, zIndexOffset: 1500 }));
+  });
+}
+function setResMode(m) {
+  st.resMode = m; st.layers.zones = m !== 'off';
+  drawZones(); updateMuniLabels(); applyLayerVisibility(); safe('selection', drawSelection); restack();
+}
+// municipality names at the residents-weighted centre of their zones (non-interactive; readable without a basemap)
+// every municipality of the two districts, also those with nobody in a flood: label point = centre of its outline, larger ones first
+const MUNI_PTS = (Array.isArray(B.munis) ? B.munis : []).map(m => { const b = L.geoJSON(m.geometry).getBounds(), c = b.getCenter();
+  return { m: m.name, lat: c.lat, lon: c.lng, w: (b.getNorth() - b.getSouth()) * (b.getEast() - b.getWest()) }; }).sort((a, b) => b.w - a.w);
+const muniCentres = (() => {
+  const acc = {};
+  zones.forEach(z => { const w = Object.values(z.people || {}).reduce((a, b) => a + b, 0); if (!(w > 0) || !z.muni) return; const a = acc[z.muni] || (acc[z.muni] = { w: 0, x: 0, y: 0 }); a.w += w; a.x += w * z.lon; a.y += w * z.lat; });
+  return Object.keys(acc).map(m => ({ m: m, w: acc[m].w, lon: acc[m].x / acc[m].w, lat: acc[m].y / acc[m].w })).sort((a, b) => b.w - a.w);
+})();
+// residents inside the flood per municipality at the selected level (for the town chips): total, unassigned, residents-weighted centre
+function muniTotals() {
+  const acc = {};
+  zones.filter(zoneShown).forEach(z => { const p = peopleOf(z); if (!z.muni) return; const a = acc[z.muni] || (acc[z.muni] = { p: 0, un: 0, x: 0, y: 0, ids: [] });
+    a.p += p; a.un += res ? unassignedOf(z.id) : 0; a.x += p * z.lon; a.y += p * z.lat; a.ids.push(z.id); });
+  return acc;
+}
+// declutter: town chips first (working case, then by residents), then plain names; anything overlapping a placed label or the legend is skipped (redrawn after every move)
+function drawMuniLabels() {
+  g.munis.clearLayers();
+  const placed = [], pad = 4, chips = chipsNow() && st.layers.zones;
+  const lg = document.querySelector('.maplegend'), mr = map.getContainer().getBoundingClientRect();
+  if (lg && !$('legendbar').hidden) { const r = lg.getBoundingClientRect(); placed.push([r.left - mr.left, r.top - mr.top, r.right - mr.left, r.bottom - mr.top]); }
+  ['citCard', 'muniPanel'].forEach(id => { const c = $(id); if (c && c.offsetParent) { const r = c.getBoundingClientRect(); placed.push([r.left - mr.left - 6, r.top - mr.top, r.right - mr.left + 6, r.bottom - mr.top]); } });   // names never hide under a floating card
+  const tot = chips ? muniTotals() : {};
+  const work = c => WORKING_MUNIS.indexOf(c.m) >= 0 ? 0 : 1;
+  const items = Object.keys(tot).map(m => ({ m: m, t: tot[m], lat: tot[m].y / tot[m].p, lon: tot[m].x / tot[m].p })).filter(c => c.t.p >= 0.5)
+    .sort((a, b) => work(a) - work(b) || b.t.p - a.t.p)
+    .concat((MUNI_PTS.length ? MUNI_PTS : muniCentres).filter(c => !tot[c.m] || tot[c.m].p < 0.5).sort((a, b) => work(a) - work(b)));
+  items.forEach(c => {
+    const txt = c.t ? c.m + ' ' + fmtP(c.t.p) : c.m;
+    const pt = map.latLngToContainerPoint([c.lat, c.lon]), hw = txt.length * (c.t ? 4.0 : 4.2) + (c.t ? 9 : 0) + pad, hh = (c.t ? 10 : 8) + pad;
+    // a town chip may move up or down by up to two rows so that a neighbouring town is not hidden; plain names are only dropped
+    const fits = (dx, dy) => { const b = [pt.x + dx - hw, pt.y + dy - hh, pt.x + dx + hw, pt.y + dy + hh];
+      return b[0] >= 0 && b[1] >= 0 && b[2] <= mr.width && b[3] <= mr.height && !placed.some(q => b[0] < q[2] && b[2] > q[0] && b[1] < q[3] && b[3] > q[1]) ? b : null; };
+    let dx = 0, dy = 0, box = fits(0, 0);
+    if (!box && c.t) for (const d of [[0, -2], [0, 2], [-1, -2], [1, -2], [-1, 2], [1, 2], [0, -4], [0, 4], [-1, 0], [1, 0]]) {
+      box = fits(d[0] * hw, d[1] * hh); if (box) { dx = d[0] * hw; dy = d[1] * hh; break; } }
+    if (!box) return;
+    placed.push(box);
+    if (!c.t) { g.munis.addLayer(L.marker([c.lat, c.lon], { icon: L.divIcon({ className: 'mlab', html: '<span>' + esc(c.m) + '</span>', iconSize: [0, 0] }), interactive: false, keyboard: false, zIndexOffset: 2000 })); return; }   // labels are the topmost layer
+    const placedP = c.t.p - c.t.un, status = !res ? '' : placedP < 0.5 ? ' none' : c.t.un >= 0.5 ? ' part' : '';
+    const m = L.marker([c.lat, c.lon], { icon: L.divIcon({ className: 'mlab mchip' + status, html: '<span' + (dx || dy ? ' style="margin-top:' + dy + 'px;margin-left:' + dx + 'px"' : '') + '>' + esc(c.m) + ' <b>' + esc(fmtP(c.t.p)) + '</b></span>', iconSize: [0, 0] }), keyboard: false, zIndexOffset: 2100 });
+    m.bindTooltip(esc(c.m) + ': ' + fmtR(c.t.p) + ' residents inside the flood (' + c.t.ids.length + ' cells of 500 m, modelled, rounded, a minimum)' + (res ? '; ' + fmtR(c.t.un) + ' unassigned' : '') + '. Not a shelter. Click to zoom in to the cells.', { sticky: true });
+    m.on('click', () => map.fitBounds(L.latLngBounds(c.t.ids.map(i => [Z.get(i).lat, Z.get(i).lon])).pad(0.3), { maxZoom: 13 }));
+    g.munis.addLayer(m);
+  });
+}
+function updateMuniLabels() {
+  const on = (st.layers.munis && map.getZoom() >= 9) || (chipsNow() && st.layers.zones && map.getZoom() >= 8);
+  if (on && !map.hasLayer(g.munis)) g.munis.addTo(map); else if (!on && map.hasLayer(g.munis)) map.removeLayer(g.munis);
+}
+
+// ---- SHELTER BUILDINGS: solid round badge with a house glyph (a different shape family from the square cells).
+// State: usable = magenta, flooded = grey + cross, full = violet + dashed ring (not orange: too close to the brown resident rings), not counted = white + dashed grey. Size = capacity.
+const HOUSE = '<path d="M16 6.8 L26 15.8 H23 V24.5 H18.4 V18.6 H13.6 V24.5 H9 V15.8 H6 Z"/>';
+function shelterState(s) {
+  const cap = (s.cap && s.cap[st.cap]) || 0;
+  if (isFlooded(s)) return 'flooded';
+  if (cap <= 0) return 'nocap';
+  const load = (res && res.shelter_load && res.shelter_load[String(s.id)]) || 0;
+  return load >= cap - 0.5 ? 'full' : 'ok';
+}
+const loadOf = s => (res && res.shelter_load && res.shelter_load[String(s.id)]) || 0;
+// usable buildings are a "battery": the badge fills from the bottom with the share of its assumed places taken by the plan (frac 0..1)
+let clipN = 0;
+function shelterSvg(state, size, frac) {
+  if (state === 'flooded') return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13.2" fill="#BDBDBD" stroke="#333" stroke-width="2.2"/><g fill="#555">' + HOUSE + '</g><path d="M7 7 L25 25 M25 7 L7 25" stroke="#000" stroke-width="3.4" fill="none"/></svg>';
+  if (state === 'nocap') return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13.2" fill="#ffffff" stroke="#6b6b6b" stroke-width="2" stroke-dasharray="3 2"/><g fill="#6b6b6b">' + HOUSE + '</g></svg>';
+  const f = state === 'full' ? 1 : Math.max(0, Math.min(1, frac == null ? 0.5 : frac)), id = 'bc' + (clipN++), top = 2.8 + 26.4 * (1 - f);
+  return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 32 32" aria-hidden="true"><defs><clipPath id="' + id + '"><circle cx="16" cy="16" r="13.2"/></clipPath></defs>' +
+    '<circle cx="16" cy="16" r="13.2" fill="#fbe3ee"/><rect x="0" y="' + top.toFixed(1) + '" width="32" height="' + (32 - top).toFixed(1) + '" fill="#C2185B" clip-path="url(#' + id + ')"/>' +
+    '<circle cx="16" cy="16" r="13.2" fill="none" stroke="#12000A" stroke-width="' + (f >= 0.99 ? 3 : 2) + '"/><g fill="#ffffff" stroke="#12000A" stroke-width="1">' + HOUSE + '</g></svg>';
+}
+function shelterIcon(s, state) {
+  const cap = (s.cap && s.cap[st.cap]) || 0;
+  const zf = Math.min(1, 0.55 + 0.15 * (map.getZoom() - 9));   // smaller badges when zoomed out
+  const base = state === 'flooded' ? 11 : state === 'nocap' ? 20 : 22 + 14 * Math.sqrt(cap / maxCap);
+  const size = Math.max(state === 'flooded' ? 11 : 14, Math.round(base * zf));
+  return L.divIcon({ className: 'shel', html: shelterSvg(state, size, cap > 0 ? loadOf(s) / cap : 0), iconSize: [size, size], iconAnchor: [size / 2, size / 2] });
+}
+const STATE_TXT = { ok: 'usable (candidate)', flooded: 'flooded in this scenario, not usable', full: 'full at this assumption', nocap: 'not counted at this capacity assumption' };
+// Default view = only shelter buildings USED in the plan, plus flooded ones (declutter).
+// "All candidate shelter buildings" adds every other candidate as a small canvas dot.
+// zoomed out, badges closer than CLUSTER_PX merge into one numbered badge (no clustering library offline); from CLUSTER_MAXZOOM every building stands alone
+const CLUSTER_PX = 44, CLUSTER_MAXZOOM = 14;
+function clusterBadge(list, flooded) {
+  const n = list.length, size = Math.round(Math.min(40, 22 + 4 * Math.log2(n)));
+  const lat = list.reduce((a, x) => a + x.s.lat, 0) / n, lon = list.reduce((a, x) => a + x.s.lon, 0) / n, people = list.reduce((a, x) => a + (x.load || 0), 0);
+  const m = L.marker([lat, lon], { icon: L.divIcon({ className: 'shel', html: '<div class="shclu' + (flooded ? ' fl' : '') + '" style="width:' + size + 'px;height:' + size + 'px">' + n + '</div>', iconSize: [size, size], iconAnchor: [size / 2, size / 2] }), keyboard: false, interactive: !flooded });      // flooded marks never catch the mouse below zoom 14 (resident cells underneath)
+  m.bindTooltip(n + (flooded ? ' flooded candidate buildings here (not used at this level)' : ' shelter buildings used here; they take about ' + fmtR(people) + ' people') + '. Click to zoom in.', { sticky: true });
+  m.on('click', () => { fullClickAt = performance.now(); map.setView([lat, lon], Math.min(18, map.getZoom() + 2), { animate: false }); });
+  return m;
+}
+function placeClustered(items, group, flooded) {
+  const z = map.getZoom();
+  if (z >= CLUSTER_MAXZOOM) { items.forEach(x => group.addLayer(x.make())); return; }
+  const cells = new Map();
+  items.forEach(x => { const p = map.project([x.s.lat, x.s.lon], z), k = Math.floor(p.x / CLUSTER_PX) + ':' + Math.floor(p.y / CLUSTER_PX); if (!cells.has(k)) cells.set(k, []); cells.get(k).push(x); });
+  cells.forEach(list => group.addLayer(list.length === 1 ? list[0].make() : clusterBadge(list, flooded)));
+}
+function drawShelters() {
+  g.shelters.clearLayers(); g.floodshelters.clearLayers(); g.allshelters.clearLayers();
+  const used = [], wet = [];
+  shelters.forEach(s => {
+    const state = shelterState(s), load = loadOf(s);
+    const capS = (s.cap && s.cap[st.cap]) || 0;
+    const tip = 'Shelter building #' + s.id + ' (' + esc(tEN(s.type)) + '), ' + esc(s.muni) + ': ' + STATE_TXT[state] + (capS > 0 && state !== 'flooded' ? '; ' + Math.round(100 * Math.min(1, load / capS)) + ' % full (' + fmtR(load) + ' of ' + fmt(capS) + ' assumed places)' : '');
+    // keyboard:false: 700+ markers must not be tab stops; keyboard users use the list picker
+    const make = () => { const m = L.marker([s.lat, s.lon], { icon: shelterIcon(s, state), keyboard: false, interactive: state !== 'flooded' || map.getZoom() >= 14, alt: 'Candidate shelter building ' + s.id });
+      m.bindTooltip(tip, { sticky: true }); m.on('click', () => selectShelter(s.id, true)); return m; };
+    if (s.id === st.shelter) g.shelters.addLayer(make());      // the selected building always stands alone
+    else if (state === 'flooded') { if (map.getZoom() >= 11) wet.push({ s, make }); }
+    else if (load >= 0.5) used.push({ s, make, load });
+    else if (st.layers.allshelters) {
+      // not used by the plan: spare places (empty battery); 'not counted' types stay white dashed
+      const m = L.circleMarker([s.lat, s.lon], { renderer: canvas, radius: 4.5, weight: 1.6, color: state === 'nocap' ? '#6b6b6b' : '#C2185B',
+        fillColor: state === 'nocap' ? '#ffffff' : '#fbe3ee', fillOpacity: 0.9, dashArray: state === 'nocap' ? '2 2' : null });
+      m.bindTooltip(tip, { sticky: true });
+      m.on('click', () => selectShelter(s.id, true));
+      g.allshelters.addLayer(m);
+    }
+  });
+  placeClustered(used, g.shelters, false);
+  placeClustered(wet, g.floodshelters, true);
+}
+
+// Selection highlight: the selected cell / shelter and the route(s). Zones: the three largest destinations unless "show all".
+const zoneAssigns = zid => assignsOfZone(zid).sort((a, b) => b[2] - a[2]);
+function visibleAssigns(zid) { const all = zoneAssigns(zid); return st.showAll ? all : all.slice(0, 3); }
+function drawSelection() {
+  g.sel.clearLayers();
+  let assigns = [];
+  const ring = (lat, lon, r) => L.circleMarker([lat, lon], { renderer: canvas, radius: r, color: col('--ringcol'), weight: 3, fill: false, interactive: false });
+  if (st.zone != null && Z.get(st.zone)) {
+    const z = Z.get(st.zone); assigns = visibleAssigns(z.id);
+    if (squareMode()) g.sel.addLayer(cellShape(z, { renderer: canvas, color: col('--ringcol'), weight: 3, fill: false, interactive: false }));
+    else g.sel.addLayer(L.circleMarker([z.lat, z.lon], { renderer: canvas, radius: (st.resMode === 'off' ? 6 : ringRadius(peopleOf(z))) + 6, color: col('--ringcol'), weight: 3, fill: false, interactive: false }));
+  } else if (st.shelter != null && S.get(st.shelter)) {
+    assigns = assignsOfShelter(st.shelter);
+  }
+  const all = [];
+  assigns.forEach(a => {
+    const free = a[6];
+    if (free && free.length && JSON.stringify(free) !== JSON.stringify(a[5])) g.sel.addLayer(multi(free, { color: col('--ringcol'), weight: 4, dashArray: '1 8', opacity: 1 }));
+  });
+  assigns.forEach(a => { g.sel.addLayer(multi(a[5] || [], { color: '#fff', weight: 9, opacity: 0.9 })); });
+  assigns.forEach(a => {
+    g.sel.addLayer(multi(a[5] || [], { color: '#0072B2', weight: 5, opacity: 1 }));
+    const s = S.get(a[1]); if (s) g.sel.addLayer(ring(s.lat, s.lon, 20));
+    (a[5] || []).forEach(id => (edgeLL.get(id) || []).forEach(p => all.push(p)));
+  });
+  if (st.shelter != null && S.get(st.shelter)) { const s = S.get(st.shelter); g.sel.addLayer(ring(s.lat, s.lon, 22)); }
+  return all;
+}
+
+// Layer order: roads (own pane) < EFAS image < vector canvas (see restack) < shelter badges < labels.
+function restack() {
+  // main vector canvas, bottom to top: observed flood, closed roads, route lines (+ stress), residents, selection
+  ['flood', 'closed', 'routes', 'stress', 'zones', 'sel'].forEach(k => {
+    g[k].eachLayer(l => { if (l.bringToFront) l.bringToFront(); });
+  });
+}
+function applyLayerVisibility() {
+  ['flood', 'roads', 'closed', 'routes', 'stress', 'zones', 'shelters', 'floodshelters', 'allshelters'].forEach(k => {
+    if (st.layers[k]) { if (!map.hasLayer(g[k])) g[k].addTo(map); } else if (map.hasLayer(g[k])) map.removeLayer(g[k]);
+  });
+  if (!map.hasLayer(g.sel)) g.sel.addTo(map);
+  if (!map.hasLayer(g.zlabels)) g.zlabels.addTo(map);
+  updateMuniLabels(); drawZoneLabels();
+  if (st.basemap) { if (!map.hasLayer(basemap)) basemap.addTo(map); } else if (map.hasLayer(basemap)) map.removeLayer(basemap);
+  restack();
+  if (basemap && st.basemap) basemap.bringToBack();
+  renderLegend();
+}
+
+// ====================================================================
+// PANELS
+// ====================================================================
+// a result key or level id in plain words: 'rp100|wet|restrictive' -> 'Rare river flood, model (1 % a year), any water closes a road, Set A'
+function keyLabel(k) {
+  const p = String(k).split('|');
+  return [scById(p[0]) ? shortLevel(p[0]) : p[0], p[1] ? (CL_SHORT[p[1]] || p[1]).replace(' (default)', '') : '', p[2] ? capLabel(p[2]) : '', p[3] ? (popById(p[3]).label || p[3]) : ''].filter(Boolean).join(', ');
+}
+// limits may contain a Python-style dict (also nested) printed into a sentence: show it in plain words with rounded counts
+function prettyLimit(t) {
+  const show = o => (o && typeof o === 'object') ? Object.keys(o).map(k => /^unassigned_(\d)h$/.test(k) ? 'without a place within ' + k.replace(/\D/g, '') + ' h: ' + fmtR(o[k]) : keyLabel(k) + ': ' + show(o[k])).join(k_sep(o)) : fmtR(o);
+  const k_sep = o => Object.values(o).some(v => v && typeof v === 'object') ? '; ' : ', ';
+  let s = String(t), out = '', i = 0;
+  while (i < s.length) {   // outermost {...} by brace depth, so nested dicts are converted as a whole
+    if (s[i] !== '{') { out += s[i++]; continue; }
+    let d = 0, j = i;
+    for (; j < s.length; j++) { if (s[j] === '{') d++; else if (s[j] === '}' && --d === 0) break; }
+    const m = s.slice(i, j + 1);
+    try { out += show(JSON.parse(m.replace(/'/g, '"'))); } catch (e) { out += m; }
+    i = j + 1;
+  }
+  return out;
+}
+function countingHtml() {
+  const pop = ass.population;
+  if (!pop) return '';
+  const pct = pop.dropped_share != null ? (pop.dropped_share * 100).toFixed(1) : (pop.window_residents ? (100 * pop.dropped_no_usable_building / pop.window_residents).toFixed(1) : 'n/a');
+  let h = '<h3 id="howCounted">How residents are counted</h3><ol>';
+  h += '<li><b>Population grid.</b> ' + esc(pop.source || 'n/a') + '.</li>';
+  h += '<li><b>Shared over buildings.</b> ' + esc(pop.allocation || 'n/a') + '.</li>';
+  h += '<li><b>Inside the flood?</b> ' + esc(pop.flood_test || 'n/a') + '.</li>';
+  h += '<li><b>Summed to zones.</b> ' + esc(pop.aggregation || 'n/a') + '.</li>';
+  h += '<li><b>Reference year and error.</b> ' + (pop.reference_year != null ? 'Residents of ' + esc(pop.reference_year) + '. ' : '') + 'Error: ' + esc(pop.error || 'not quantified') + '. Counts on screen are rounded.' +
+    (populations.length > 1 ? ' The "Population year" selector also offers ' + populations.slice(1).map(x => esc(x.label) + ': ' + esc(x.note || '')).join(' ') : '') + '</li></ol>';
+  h += '<p>' + (pop.dropped_no_usable_building != null && pop.window_residents != null
+    ? fmtR(pop.dropped_no_usable_building) + ' of ' + fmtR(pop.window_residents) + ' residents (' + pct + ' %) live in cells without a usable building and are dropped, so all counts are minimums.'
+    : 'Residents in cells without a usable building are dropped, so all counts are minimums.') + (pop.window ? ' Window: ' + esc(pop.window) + '.' : '') + '</p>';
+  return h;
+}
+function openDisc(open, full) {
+  const d = $('discBody'); d.hidden = !open; $('btnDisc').setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (open) {
+    d.innerHTML = (pst.profile === 'citizen' && !full) ? DISC_CITIZEN : discFull;
+    const bf = $('btnDiscFull'); if (bf) bf.addEventListener('click', () => { openDisc(true, true); d.scrollTop = 0; });
+  }
+  if (open && !d.querySelector('.discClose')) {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'discClose'; b.textContent = '✕ Close'; b.setAttribute('aria-label', 'Close the disclaimer');
+    b.addEventListener('click', () => openDisc(false)); d.insertBefore(b, d.firstChild);
+  }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('discBody').hidden) openDisc(false); });
+document.addEventListener('mousedown', e => { const d = $('discBody'); if (!d.hidden && !d.contains(e.target) && !$('btnDisc').contains(e.target) && !(e.target.closest && e.target.closest('[data-how]'))) openDisc(false); });
+function renderTop() {
+  $('title').textContent = meta.title || 'Smart shelter system: planning aid';
+  document.title = (meta.title || 'Smart shelter system') + '';
+  $('mockBadge').hidden = meta.mock !== true;
+  const full = meta.disclaimer || 'The bundle did not provide a disclaimer text. Treat everything as a planning aid, not live guidance.';
+  // permanent one-line banner = the first two sentences of meta.disclaimer + the area; the rest is one click away
+  const sent = full.split(/(?<=\.)\s+/);
+  const head = sent[0] + (/Germany only/i.test(sent[0]) ? '' : ' Germany only.');
+  $('bannerText').textContent = head + (meta.area ? ' Area: ' + meta.area + '.' : '') + ' Ahr valley = comparison case outside the cross-border mandate; Eifel (Schleiden/Kall) = working case; Meuse/Vesdre, Belgium and the Netherlands not covered.';
+  let h = '<h3>Disclaimer</h3><p>' + esc(full) + '</p>' + countingHtml();
+  if (meta.area) h += '<p><b>Area:</b> ' + esc(meta.area) + '</p>';
+  h += '<h3>Limits</h3>' + (meta.limits && meta.limits.length ? '<ul>' + meta.limits.map(x => '<li>' + esc(prettyLimit(x)) + '</li>').join('') + '</ul>' : '<p>No limits listed in the bundle.</p>');
+  const row = (o) => Object.keys(o).map(k => esc(keyLabel(k)) + ': ' + fmtR(o[k])).join('; ');   // level names and rounded counts, not raw ids
+  if (meta.outside_hero_area || meta.outside_road_network || meta.q1_totals_bbox) {
+    h += '<h3>Not modelled</h3><ul>';
+    if (meta.outside_hero_area) h += '<li>Residents inside each flood level but outside the hero area (not modelled): ' + row(meta.outside_hero_area) + '.</li>';
+    if (meta.outside_road_network) h += '<li>Residents too far from any mapped road to be routed (not modelled): ' + row(meta.outside_road_network) + '.</li>';
+    if (meta.q1_totals_bbox) h += '<li>For comparison, residents inside each flood level in the whole map extent (Q1 totals): ' + row(meta.q1_totals_bbox) + '.</li>';
+    h += '</ul>';
+  }
+  if (meta.limit_check) h += '<h3>Sensitivity of the 1 h reach limit</h3><ul>' + Object.keys(meta.limit_check).map(k => '<li>' + esc(keyLabel(k)) + ': without a place ' + fmtR(meta.limit_check[k].unassigned_1h) + ' with a 1 h limit, ' + fmtR(meta.limit_check[k].unassigned_2h) + ' with 2 h.</li>').join('') + '</ul>';
+  if (meta.provenance) h += '<h3>Provenance</h3><ul>' + Object.keys(meta.provenance).map(k => '<li>' + esc(k.replace(/_/g, ' ')) + ': ' + esc(meta.provenance[k]) + '</li>').join('') + '</ul>';
+  h += '<h3>Flood levels</h3><ul>' + scenarios.map(x => '<li><b>' + esc(x.label) + '</b> (' + esc(x.kind) + '): ' + esc(x.note || '') + '</li>').join('') + '</ul>';
+  discFull = '<p><b>Purpose.</b> For a chosen flood level: which area could go to which candidate shelter, by which route. A planning aid, not live guidance. Intended users: Anna (cross-border crisis coordinator per the challenge brief) and local authorities (to be confirmed).</p>' + h;
+  $('discBody').innerHTML = discFull;
+  $('btnDisc').addEventListener('click', () => openDisc($('discBody').hidden));
+}
+// the citizen sees a short plain disclaimer; the full technical panel (run ids, selectors, limits) is one click further
+let discFull = '';
+const DISC_CITIZEN = '<h3>Before you use this map</h3><ul>' +
+  '<li>A planning exercise, not live guidance. In a real flood, always follow official warnings and instructions.</li>' +
+  '<li>The buildings are candidate public buildings from OpenStreetMap, not officially designated shelters. Nobody has checked them or reserved places in them.</li>' +
+  '<li>Based on the area mapped as flooded in July 2021 (satellite images of 14-20 July, only some areas) and on modelled residents; counts are modelled minimums, rounded.</li>' +
+  '<li>Routes avoid only the roads that touched the 2021 flood. Times assume free-flowing roads and a walk at 4 km/h to the first open road.</li></ul>' +
+  '<p><button type="button" class="link" id="btnDiscFull">Technical details and limits</button></p>';
+function fillSelect(el, items, value) {
+  el.innerHTML = '';
+  items.forEach(it => { const o = document.createElement('option'); o.value = it.id; o.textContent = it.label; if (it.id === value) o.selected = true; el.appendChild(o); });
+}
+function renderControls() {
+  fillSelect($('selScenario'), scenarios.map(s => ({ id: s.id, label: s.label })), st.sc);
+  fillSelect($('selClosure'), (sc().closures || []).map(c => ({ id: c.id, label: CL_SHORT[c.id] || c.label })), st.cl);
+  Array.from($('selClosure').options).forEach(o => { const c = (sc().closures || []).find(x => x.id === o.value); if (c) o.title = c.label; });
+  fillSelect($('selCapacity'), capacities.map(c => ({ id: c.id, label: c.label })), st.cap);
+  fillSelect($('selPop'), populations.map(p => ({ id: p.id, label: p.label })), st.pop);
+  $('popWrap').hidden = populations.length < 2;
+  const pp = popById(st.pop), proj = st.pop !== POP0;
+  $('popNote').className = 'cnote' + (proj ? ' proj' : '');
+  $('popNote').textContent = proj ? 'projection: sensitivity only' : 'reference year';
+  $('popNote').title = pp.note || '';
+  const s = sc(), obs = s.kind === 'observed';
+  const closure = ((s.closures || []).find(c => c.id === st.cl) || {}).label || '';
+  $('levelNote').title = '';
+  $('levelNote').innerHTML = '<span class="badge ' + (obs ? 'observed">OBSERVED' : 'modelled">MODELLED') + '</span> <span class="iicon" tabindex="0" title="' +
+    esc(obs ? 'Observed July 2021 flood as mapped by the Copernicus emergency service (EMS) from satellite images of 14-20 July 2021, in the requested areas only. One snapshot per area, not the peak or the maximum extent: an unmapped place is not proven dry.'
+      : 'A flood level from the EFAS river model for a return period. A model result, not an observation; it covers only rivers the model represents, so an empty cell means not modelled, not dry.') + '">i</span>';
+  ['selScenario', 'selClosure', 'selCapacity', 'selPop'].forEach(id => { const el = $(id), o = el.options[el.selectedIndex]; el.title = o ? (o.title || o.textContent) : ''; });
+  const tp = meta.total_places && meta.total_places[st.cap], idx = capacities.findIndex(c => c.id === st.cap);
+  $('capTotal').title = tp != null ? 'Total assumed shelter places in the whole area under ' + capLabel(st.cap) + (idx > 0 ? '. ' + capLabel(st.cap) + ' is an optimistic supply case.' : '.') : '';
+  $('capTotal').textContent = tp != null ? fmt(tp) + ' places (assumed)' + (idx > 0 ? ', ' + capLabel(st.cap) + ' = optimistic supply' : '') : '';
+}
+function fillLists() {
+  const zl = zones.filter(zoneShown).sort((a, b) => peopleOf(b) - peopleOf(a));
+  const zs = $('selZone'); zs.innerHTML = '<option value="">(none selected)</option>';
+  zl.forEach(z => { const o = document.createElement('option'); o.value = z.id; o.textContent = 'Zone ' + z.id + ', ' + z.muni + ', ' + fmtR(peopleOf(z)) + ' people'; if (z.id === st.zone) o.selected = true; zs.appendChild(o); });
+  // only shelters used in the current plan (a list of 3,000+ candidates would be unusable); plus the selected one
+  const ss = $('selShelter'); ss.innerHTML = '<option value="">(none selected)</option>';
+  shelters.filter(x => loadOf(x) >= 0.5 || x.id === st.shelter).sort((a, b) => loadOf(b) - loadOf(a)).forEach(x => {
+    const o = document.createElement('option'); o.value = x.id; o.textContent = 'Shelter ' + x.id + ', ' + x.type + ', ' + x.muni + ', ' + fmtR(loadOf(x)) + ' people'; if (x.id === st.shelter) o.selected = true; ss.appendChild(o); });
+}
+
+// model levels: how many of the people live where the July 2021 map never looked (so 2021 and the model cannot be compared there)
+function outEmsSub() {
+  if (sc().kind === 'observed' || !EMS_OUTLINE) return [];
+  const n = zones.reduce((acc, z) => acc + (z.in_ems_area === false ? peopleOf(z) : 0), 0);
+  return n >= 0.5 ? [fmtP(n) + ' outside the 2021 map'] : [];
+}
+function renderSummary() {
+  const el = $('summary');
+  if (!res) { el.innerHTML = '<div class="card unassigned"><div class="v">No result</div><div class="l">The bundle has no result for "' + esc(keyOf(st.sc, st.cl, st.cap)) + '".</div></div>'; return; }
+  const s = res.summary || {};
+  const m1 = v => v == null ? 'n/a' : Number(v).toFixed(1) + ' min';
+  // unassigned split: new fields first, the older two-way split as a fallback
+  const k = meta.candidate_list_check && meta.candidate_list_check.k;
+  let split = [], splitTip = '';
+  if (s.unassigned_no_open_road != null) {
+    split = [fmtP(s.unassigned_no_open_road) + ' no road · ' + fmtP(s.unassigned_no_shelter_reachable) + ' none in reach · ' + fmtP(s.unassigned_capacity_limited) + ' all full',
+      s.free_places_total != null ? fmt(s.free_places_total) + ' places free further away' : ''];
+    splitTip = 'no open road within reach; no shelter reachable (by open roads, within 1 h); all shelters reachable within 1 h are full (capacity-limited within the ' + (k || 'N') + ' fastest shelters, 1 h)' + (s.free_places_total != null ? '. Free places further away: places left in all shelter buildings in this plan, including ones the zones cannot reach within 1 h.' : '');
+  } else if (s.unassigned_no_capacity != null) {
+    split = [fmtR(s.unassigned_no_capacity) + ' no capacity', fmtR(s.unassigned_no_route) + ' no route'];
+    splitTip = 'no route = no reachable shelter by open roads within 1 h; no capacity = all reachable shelters are full';
+  }
+  const r = s.worst_road_ratio, over = s.stress_edges_over_1;
+  const stressTip = 'Assumed demand exceeds an assumed capacity on these road segments; check on the ground. A stress indicator (people on a road as vehicles per hour against an assumed capacity), not a traffic forecast, and not fed back into the plan. Short link segments can dominate the maximum.';
+  const road = (s.mean_time_min != null && s.mean_access_min != null) ? s.mean_time_min - s.mean_access_min : null;
+  const timeSub = [];
+  if (s.mean_access_min != null) timeSub.push('walk ' + s.mean_access_min.toFixed(1) + ' + road ' + (road == null ? 'n/a' : road.toFixed(1)));
+  if (s.people_over_30min != null) timeSub.push('over 30 min: ' + fmtR(s.people_over_30min) + ' people');
+  const cards = [
+    { l: 'People to place (min.)', v: fmtP(s.people_to_place), sub: outEmsSub(), extra: '<span title="rounded; modelled estimate, ' + popYear() + (st.pop !== POP0 ? ' projected' : '') + ' population, error not quantified">rounded est., ' + popYear() + (st.pop !== POP0 ? ' proj.' : '') + '</span>' + (ass.population ? ' <button type="button" class="link" data-how="1" title="How residents are counted">how?</button>' : ''), tip: 'Residents inside the flood at the selected level, in the modelled area (Kreis Euskirchen and Landkreis Ahrweiler). A minimum: the population grid is spread over buildings, EMS maps only part of the area, EFAS misses small rivers. All of them are assumed to need a public shelter.' },
+    { l: 'Placed', v: fmtP(s.placed), sub: s.placed > 0 ? ['within 2 km: ' + fmtR(near2km(res.assign || [])) + ' (' + Math.round(100 * near2km(res.assign || []) / s.placed) + ' %)'] : [], tip: 'People who were assigned a shelter place in this plan, within the assumed capacity of each building and reaching it by open roads within 1 hour. "Within 2 km" = sent to a building at most 2 km away in a straight line.' + (sameAsQ3() ? ' The shelter report (Q3) covers this case (July 2021 flood, cautious capacity) but allows only those 2 km, so it places far fewer people: there is room within an hour by road, but not enough room close by.' : '') },
+    { l: 'UNASSIGNED', v: fmtP(s.unassigned), cls: s.unassigned >= 0.5 ? 'unassigned wide' : 'wide', sub: split, tip: splitTip },
+    { l: 'Mean time', v: m1(s.mean_time_min), sub: timeSub, tip: 'Average over the people placed: the walk from inside the flood to the nearest open road plus the drive or walk on open roads to the shelter at free-flow speeds. Not a forecast; no congestion.' },
+    { l: 'Walk to open road', v: s.mean_access_min == null ? 'n/a' : m1(s.mean_access_min), sub: s.people_access_over_10min != null ? [fmtR(s.people_access_over_10min) + ' people > 10 min'] : [], tip: 'First leg on foot from inside the flood to the nearest road that stays open; an assumption.' },
+    { l: 'Road detour', v: m1(s.mean_detour_min), sub: ['walk excluded'], tip: 'Extra road time caused by closures: time on open roads minus the time the same trip would take if no road were closed (same start point, same shelter). The walk is not included.' },
+    { l: 'Shelter buildings used', v: fmt(s.shelters_used), sub: s.shelters_at_capacity != null ? [fmt(s.shelters_at_capacity) + ' of ' + fmt(s.shelters_used) + ' at capacity'] : [], tip: 'Number of candidate buildings that receive people in this plan, and how many of them are filled to their assumed capacity.' },
+    { l: 'Closed roads', v: fmt(s.closed_edges), tip: 'Road segments removed because they touch the flood under the selected closure rule. Bridges and tunnels are closed on a touch test. A segment is a piece of road between two junctions.' },
+    { l: 'Road segments over assumed capacity', v: over != null ? fmt(over) : (r == null ? 'n/a' : r.toFixed(2)),
+      cls: 'wide',
+      sub: [(s.worst_road_class ? 'worst: ' + String(s.worst_road_class).replace(/_/g, ' ') + (r != null ? ' ' + r.toFixed(2) : '') : ''), 'Short link segments dominate the max.'], tip: stressTip }
+  ];
+  el.innerHTML = cards.map(c => '<div class="card ' + (c.cls || '') + '"' + (c.tip ? ' title="' + esc(c.tip) + '"' : '') + '><div class="v">' + esc(c.v) + '</div><div class="l">' + esc(c.l) +
+    (c.sub || []).filter(Boolean).map(x => '<span class="s">' + esc(x) + '</span>').join('') + (c.extra ? '<span class="s">' + c.extra + '</span>' : '') + '</div></div>').join('');
+  el.querySelectorAll('[data-how]').forEach(b => b.addEventListener('click', () => { openDisc(true); const t = $('howCounted'); if (t) t.scrollIntoView({ block: 'nearest' }); $('discBody').scrollTop = t ? t.offsetTop - 8 : 0; }));
+}
+
+function renderLegend() {
+  // hover (and keyboard focus) explanation for every legend entry; matched on the label text
+  const LEG_TIPS = [
+    [/^Residents inside the flood/, 'Residents inside the flood (outline: solid = all placed, dashed = partly, dashed red = not placed). Population from a modelled grid of about 930 x 600 m cells, shared over buildings, in 500 m zones; a minimum. They are assumed to need a public shelter. A town chip, square or ring is NOT a shelter.'],
+    [/^ring size/, 'The radius of each ring grows with the square root of the number of residents inside the flood in that zone (5 to 22 px). The ring is hollow: flood colours and roads show through it.'],
+    [/^town chip/, 'Zoomed out, each white chip gives the residents inside the flood in one municipality at the selected level (sum of its 500 m cells, modelled, rounded, a minimum). Border: brown = all placed, dashed black = partly, dashed red = none placed. Click a chip to zoom in. A chip is NOT a shelter.'],
+    [/^500 m cell/, 'From zoom 12, each outlined square is one 500 m cell of residents inside the flood. It has a light fill, so the flood still shows through. Count inside from zoom 13. A square is NOT a shelter.'],
+    [/^square = /,'Alternative style: a 500 m cell of residents inside the flood at 25 % fill. Drawn larger than 500 m when zoomed far out so that it stays visible.'],
+    [/^solid: all placed/, 'Solid brown outline: every resident of this zone was assigned a shelter place in this plan.'],
+    [/^dashed black/, 'Dashed black outline: only some residents of this zone could be assigned a shelter; the rest found no open road, no reachable shelter, or all reachable shelters were full.'],
+    [/^dashed red/, 'Dashed red outline: none of the residents of this zone could be assigned a shelter in this plan (no open road, no reachable shelter, or all reachable shelters full). Click it to see why.'],
+    [/^Shelter buildings/, 'Round badges with a house symbol are candidate shelter BUILDINGS from OpenStreetMap, not officially designated shelters. Size shows capacity under the selected assumption set; capacities are assumptions.'],
+    [/^fill = share/, 'Like a battery: a candidate building fills from the bottom with the share of its assumed places that the plan uses (empty = free, full = no place left). Hover a building for the exact numbers.'],
+    [/^usable/, 'A candidate building that can receive people in this scenario (it is not in the flood).'],
+    [/^flooded/, 'This building is inside the flood in the selected scenario (observed: footprint touches the mapped flood or a flood trace; modelled: building centre is wet), so it is not used.'],
+    [/^full/, 'All of this building\'s assumed capacity is taken by the plan.'],
+    [/^not counted/, 'A building type that the selected assumption set does not count as a shelter (assumption set A counts core public buildings only).'],
+    [/^size = capacity/, 'The badge is larger for a building with a larger assumed capacity.'],
+    [/^closed road/, 'A road segment removed from the network because it touches the flood (observed: flood and flood-trace extent, or the mapped flood only, depending on the closure rule; modelled: any water or 0.5 m or more). Routes never use it. A road not shown as closed is not necessarily open: not mapped does not mean dry.'],
+    [/^road used by a route/, 'A road that at least one assigned route uses in this plan.'],
+    [/^stress /, 'Stress = people sent along this road, turned into vehicles per hour, divided by an ASSUMED capacity for its road class. Above 1 means assumed demand exceeds an assumed capacity; check on the ground. An indicator, not a traffic forecast.'],
+    [/^STRESS INDICATOR/, 'The stress colours compare assumed demand with assumed road capacities (by road class). They are not measured traffic and are not fed back into the plan.'],
+    [/^depth /, 'EFAS modelled flood depth for the selected return period. Empty cells are not modelled or dry: not the same as safe.'],
+    [/^no colour/, 'EFAS covers only rivers with a large catchment; small rivers (for example at Kall) are missing, so no colour does not mean no flooding.'],
+    [/^edge of the area mapped/, 'The July 2021 satellite map (Copernicus EMS) covers only the areas the authorities requested. Outside this dashed line 2021 was NOT ASSESSED: the Rhine banks between Remagen and Bad Breisig lie outside, so the river model can show floods there that the 2021 map never looked at. Comparisons of 2021 with the model levels hold only inside the line.'],
+    [/^flood and flood-trace extent/, 'Flood and flood-trace features mapped by the Copernicus emergency service (EMS) in the requested areas only, from satellite images of 14-20 July 2021 (one snapshot per area, not the peak). Areas not mapped are not necessarily dry.'],
+    [/^mapped flood only/, 'Only the mapped flood from the Copernicus emergency service (EMS); flood-trace features (residue of where water had been) are ignored. Areas not mapped are not necessarily dry.']
+  ];
+  const tipFor = t => { const m = LEG_TIPS.find(x => x[0].test(t)); return m ? m[1] : ''; };
+  const tipAttr = t => { const tip = tipFor(t); return tip ? ' title="' + esc(tip) + '" tabindex="0"' : ''; };
+  const item = (sw, t) => '<span class="i"' + tipAttr(t) + '>' + sw + esc(t) + '</span>';
+  const line = (c, w, dash) => '<svg class="sw" viewBox="0 0 26 14" aria-hidden="true"><line x1="1" y1="7" x2="25" y2="7" stroke="' + c + '" stroke-width="' + w + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/></svg>';
+  const cell = (fill, stroke, w, dash) => '<svg width="18" height="14" viewBox="0 0 18 14" aria-hidden="true"><rect x="2" y="1.5" width="14" height="11" fill="' + fill + '" fill-opacity=".8" stroke="' + stroke + '" stroke-width="' + w + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/></svg>';
+  const grp = (title, items) => '<div class="lg"><b' + tipAttr(title) + '>' + esc(title) + '</b>' + items.join('') + '</div>';
+  const out = [];
+  if (st.resMode !== 'off') {
+    const ring = (r, stroke, dash) => '<svg width="' + (2 * r + 6) + '" height="24" viewBox="0 0 ' + (2 * r + 6) + ' 24" aria-hidden="true"><circle cx="' + (r + 3) + '" cy="12" r="' + r + '" fill="none" stroke="#fff" stroke-width="5" opacity=".85"/><circle cx="' + (r + 3) + '" cy="12" r="' + r + '" fill="none" stroke="' + stroke + '" stroke-width="2.5"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/></svg>';
+    const sq = (stroke, dash) => '<svg width="20" height="16" viewBox="0 0 20 16" aria-hidden="true"><rect x="2" y="2" width="16" height="12" fill="' + BROWN + '" fill-opacity=".25" stroke="' + stroke + '" stroke-width="2"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/></svg>';
+    const osq = (stroke, dash) => '<svg width="20" height="16" viewBox="0 0 20 16" aria-hidden="true"><rect x="2" y="2" width="16" height="12" fill="none" stroke="' + stroke + '" stroke-width="2"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/></svg>';
+    const chip = '<svg width="34" height="16" viewBox="0 0 34 16" aria-hidden="true"><rect x="1" y="1" width="32" height="14" rx="7" fill="#fff" stroke="' + BROWN + '" stroke-width="2"/></svg>';
+    const sym = st.resMode === 'squares' || st.resMode === 'cells' ? sq : (c, d) => ring(8, c, d);
+    out.push(grp('Residents inside the flood', [
+      st.resMode === 'cells' ? item(chip, 'town chip = residents inside the flood (zoomed out)') + item(sq(BROWN), '500 m cell (zoom 12 and closer)')
+        : st.resMode === 'squares' ? item(sq(BROWN), 'square = 500 m cell of residents') : item(ring(4, BROWN) + ring(9, BROWN), 'ring size ~ residents inside the flood'),
+      item(sym(BROWN), 'solid: all placed'), item(sym('#000', '4 3'), 'dashed black: partly placed'), item(sym('#d7191c', '3 3'), 'dashed red: not placed')]));
+  }
+  if (st.layers.shelters || st.layers.allshelters || st.layers.floodshelters) out.push(grp('Shelter buildings (candidates)', [
+    item(shelterSvg('ok', 20, 0) + shelterSvg('ok', 20, 0.5) + shelterSvg('ok', 20, 1), 'fill = share of places taken (empty, half, full)'), item('<span class="shclu" style="width:22px;height:22px;display:inline-flex">5</span>', 'number = several buildings close together (zoom in)'), item(shelterSvg('flooded', 20), 'flooded'), item(shelterSvg('nocap', 20), 'not counted'), item('', 'size = capacity')]));
+  const other = [];
+  if (st.layers.closed) other.push(item(line('#111', 3, '4 4'), 'closed road (blocked)'));
+  if (st.layers.routes) other.push(item(line('#0072B2', 2.5), 'road used by a route'));
+  if (st.layers.stress) {
+    STRESS.forEach(b => other.push(item(line(b.c, b.w), 'stress ' + b.label)));
+    other.push(item('', 'STRESS INDICATOR: assumed demand vs an assumed capacity; check on the ground. Not a forecast.'));
+  }
+  if (st.layers.flood) {
+    const ov = (B.overlays || []).find(o => o.scenario === st.sc);
+    if (ov) { (ov.legend || []).forEach(l => other.push(item('<svg class="sw" viewBox="0 0 26 14"><rect x="1" y="1" width="24" height="12" fill="' + esc(l.color) + '"/></svg>', 'depth ' + l.label))); other.push(item('', 'no colour = not modelled, not dry')); }
+    else if (sc().kind === 'observed') other.push(item('<svg class="sw" viewBox="0 0 26 14"><rect x="1" y="1" width="24" height="12" fill="#56B4E9" fill-opacity=".35" stroke="#0072B2" stroke-width="1.5"/></svg>', st.cl === 'mapped' ? 'mapped flood only (traces ignored)' : 'flood and flood-trace extent'));
+  }
+  if (EMS_OUTLINE) other.push(item('<svg class="sw" viewBox="0 0 26 14"><line x1="1" y1="7" x2="25" y2="7" stroke="' + EMS_COL + '" stroke-width="2" stroke-dasharray="6 4"/></svg>', 'edge of the area mapped in July 2021'));
+  if (other.length) out.push(grp('Roads and flood', other));
+  const lb = $('legendbar'); if (lb) lb.innerHTML = out.join('');
+}
+
+function renderLayers() {
+  const rowsPop = [['zones', 'Residents inside the flood (town totals when zoomed out, 500 m squares from zoom 12)'], ['munis', 'Municipality names (from zoom 10)']];
+  const rowsShel = [['shelters', 'Shelter buildings used in this plan'], ['floodshelters', 'Flooded candidate buildings (not usable at this level; from zoom 11)'], ['allshelters', 'Unused candidate buildings (spare places, not needed by this plan)']];
+  const rowsRoad = [['roads', 'Roads'], ['closed', 'Closed roads'], ['routes', 'Routes (roads used)'], ['stress', 'Road stress (indicator)'], ['flood', 'Flood (observed extent or modelled overlay)']];
+  // a small picture of each layer, drawn like on the map, in front of its name
+  const sv = inner => '<svg class="lic" width="26" height="16" viewBox="0 0 26 16" aria-hidden="true">' + inner + '</svg>';
+  const ln = (c, w, d) => '<line x1="2" y1="8" x2="24" y2="8" stroke="' + c + '" stroke-width="' + w + '"' + (d ? ' stroke-dasharray="' + d + '"' : '') + ' stroke-linecap="round"/>';
+  const ICON = {
+    zones: sv('<rect x="5" y="2" width="16" height="12" fill="' + BROWN + '" fill-opacity=".25" stroke="' + BROWN + '" stroke-width="2"/>'),
+    munis: sv('<text x="13" y="12.5" text-anchor="middle" font-size="11" font-weight="700" font-family="system-ui,sans-serif" fill="#111">Aa</text>'),
+    shelters: '<span class="lic">' + shelterSvg('ok', 18, 0.5) + '</span>',
+    allshelters: sv('<circle cx="13" cy="8" r="5" fill="#fbe3ee" stroke="#C2185B" stroke-width="1.8"/>'),
+    floodshelters: '<span class="lic">' + shelterSvg('flooded', 16) + '</span>',
+    roads: sv(ln('#9aa0a8', 2)),
+    closed: sv(ln('#111', 3, '4 4')),
+    routes: sv(ln('#0072B2', 3)),
+    stress: sv('<line x1="2" y1="8" x2="9" y2="8" stroke="#009E73" stroke-width="4"/><line x1="9" y1="8" x2="17" y2="8" stroke="#F0E442" stroke-width="4"/><line x1="17" y1="8" x2="24" y2="8" stroke="#d7191c" stroke-width="4"/>'),
+    flood: sv('<rect x="3" y="3" width="20" height="10" rx="2" fill="#56B4E9" fill-opacity=".45" stroke="#0072B2" stroke-width="1.5"/>') };
+  const t = r => '<label class="toggle"><input type="checkbox" data-layer="' + r[0] + '"' + (st.layers[r[0]] ? ' checked' : '') + '> ' + (ICON[r[0]] || '') + esc(r[1]) + '</label>';
+  $('layers').innerHTML = '<legend>Map layers</legend><h3 class="grp">Residents inside the flood (population)</h3>' + rowsPop.map(t).join('') +
+    '<h3 class="grp">Shelter buildings</h3>' + rowsShel.map(t).join('') +
+    '<h3 class="grp">Roads and flood</h3>' + rowsRoad.map(t).join('') +
+    '<label class="toggle"><input type="checkbox" id="chkBase"' + (st.basemap ? ' checked' : '') + (location.protocol === 'file:' ? ' disabled' : '') + '> OpenStreetMap basemap (only when served over http; not available from a local file; (c) OpenStreetMap contributors)</label><div class="hint" id="baseStatus" role="status">' + esc(baseMsg) + '</div>';
+  $('layers').querySelectorAll('input[data-layer]').forEach(i => i.addEventListener('change', () => { st.layers[i.dataset.layer] = i.checked; if (i.dataset.layer === 'zones') { st.resMode = i.checked ? 'cells' : 'off'; drawZones(); } if (i.dataset.layer === 'allshelters' || i.dataset.layer === 'floodshelters') drawShelters(); applyLayerVisibility(); }));
+  $('layers').querySelectorAll('input[name=resMode]').forEach(i => i.addEventListener('change', () => { if (i.checked) setResMode(i.value); }));
+  $('chkBase').addEventListener('change', e => { st.basemap = e.target.checked; drawRoads(); applyLayerVisibility(); });
+}
+
+const TYPE_EN = { school: 'school', sports_hall: 'sports hall', community_centre: 'community centre', civic: 'civic building', public: 'public building', townhall: 'town hall', church: 'church', chapel: 'chapel', cathedral: 'cathedral', hotel: 'hotel', kindergarten: 'kindergarten', college: 'college', university: 'university' };
+const TYPE_DE = { school: 'Schule', sports_hall: 'Sporthalle', community_centre: 'Gemeindezentrum', civic: 'Öffentliches Gebäude', public: 'Öffentliches Gebäude', townhall: 'Rathaus', church: 'Kirche', chapel: 'Kapelle', cathedral: 'Dom', hotel: 'Hotel', kindergarten: 'Kindergarten', college: 'Kolleg', university: 'Universität' };
+const tEN = t => TYPE_EN[t] || String(t).replace(/_/g, ' ');
+const tDE = t => TYPE_DE[t] || String(t).replace(/_/g, ' ');
+
+function messageTexts(z, assigns) {
+  const s = sc(), un = unassignedOf(z.id);
+  const roads = [];
+  assigns.forEach(a => roadNames(a[5] || []).forEach(n => { if (roads.indexOf(n) < 0) roads.push(n); }));
+  const mainRoads = roads.slice(0, 5);
+  // one street name can have closed AND open stretches: a name on the route is never told to be avoided; it is 'partly closed, follow the route'
+  const closedNear = nearbyClosedNames(z, assigns, 800);
+  const closed = closedNear.filter(n => roads.indexOf(n) < 0).slice(0, 6), partly = closedNear.filter(n => roads.indexOf(n) >= 0).slice(0, 4);
+  // short message: the (up to) two largest destinations, same type+municipality merged, time of the fastest building in the group
+  const top = {}; assigns.slice().sort((a, b) => b[2] - a[2]).forEach(a => { const sh = S.get(a[1]); if (!sh) return; const k = sh.type + '|' + sh.muni; if (!top[k] || a[3] < top[k].t) top[k] = Object.assign(top[k] || { n: 0, b: 0 }, { sh: sh, t: a[3] }); top[k].n += a[2]; top[k].b += 1; });
+  const dl = Object.keys(top).map(k => top[k]).sort((a, b) => b.n - a.n), dsel = dl.slice(0, 2);
+  const more = assigns.length - dsel.reduce((n, d) => n + d.b, 0);   // counted in buildings, like the Details table
+  const plEN = { school: 'schools', sports_hall: 'sports halls', community_centre: 'community centres', church: 'churches', hotel: 'hotels', townhall: 'town halls', chapel: 'chapels', kindergarten: 'kindergartens' };
+  const destEN = dsel.map(d => d.b > 1 ? (plEN[d.sh.type] || tEN(d.sh.type) + ' buildings') + ' in ' + d.sh.muni + ' (' + d.b + ', fastest about ' + Math.round(d.t / 60) + ' min)'
+    : tEN(d.sh.type) + ' in ' + d.sh.muni + ' (about ' + Math.round(d.t / 60) + ' min)').concat(more > 0 ? ['and ' + more + ' more building' + (more > 1 ? 's' : '')] : []);
+  const destDE = dsel.map(d => tDE(d.sh.type) + ' in ' + d.sh.muni + (d.b > 1 ? ' (' + d.b + ' Gebäude, schnellstes ca. ' : ' (ca. ') + Math.round(d.t / 60) + ' Min.)').concat(more > 0 ? ['und ' + more + ' weitere' + (more > 1 ? ' Gebäude' : 's Gebäude')] : []);
+  const lvlEN = s.label + (s.kind === 'observed' ? ' - observed snapshot' : ' - modelled scenario');
+  const lvlDE = (LVL_DE[s.id] || s.label) + (s.kind === 'observed' ? ' - beobachteter Stand' : ' - modelliertes Szenario');
+  const en = ['DRAFT: Flood message for ' + z.muni + ', zone ' + z.id + '. Planning scenario, not a live warning.',
+    'Flood level: ' + lvlEN + '.',
+    destEN.length ? 'Destination (candidate shelter): ' + destEN.join('; ') + '.' : 'No shelter place could be assigned for this zone in this plan.',
+    mainRoads.length ? 'Roads to use: ' + mainRoads.join(', ') + '.' : '',
+    closed.length ? 'Avoid (closed): ' + closed.join(', ') + '.' : partly.length ? '' : 'No closed road was found near this route.',
+    partly.length ? 'Partly closed, follow the route: ' + partly.join(', ') + '.' : '',
+    un >= 0.5 ? 'Note: in this plan ' + fmtR(un) + ' residents of this zone have no assigned shelter place.' : '',
+    'DRAFT: must be checked by the responsible authority before use.'].filter(Boolean).join('\n');
+  const de = ['ENTWURF: Hochwassermeldung für ' + z.muni + ', Zone ' + z.id + '. Planungsszenario, keine aktuelle Warnung.',
+    'Hochwasserstufe: ' + lvlDE + '.',
+    destDE.length ? 'Ziel (mögliche Notunterkunft): ' + destDE.join('; ') + '.' : 'Für diese Zone konnte in diesem Plan kein Platz zugewiesen werden.',
+    mainRoads.length ? 'Zu nutzende Straßen: ' + mainRoads.join(', ') + '.' : '',
+    closed.length ? 'Bitte meiden (gesperrt): ' + closed.join(', ') + '.' : partly.length ? '' : 'In der Nähe dieser Route wurde keine gesperrte Straße gefunden.',
+    partly.length ? 'Teilweise gesperrt, der Route folgen: ' + partly.join(', ') + '.' : '',
+    un >= 0.5 ? 'Hinweis: In diesem Plan haben ' + fmtR(un, true) + ' Einwohner dieser Zone keinen zugewiesenen Platz.' : '',
+    'ENTWURF: muss vor der Verwendung von der zuständigen Behörde geprüft werden.'].filter(Boolean).join('\n');
+  return { en: en, de: de, roads: roads, closed: closed, partly: partly };
+}
+
+const showBtn = '<button type="button" class="mobileonly" id="btnShow">Show on map</button>';
+function renderSelected() {
+  const el = $('selected');
+  if (!res) { el.innerHTML = '<h2>Details</h2><p>No result for this combination.</p>'; return; }
+  if (st.zone != null && Z.get(st.zone)) {
+    const z = Z.get(st.zone), p = peopleOf(z), un = unassignedOf(z.id);
+    const head = '<div class="row" style="justify-content:space-between"><h2>Zone ' + z.id + ', ' + esc(z.muni) + '</h2><span>' + showBtn + ' <button id="btnClear">Clear</button></span></div>';
+    if (!zoneShown(z)) { el.innerHTML = head + '<p>No residents to place at this flood level.</p>'; bindSelected(); return; }
+    const all = zoneAssigns(z.id), vis = st.showAll ? all : all.slice(0, 3);
+    const detourMax = Math.max(0, ...all.map(a => a[3] - a[4]));
+    const msg = messageTexts(z, all);
+    let h = head;
+    h += '<p>Residents inside the flood in this 500 m cell (from a modelled grid of about 930 x 600 m cells, shared over buildings), assumed to need shelter (a minimum): <b>' + fmtR(p) + '</b> (rounded). This ' + (st.resMode === 'rings' ? 'ring' : 'outlined square') + ' is a population zone, not a shelter.</p>';
+    const acc = res.access_s && res.access_s[String(z.id)];
+    if (acc != null) h += '<div class="note">Walk to the nearest open road: about ' + (acc < 30 ? 'less than 1' : Math.round(acc / 60)) + ' min (assumption: the road is passable before the water rises). The time below is walk + road.</div>';
+    if (un >= 0.5) h += '<div class="alert">' + fmtR(un) + ' of ' + fmtR(p) + ' people in this zone are UNASSIGNED: no open road within reach, no shelter reachable, or all shelters reachable within 1 h are full.</div>';
+    if (detourMax >= 30) h += '<div class="alert">A closed road forces a detour of up to ' + min1(detourMax) + ' min compared with the route without closures.' + (msg.closed.length ? ' Closed roads near the route: ' + esc(msg.closed.join(', ')) + '.' : '') + (msg.partly.length ? ' Partly closed, the route uses an open stretch: ' + esc(msg.partly.join(', ')) + '.' : '') + '</div>';
+    else if (all.length) h += '<div class="info">No detour caused by closures in this result.</div>';
+    if (all.length) {
+      const t = all[0], th = S.get(t[1]) || {}, rest = all.length - 1;
+      h += '<p><b>' + (rest > 0 ? 'The largest group' : 'All placed') + ' (' + fmtR(t[2]) + ', ' + Math.round(100 * t[2] / p) + ' %) ' + (rest > 0 ? 'goes' : 'go') + ' to ' + esc(tEN(th.type)) + ' #' + t[1] + ' in ' + esc(th.muni) + ', ' + min1(t[3]) + ' min' + (rest > 0 ? '; ' + rest + ' more destination' + (rest > 1 ? 's' : '') : '') + '.</b></p>';
+      h += '<table><thead><tr><th>Shelter building</th><th class="n">People</th><th class="n">Time, walk + road (min)</th><th class="n">Road detour (min)</th></tr></thead><tbody>';
+      vis.forEach(a => { const sh = S.get(a[1]) || {}; h += '<tr><td><button class="link" data-shelter="' + a[1] + '">#' + a[1] + ' ' + esc(tEN(sh.type)) + '</button><br>' + esc(sh.muni) + '</td><td class="n">' + fmtP(a[2]) + '</td><td class="n">' + min1(a[3]) + '</td><td class="n">' + min1(a[3] - a[4]) + '</td></tr>'; });
+      h += '</tbody></table>';
+      if (all.length > 3) h += '<div class="row"><button type="button" id="btnAll">' + (st.showAll ? 'Show top 3 only' : 'Show all ' + all.length + ' destinations') + '</button></div>';
+      h += '<h3>Roads along the route' + (vis.length > 1 ? 's' : '') + '</h3><ul>';
+      vis.forEach(a => { const n = roadNames(a[5] || []); h += '<li>to #' + a[1] + ': ' + (n.length ? esc(n.join(', ')) : 'unnamed roads') + '</li>'; });
+      h += '</ul><p class="small muted">Blue lines on the map = routes avoiding mapped closed roads (not verified safe)' + (st.showAll ? '' : '; only the three largest destinations are drawn') + '. The allocation is a capacity-driven fill, not a recommended distribution.</p>';
+    } else if (un < 0.5) h += '<p>No assignment for this zone.</p>';
+    h += '<h3>Draft messages (fixed templates)</h3><p class="small muted">Fixed templates filled from the result. No free text is generated.</p>' +
+      '<p><b>English</b></p><pre class="msg" id="msgEN" lang="en">' + esc(msg.en) + '</pre><div class="row"><button data-copy="msgEN">Copy English</button></div>' +
+      '<p><b>Deutsch</b></p><pre class="msg" id="msgDE" lang="de">' + esc(msg.de) + '</pre><div class="row"><button data-copy="msgDE">Copy German</button><span id="copyStat" class="small" role="status"></span></div>';
+    h += '<div class="row"><button id="btnCsv">Export plan (CSV)</button></div>';
+    el.innerHTML = h;
+  } else if (st.shelter != null && S.get(st.shelter)) {
+    const s = S.get(st.shelter), cap = (s.cap && s.cap[st.cap]) || 0, load = (res.shelter_load && res.shelter_load[String(s.id)]) || 0;
+    const state = shelterState(s), as = assignsOfShelter(s.id).sort((a, b) => b[2] - a[2]);
+    const capOther = capacities.filter(c => c.id !== st.cap).map(c => esc(capLabel(c.id)) + ': ' + fmt(s.cap && s.cap[c.id])).join('; ');
+    let h = '<div class="row" style="justify-content:space-between"><h2>Shelter building ' + s.id + ': ' + esc(tEN(s.type)) + '</h2><span>' + showBtn + ' <button id="btnClear">Clear</button></span></div>';
+    h += '<div class="note"><b>Candidate building from OpenStreetMap, not an officially designated shelter.</b></div>';
+    if (isFlooded(s)) h += '<div class="alert">Flooded in this scenario: not usable.</div>';
+    if (state === 'nocap') h += '<div class="note">Not counted at the chosen capacity assumption (capacity 0).</div>';
+    h += '<dl><dt>Type</dt><dd>' + esc(tEN(s.type)) + (s.kind ? ' (' + esc(s.kind) + ')' : '') + ', ' + esc(s.muni) + '</dd>' +
+      '<dt>Footprint</dt><dd>' + fmt(s.footprint_m2) + ' m2</dd>' +
+      '<dt>Capacity, ' + esc(capLabel(st.cap)) + ' (assumption)</dt><dd>' + fmt(cap) + ' people' + (capOther ? ' (' + capOther + ')' : '') + '</dd>' +
+      // a full building must not read 'about 130' next to a capacity of 127 (rounding to tens): say full, else round but never above the capacity
+      '<dt>Load / fill</dt><dd>' + (cap > 0 && load >= cap - 0.5 ? 'full: all ' + fmt(cap) + ' assumed places taken' : fmtR(cap > 0 ? Math.min(load, cap) : load) + ' people' + (cap > 0 ? ', ' + Math.round(100 * load / cap) + ' % full' : '')) + '</dd></dl>';
+    if (as.length) {
+      h += '<h3>Zones sent here</h3><table><thead><tr><th>Zone</th><th class="n">People</th><th class="n">Time (min)</th></tr></thead><tbody>';
+      as.forEach(a => { const z = Z.get(a[0]) || {}; h += '<tr><td><button class="link" data-zone="' + a[0] + '">Zone ' + a[0] + '</button><br>' + esc(z.muni) + '</td><td class="n">' + fmtP(a[2]) + '</td><td class="n">' + min1(a[3]) + '</td></tr>'; });
+      h += '</tbody></table>';
+    } else h += '<p>No zone is sent here at this setting.</p>';
+    el.innerHTML = h;
+  } else {
+    el.innerHTML = '<h2>Details</h2><p>Click ' + (st.resMode === 'rings' ? 'a ring' : st.resMode === 'squares' ? 'a square' : 'a town chip or a 500 m square') + ' (residents inside the flood) or a shelter building (solid round badge with a house) on the map, or pick one from the lists below, to see where people go, by which route, and a draft message.</p>' +
+      '<div class="row"><button id="btnCsv">Export plan (CSV)</button></div>';
+  }
+  bindSelected();
+}
+function bindSelected() {
+  const el = $('selected');
+  const c = $('btnClear'); if (c) c.addEventListener('click', clearSelection);
+  const csv = $('btnCsv'); if (csv) csv.addEventListener('click', exportCsv);
+  const all = $('btnAll'); if (all) all.addEventListener('click', () => { st.showAll = !st.showAll; refreshSelection(false); });
+  const show = $('btnShow'); if (show) show.addEventListener('click', () => { $('map').scrollIntoView({ block: 'center' }); refreshSelection(true); });
+  el.querySelectorAll('[data-shelter]').forEach(b => b.addEventListener('click', () => selectShelter(Number(b.dataset.shelter), true)));
+  el.querySelectorAll('[data-zone]').forEach(b => b.addEventListener('click', () => selectZone(Number(b.dataset.zone), true)));
+  el.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => copyText($(b.dataset.copy).textContent)));
+}
+function copyText(t, cb) {
+  const done = ok => { const x = $('copyStat'); if (x) x.textContent = ok ? 'Copied.' : 'Copy failed: select the text and copy by hand.'; if (cb) cb(ok); };
+  const fallback = () => { const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; } document.body.removeChild(ta); done(ok); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(() => done(true), fallback); else fallback();
+}
+
+// People are fractional estimates: whole numbers in the file; values under half a person are written "<1".
+const csvP = v => (v > 0 && v < 0.5) ? '<1' : Math.round(v);
+function buildCsv() {
+  const q = v => { v = v == null ? '' : String(v); return /[",\n;]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const hasOsm = shelters.some(x => x.osm_id != null);
+  const closure = ((sc().closures || []).find(c => c.id === st.cl) || {}).label || st.cl;
+  const head = ['scenario', 'closure_rule', 'capacity_set', 'bundle_generated_utc', 'zone', 'municipality', 'zone_total_estimate', 'shelter_id'].concat(hasOsm ? ['shelter_osm_id'] : [],
+    ['shelter_lat', 'shelter_lon', 'shelter_type', 'shelter_municipality', 'people_estimate', 'minutes', 'detour_minutes', 'unassigned', 'population_year']);
+  const pre = [st.sc, closure, capLabel(st.cap), meta.generated_utc || ''], yr = popYear() + (st.pop !== POP0 ? ' projection' : '');
+  const rows = [['# Planning scenario output (' + (sc().label || st.sc) + '): assumption-based, residents inside the flood assumed to need shelter, shelter buildings are candidate OpenStreetMap buildings and not designated shelters, not a live warning. Must be checked by the responsible authority before use.'],
+    ['# People columns are modelled estimates (' + popYear() + (st.pop !== POP0 ? ' PROJECTED' : '') + ' population grid shared over buildings), not a headcount; whole numbers so sums can be checked; error not quantified.'], head];
+  zones.filter(zoneShown).sort((a, b) => a.id - b.id).forEach(z => {
+    const as = assignsOfZone(z.id).sort((a, b) => b[2] - a[2]), un = unassignedOf(z.id);
+    as.forEach(a => { const x = S.get(a[1]) || {};
+      rows.push(pre.concat([z.id, z.muni, csvP(peopleOf(z)), a[1]], hasOsm ? [x.osm_id == null ? '' : x.osm_id] : [], [x.lat, x.lon, x.type, x.muni, csvP(a[2]), min1(a[3]), min1(a[3] - a[4]), 0, yr])); });
+    if (un >= 0.5) rows.push(pre.concat([z.id, z.muni, csvP(peopleOf(z)), ''], hasOsm ? [''] : [], ['', '', '', '', 0, '', '', csvP(un), yr]));
+  });
+  return '\ufeff' + rows.map(r => r.map(q).join(',')).join('\r\n') + '\r\n';
+}
+function exportCsv() {
+  if (!res) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([buildCsv()], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'shelter_plan_' + st.sc + '_' + st.cl + '_' + capLabel(st.cap).replace(/\s+/g, '') + '.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+// computed from the zones, not hard-coded: where the observed 2021 residents exceed the largest modelled level most
+function compareNote() {
+  const obs = scenarios.find(x => x.kind === 'observed'), mod = scenarios.filter(x => x.kind === 'modelled');
+  if (!obs || !mod.length) return '';
+  const top = mod[mod.length - 1], by = {};
+  zones.forEach(z => { const m = by[z.muni] || (by[z.muni] = { o: 0, m: 0 }); m.o += popPeople(z)[obs.id] || 0; m.m += popPeople(z)[top.id] || 0; });
+  const rows = Object.keys(by).map(k => ({ k: k, o: by[k].o, m: by[k].m })).filter(r => r.o >= 50 && r.o > r.m).sort((a, b) => (b.o - b.m) - (a.o - a.m)).slice(0, 2);
+  return '<div class="note"><b>Observed and modelled levels are not comparable by area.</b> EFAS models only larger rivers (small rivers are missing) and EMS mapped only the requested areas.' +
+    (rows.length ? ' From the zone data, residents inside the flood: ' + rows.map(r => esc(r.k) + ' observed ' + fmtR(r.o) + ' vs ' + esc(top.label) + ' ' + fmtR(r.m)).join('; ') + '.' : '') + '</div>';
+}
+// population year sensitivity for the selected flood level, closure rule and capacity set: the same plan computed with each population grid
+function popCompareHtml() {
+  if (populations.length < 2) return '';
+  const base = st.sc + '|' + st.cl + '|' + st.cap;
+  const rows = populations.map(p => { const r = results[base + (p.id === POP0 ? '' : '|' + p.id)], sm = r && r.summary;
+    return { p: p, sm: sm }; });
+  const b0 = rows[0].sm;
+  const pct = (v, w) => (v == null || !w) ? '' : '<br><span class="small muted">' + (v >= w ? '+' : '') + (100 * (v - w) / w).toFixed(1) + ' % vs 2020</span>';
+  return '<h3 id="popCompare">Population year: how much does it change the answer?</h3><table><thead><tr><th>Population grid</th><th class="n">To place</th><th class="n">Placed</th><th class="n">Unassigned</th></tr></thead><tbody>' +
+    rows.map(x => '<tr' + (x.p.id === st.pop ? ' class="cur"' : '') + '><td>' + esc(x.p.label) + '</td>' + (x.sm
+      ? '<td class="n">' + fmtP(x.sm.people_to_place) + (x.p.id !== POP0 && b0 ? pct(x.sm.people_to_place, b0.people_to_place) : '') + '</td><td class="n">' + fmtP(x.sm.placed) + '</td><td class="n">' + fmtP(x.sm.unassigned) + '</td>'
+      : '<td colspan="3">no result in bundle</td>') + '</tr>').join('') + '</tbody></table>' +
+    '<p class="small muted">Same flood level, closure rule and capacity set; only the population grid differs. The 2025 grid is a JRC projection, not a census: it cannot show homes abandoned or rebuilt after 2021. Percentages use unrounded values.</p>';
+}
+function renderCompare() {
+  const rows = scenarios.map(s => {
+    let cid = st.cl, used = '';
+    if (!(s.closures || []).some(c => c.id === cid)) { cid = s.closures && s.closures[0] && s.closures[0].id; used = ' *'; }
+    const r = results[keyOf(s.id, cid, st.cap)], sm = r && r.summary;
+    return '<tr' + (s.id === st.sc ? ' class="cur"' : '') + '><td><button class="link" data-sc="' + esc(s.id) + '">' + esc(s.label) + '</button>' + used + '</td>' +
+      (sm ? '<td class="n">' + fmtP(sm.people_to_place) + '</td><td class="n">' + fmtP(sm.placed) + '</td><td class="n">' + fmtP(sm.unassigned) + '</td><td class="n">' + fmt(sm.closed_edges) + '</td><td class="n">' + (sm.mean_detour_min == null ? 'n/a' : sm.mean_detour_min.toFixed(1)) + '</td>'
+        : '<td colspan="5">no result in bundle</td>') + '</tr>';
+  }).join('');
+  $('compare').innerHTML = '<table><thead><tr><th>Flood level</th><th class="n">To place</th><th class="n">Placed</th><th class="n">Unassigned</th><th class="n">Closed roads</th><th class="n">Mean detour (min)</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<p class="small muted">Closure rule "' + esc(CL_SHORT[st.cl] || st.cl) + '", capacity ' + esc(capLabel(st.cap)) + '. * = this flood level has no such rule, its first rule is shown. Levels differ in kind (observed vs modelled).</p>' + compareNote() + popCompareHtml();
+  $('compare').querySelectorAll('[data-sc]').forEach(b => b.addEventListener('click', () => setScenario(b.dataset.sc)));
+}
+// what an authority could do next: derived from the current result, no costs or legal powers
+function renderProposal() {
+  const by = {}; zones.forEach(z => { const p = peopleOf(z); if (p > 0) by[z.muni] = (by[z.muni] || 0) + p; });
+  const top = Object.keys(by).sort((a, b) => by[b] - by[a])[0];
+  const used = {}; ((res && res.assign) || []).forEach(a => { const z = Z.get(a[0]); if (z && z.muni === top) used[a[1]] = 1; });
+  const n = Object.keys(used).length;
+  $('proposal').innerHTML = '<h2>Proposal (draft)</h2><p>' + (top
+    ? 'A draft for discussion, not a decision. With the local authority of the most exposed municipality at this flood level (' + esc(top) + ', ' + fmtR(by[top]) + ' residents inside the flood, a minimum), check on the ground the ' + n + ' candidate shelter building' + (n === 1 ? '' : 's') + ' that receive its residents in this plan: are they suitable, who can open them, and what is their real capacity? Use "Export plan (CSV)" as the checklist.'
+    : 'No residents inside the flood at this level in the bundle.') + '</p><p class="small muted">Costs, legal powers and responsibilities are not assessed here.</p>';
+}
+
+function kv(o) {
+  if (o == null) return '';
+  if (typeof o !== 'object') return esc(o);
+  if (Array.isArray(o)) return '<ul>' + o.map(v => '<li>' + kv(v) + '</li>').join('') + '</ul>';
+  return '<dl>' + Object.keys(o).map(k => '<dt>' + esc(k.replace(/_/g, ' ')) + '</dt><dd>' + kv(o[k]) + '</dd>').join('') + '</dl>';
+}
+function renderAssumptions() {
+  const rest = Object.assign({}, ass); const notes = rest.notes; delete rest.notes;
+  $('assumptions').innerHTML = '<p class="small">Every value below is an ASSUMPTION unless the bundle marks it otherwise. Change the capacity assumption and the closure rule with the controls above.</p>' + kv(rest) +
+    (notes ? '<h3>Notes</h3>' + kv(notes) : '') + (B.road_ratio_note ? '<h3>Road stress</h3><p class="small">' + esc(B.road_ratio_note) + '</p>' : '') +
+    (Object.keys(ass).length ? '' : '<p>The bundle has no assumptions block.</p>');
+}
+function renderAbout() {
+  $('about').innerHTML = '<h3>About the data</h3>' + (meta.data_notes && meta.data_notes.length ? kv(meta.data_notes) : '<p>No data notes in the bundle.</p>') +
+    '<h3>Limits</h3>' + (meta.limits && meta.limits.length ? kv(meta.limits) : '<p>No limits listed in the bundle.</p>') +
+    '<p class="small">Shelters are candidate buildings from OpenStreetMap, not officially designated. Routes avoid mapped closed roads only; they are not verified safe and not real-time.</p>';
+}
+function renderFooter() {
+  $('footer').textContent = [meta.area, meta.generated_utc ? 'bundle generated ' + meta.generated_utc : '', 'No personal data. No tracking. Works offline except the optional map tiles.'].filter(Boolean).join(' | ');
+}
+function renderWarn() {
+  const w = $('dataWarn');
+  if (!warnings.length) { w.hidden = true; return; }
+  w.hidden = false; w.innerHTML = '<div class="alert">Data check: ' + warnings.map(esc).join(' | ') + '</div>';
+}
+
+// ====================================================================
+// STATE CHANGES
+// ====================================================================
+function setNote(msg, btn) {
+  const el = $('selNote');
+  if (!msg) { el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false; el.innerHTML = esc(msg) + (btn ? ' <button type="button" id="btnNoteGo">' + esc(btn) + '</button>' : '') +
+    ' <button type="button" class="link" id="btnNoteClose" aria-label="Close this note">✕ close</button>';
+  if (btn) $('btnNoteGo').addEventListener('click', () => $('selected').scrollIntoView({ block: 'nearest' }));
+  $('btnNoteClose').addEventListener('click', () => setNote(null));
+  clearTimeout(el._t); el._t = setTimeout(() => setNote(null), 8000);      // a passing note must not keep covering the panel below it
+}
+function setScenario(id) {
+  st.sc = id;
+  const cls = (sc().closures || []).map(c => c.id);
+  if (cls.indexOf(st.cl) < 0) st.cl = cls[0] || null;
+  update();
+}
+function update() {
+  res = results[keyOf(st.sc, st.cl, st.cap)] || null;
+  if (!res) warn('No result for ' + keyOf(st.sc, st.cl, st.cap));
+  if (st.zone != null && Z.get(st.zone) && !zoneShown(Z.get(st.zone))) {   // no residents at this level: drop the selection, and say so
+    setNote('Zone ' + st.zone + ' was deselected: it has no residents to place at this flood level.');
+    st.zone = null;
+  }
+  safe('controls', renderControls);
+  safe('flood', drawFlood);
+  safe('roadResults', drawRoadResults);
+  safe('zones', drawZones);
+  safe('shelters', drawShelters);
+  safe('summary', renderSummary);
+  safe('compare', renderCompare);
+  safe('proposal', renderProposal);
+  safe('lists', fillLists);
+  refreshSelection(false);
+  applyLayerVisibility();
+  renderWarn();
+  if (typeof renderProfile === 'function' && pst) safe('profile', renderProfile);
+}
+function refreshSelection(zoom) {
+  safe('selected', renderSelected);
+  let pts = [];
+  safe('selection', () => { pts = drawSelection(); });
+  restack();
+  if (zoom && pts.length) map.fitBounds(L.latLngBounds(pts), { padding: [50, 50], maxZoom: 16, animate: false });
+  $('selZone').value = st.zone == null ? '' : String(st.zone);
+  $('selShelter').value = st.shelter == null ? '' : String(st.shelter);
+  renderLegend();
+}
+const isPhone = () => window.matchMedia('(max-width: 900px)').matches;
+// full analysis: every selection the user makes remembers what was on screen before it (selection and view);
+// a click on a blank spot of the map steps back one level (zone -> the shelter it was opened from -> the earlier view)
+const fullHist = [];
+let fullClickAt = 0;
+function pushFull() {
+  fullClickAt = performance.now();
+  fullHist.push({ c: map.getCenter(), z: map.getZoom(), zone: st.zone, shelter: st.shelter });
+  if (fullHist.length > 20) fullHist.shift();
+}
+function fullBack() {
+  const h = fullHist.pop();
+  if (!h) { if (st.zone != null || st.shelter != null) clearSelection(); return; }
+  if (h.zone != null && Z.get(h.zone) && zoneShown(Z.get(h.zone))) { st.zone = h.zone; st.shelter = null; }
+  else if (h.shelter != null && S.get(h.shelter)) { st.shelter = h.shelter; st.zone = null; }
+  else { st.zone = null; st.shelter = null; }
+  st.showAll = false; setNote('');
+  refreshSelection(false);
+  map.setView(h.c, h.z, { animate: false });
+}
+function selectZone(id, zoom, quiet) {
+  const z = Z.get(id);
+  if (!z || !zoneShown(z)) return;   // zones with no residents at this flood level are not selectable
+  if (zoom && st.zone !== id) pushFull();
+  if (st.zone !== id) st.showAll = false;
+  st.zone = id; st.shelter = null; setNote('');
+  refreshSelection(zoom); revealSide('Zone ' + id, quiet);
+}
+function selectShelter(id, zoom, quiet) {
+  if (zoom && st.shelter !== id) pushFull();
+  st.shelter = id; st.zone = null; st.showAll = false; setNote('');
+  refreshSelection(zoom);      // zoom out to the building, its zones and their routes (as for a zone), not just centre it
+  revealSide('Shelter building ' + id, quiet);
+}
+function clearSelection() { st.zone = null; st.shelter = null; setNote(''); refreshSelection(false); }
+function revealSide(what, quiet) {
+  showTab('details');
+  // phone layout: the panel sits below the map. Do not jump there (that hides the map); say where it is instead.
+  if (isPhone()) { if (!quiet) setNote(what + ' selected. Details are below the map.', 'Go to details'); }
+  else $('side').scrollTop = 0;
+}
+// working case (decision of 2026-10-29): Schleiden / Kall in the Eifel, inside Anna's wider Region Aachen under assumption H1; the Ahr valley is the comparison case
+const WORKING_MUNIS = meta.working_case || ['Schleiden', 'Kall'];
+// the largest zone with a route in the current plan, in the working case if it has one: preselected so the first screen already shows a route and a shelter
+function largestZone() {
+  const routed = new Set(((res && res.assign) || []).map(a => a[0]));
+  const pick = only => { let best = null, bp = 0; zones.filter(zoneShown).forEach(z => { const p = peopleOf(z); if (routed.has(z.id) && (!only || WORKING_MUNIS.indexOf(z.muni) >= 0) && p > bp) { bp = p; best = z.id; } }); return best; };
+  const w = pick(true);
+  return w != null ? w : pick(false);
+}
+
+// ====================================================================
+// PROFILES (POLICY_TOOL_PLAN.md section 0): citizen / municipality / full. Same results; each profile shows only what its user needs.
+// ====================================================================
+const MUNIS = Array.isArray(B.munis) ? B.munis : [], STREETS = Array.isArray(B.streets) ? B.streets : [];
+const PROFILE_LAYERS = {
+  citizen: { flood: true, roads: true, closed: true, routes: false, stress: false, zones: false, shelters: false, floodshelters: false, allshelters: false, munis: true },
+  municipality: { flood: true, roads: true, closed: true, routes: false, stress: false, zones: false, shelters: false, floodshelters: false, allshelters: false, munis: true } };
+const gp = { cit: L.layerGroup(), mun: L.layerGroup(), munUse: L.layerGroup() };
+const pst = { profile: 'full', muniPick: null, muniList: [], home: null, area: null, backView: null, userView: null, autoMove: false, fullSnap: null };
+// plain flood-level names outside the full analysis (no EMS / EFAS / return-period jargon)
+// chance of a flood at least this big: 1/T in any year, accumulating over the years: 1 - (1 - 1/T)^n
+const pctP = v => (v >= 0.1 ? Math.round(100 * v) : (100 * v).toFixed(1).replace(/\.0$/, '')) + ' %';
+const probTxt = T => pctP(1 / T) + ' chance each year, about ' + pctP(1 - Math.pow(1 - 1 / T, 30)) + ' over 30 years';
+// short form for labels and file names: 'July 2021 flood' / 'Rare river flood, model (1 % a year)'
+function shortLevel(id) {
+  const s = scById(id) || {};
+  if (s.kind === 'observed') return 'July 2021 flood';
+  const n = Number(String(id).replace(/\D/g, ''));
+  return (n <= 10 ? 'Frequent river flood' : n <= 100 ? 'Rare river flood' : 'Extreme river flood') + ', model (' + probTxt(n) + ')';
+}
+function plainLevel(id) {
+  const s = scById(id) || {};
+  if (s.kind === 'observed') return 'July 2021 flood (as mapped from satellite images)';
+  const n = Number(String(id).replace(/\D/g, ''));
+  return (n <= 10 ? 'Frequent river flood' : n <= 100 ? 'Rare river flood' : 'Extreme river flood') + ' (model): ' + probTxt(n);
+}
+// point in polygon (ray casting); ring = [[lat, lon], ...] or GeoJSON [[lon, lat], ...] with lonlat = true
+function inRing(lat, lon, ring, lonlat) {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const yi = lonlat ? ring[i][1] : ring[i][0], xi = lonlat ? ring[i][0] : ring[i][1], yj = lonlat ? ring[j][1] : ring[j][0], xj = lonlat ? ring[j][0] : ring[j][1];
+    if (((yi > lat) !== (yj > lat)) && (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi)) inside = !inside;
+  }
+  return inside;
+}
+function inGeom(lat, lon, gm) {
+  if (!gm) return false;
+  if (gm.type === 'GeometryCollection') return (gm.geometries || []).some(x => inGeom(lat, lon, x));
+  const polys = gm.type === 'Polygon' ? [gm.coordinates] : gm.type === 'MultiPolygon' ? gm.coordinates : [];
+  return polys.some(p => inRing(lat, lon, p[0], true) && !p.slice(1).some(h => inRing(lat, lon, h, true)));
+}
+// the 500 m zone (with residents at the current level) that contains a point, or null
+const zoneAt = (lat, lon) => zones.filter(zoneShown).find(z => z.cell ? inRing(lat, lon, z.cell, false) : (Math.abs(z.lat - lat) < 0.0023 && Math.abs(z.lon - lon) < 0.0035)) || null;
+// inside the mapped 2021 flood (flood or trace, as used for the plan)?
+const OBS_FEATS = ((B.floods && B.floods.obs2021 && B.floods.obs2021.features) || []).filter(f => (f.properties || {}).kind !== 'mapped flood');
+const inFlood2021 = (lat, lon) => OBS_FEATS.some(f => inGeom(lat, lon, f.geometry));
+// places the July 2021 map never looked at (outside its areas of interest): say so, never "not in the flood" (user decision: we are working on more data)
+const inEms = (lat, lon) => !EMS_OUTLINE || inGeom(lat, lon, EMS_OUTLINE);
+const NOT_COVERED_CIT = '<b>Our July 2021 flood map does not cover this area yet.</b> We are working on adding more data for it. Until then, follow official warnings.';
+const MODEL_LEVELS = (scenarios || []).filter(x => x.kind !== 'observed').map(x => x.id);
+// the river model (10-, 100-, 500-year) at the nearest zone point: a rough pointer, the model is a scenario and not a forecast
+function modelNote(lat, lon) {
+  let best = null, bd = 400;      // only a zone within 400 m speaks for this spot
+  zones.forEach(z => { const dd = map.distance([lat, lon], [z.lat, z.lon]); if (dd < bd) { bd = dd; best = z; } });
+  if (!best || !MODEL_LEVELS.some(k => (best.people && best.people[k] || 0) >= 0.5)) return '';
+  return ' <br>In a rare, large river flood (model), this area could flood.';
+}
+
+function setProfile(p, keepUrl) {
+  if (['citizen', 'municipality', 'full'].indexOf(p) < 0) p = 'full';
+  const prev = pst.profile;
+  if (prev === 'full' && p !== 'full')   // keep the analyst's whole state, restored on the way back
+    pst.fullSnap = { sc: st.sc, cl: st.cl, cap: st.cap, pop: st.pop, zone: st.zone, shelter: st.shelter, layers: Object.assign({}, st.layers), resMode: st.resMode, view: [map.getCenter(), map.getZoom()] };
+  pst.profile = p; document.body.dataset.profile = p;
+  if (prev !== p) setNote('');
+  document.querySelectorAll('.profiles [data-profile]').forEach(b => b.setAttribute('aria-pressed', b.dataset.profile === p ? 'true' : 'false'));
+  if (p !== 'full') {
+    st.zone = null; st.shelter = null;
+    const obs = scenarios.find(x => x.kind === 'observed') || scenarios[0];
+    if (prev === 'full' || p === 'citizen') st.sc = obs.id;                    // both start from the 2021 flood; the citizen stays there
+    st.cl = (sc().closures || [])[0].id; st.cap = capacities[0].id; st.pop = POP0;   // fixed, stated in one line
+    st.layers = Object.assign({}, PROFILE_LAYERS[p]);
+  } else if (prev !== 'full' && pst.fullSnap) {
+    const s = pst.fullSnap; Object.assign(st, { sc: s.sc, cl: s.cl, cap: s.cap, pop: s.pop, zone: s.zone, shelter: s.shelter, layers: Object.assign({}, s.layers), resMode: s.resMode });
+  }
+  [gp.cit, gp.mun, gp.munUse].forEach(l => { if (map.hasLayer(l)) map.removeLayer(l); });
+  if (p === 'citizen') gp.cit.addTo(map);
+  map.zoomControl.setPosition(p === 'full' ? 'topleft' : 'topright');   // the citizen and municipality cards sit on the left
+  if (p === 'municipality') { gp.mun.addTo(map); gp.munUse.addTo(map); }
+  $('skipLink').setAttribute('href', p === 'citizen' ? '#citSearch' : p === 'municipality' ? '#muniSelect' : '#selZone');
+  safe('layers', renderLayers);
+  update();
+  if (p === 'full' && prev !== 'full' && pst.fullSnap) map.setView(pst.fullSnap.view[0], pst.fullSnap.view[1], { animate: false });
+  if (!keepUrl) { try { const u = new URL(location.href); if (p === 'full') u.searchParams.delete('profile'); else u.searchParams.set('profile', p); history.replaceState(null, '', u); } catch (e) { /* file:// may refuse */ } }
+  setTimeout(() => { if (window.__setHdr) window.__setHdr(); map.invalidateSize(); if (p === 'citizen' && prev !== 'citizen' && fitB) map.fitBounds([[fitB[1], fitB[0]], [fitB[3], fitB[2]]], { paddingTopLeft: [490, 0], animate: false }); safe('munis', drawMuniLabels); }, 0);
+}
+// called at the end of update(): profile panels follow the selected flood level
+// ---- full analysis: side panel in four tabs (only one group visible at a time) ----
+const SIDE_TABS = [['details', 'Details', ['selected', 'proposal', 'pickPanel']], ['method', 'Method', ['methodPanel', 'dataPanel', 'assumptionsBox', 'aboutBox']],
+                   ['layers', 'Layers', ['layers']], ['compare', 'Compare', ['compareBox']]];
+let curTab = 'details';
+function showTab(t) {
+  curTab = t;
+  SIDE_TABS.forEach(([k, , ids]) => ids.forEach(id => { const e = $(id); if (e) { e.dataset.tab = k; e.classList.toggle('tabhide', k !== t); } }));
+  document.querySelectorAll('.sidetabs button').forEach(b => b.setAttribute('aria-pressed', b.dataset.tab === t ? 'true' : 'false'));
+}
+function buildSideTabs() {
+  const nav = document.createElement('nav'); nav.className = 'sidetabs'; nav.setAttribute('aria-label', 'Panels');
+  nav.innerHTML = SIDE_TABS.map(([k, label]) => '<button type="button" data-tab="' + k + '" aria-pressed="false">' + label + '</button>').join('');
+  $('side').insertBefore(nav, $('side').firstChild);
+  nav.querySelectorAll('button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+  showTab('details');
+}
+// reveal the tab that holds an element (used by keyboard links and the tests)
+function revealEl(e) { const host = e && e.closest && e.closest('[data-tab]'); if (host && host.classList.contains('tabhide')) showTab(host.dataset.tab); }
+// data used, process, assumptions and how sure we are: all values read from the bundle (nothing typed in by hand except the plain descriptions)
+function renderData() {
+  const el = $('dataPanel'); if (!el) return;
+  const pr = meta.provenance || {}, pop = ass.population || {}, cap = ass.capacity || {}, veh = ass.vehicles || {};
+  const sm = k => (results[k] || {}).summary || null, run = id => id ? ' <span class="muted">(run ' + esc(id) + ')</span>' : '';
+  const tbl = (head, rows) => '<table class="dtab"><thead><tr>' + head.map(h => '<th>' + h + '</th>').join('') + '</tr></thead><tbody>' + rows.map(r => '<tr>' + r.map(c => '<td>' + c + '</td>').join('') + '</tr>').join('') + '</tbody></table>';
+  let h = '<h2>Method and data</h2><p class="small muted">What went in, what was done, what was assumed, and how sure we are. Numbers below are read from the same data as the map.</p>';
+  h += '<h3>1. Data used</h3>' + tbl(['Data', 'Year', 'Gives', 'Main limit'], [
+    ['Copernicus EMS rapid mapping' + run(pr.observed_flood_run), 'satellite images of 14-20 July 2021 (one per area, not the peak)', 'flood and flood-trace extent', 'only the requested areas; unmapped is not proven dry'],
+    ['EFAS river flood hazard', 'no event year: return periods 10, 100, 500 years (version v3.1.1, inferred)', 'modelled depth', 'misses smaller rivers (Kall, the Ahr); empty = dry or not modelled'],
+    ['GHS-POP R2023A' + run(pr.scenarios_run), esc(pop.reference_year || 2020) + (populations.length > 1 ? ' (2025: projection)' : ''), 'residents per cell of about 930 x 600 m (modelled)', 'error not quantified'],
+    ['GHS-OBAT R2024A', 'reference year 2020', 'where in a cell residents live', 'residents shared by footprint, not floors'],
+    ['OpenStreetMap (Geofabrik)' + run(pr.roads_run), esc(pr.osm_state || '2026'), 'roads, candidate public buildings' + run(pr.shelter_candidates_run), '2026 state, not 2021; candidates, not designated shelters'],
+    ['GISCO LAU / NUTS', 'LAU 2024, NUTS 2021', 'municipality and district outlines', 'Germany only']]);
+  h += '<h3>2. Process</h3><ol class="small"><li>Residents of each population cell (about 930 x 600 m) are shared over its built-up buildings (mostly homes; about 10% go to non-residential buildings); a building touching the flood counts as inside.</li>' +
+    '<li>Roads touching the flood are closed; travel times on the remaining network (Dijkstra, free-flow speeds by road class).</li>' +
+    '<li>From each 500 m zone: walk to the nearest open road, then the 200 fastest candidate buildings within 1 hour.</li>' +
+    '<li>Assignment: capacity-limited transportation problem, minimum total travel time (linear programme, HiGHS); people without a place are counted, never dropped.</li>' +
+    '<li>Routes, road load (stress indicator) and checks: conservation, capacity, no route through a closed road, nesting of flood levels' + (pr.checks ? ' (' + esc(pr.checks) + ')' : '') + '.</li></ol>';
+  const A = cap.restrictive || {}, Bc = cap.generous || {};
+  h += '<h3>3. Assumptions (none has a verified source yet)</h3>' + tbl(['Assumption', 'Value'], [
+    ['Space per person', 'Set A ' + esc(A.m2_per_person) + ' m², Set B ' + esc(Bc.m2_per_person) + ' m²'],
+    ['Usable share of a building', 'Set A ' + Math.round(100 * (A.usable_share || 0)) + ' %, Set B ' + Math.round(100 * (Bc.usable_share || 0)) + ' %'],
+    ['Largest building', 'Set A ' + esc(A.cap_max) + ', Set B ' + esc(Bc.cap_max) + ' people'],
+    ['Building types', 'Set A ' + esc(A.tiers || '') + '; Set B ' + esc(Bc.tiers || '')],
+    ['Walk to an open road', '4 km/h, at most 2 km, before the water rises'],
+    ['Reach', '1 hour by road after the walk'],
+    ['Road closure', 'observed: touches the flood; model: any water or 0.5 m (selectable)'],
+    ['Road stress', 'car share ' + esc(veh.car_share) + ', ' + esc(veh.persons_per_car) + ' people per car, ' + esc(veh.evacuation_window_h) + ' h window, assumed road capacities'],
+    ['Who needs a place', 'everyone inside the flood; nobody from outside it (no competing demand)'],
+    ['Same as the shelter report (Q3)?', 'Same capacity per building: Set A = its cautious case, Set B = its optimistic case (here churches count one floor). Different: the report keeps buildings 250 m clear of the flood (cautious) and counts reach as 2 km / 10 km in a straight line; this map uses 1 hour on open roads and covers two districts only.']]);
+  const o = (scenarios.find(x => x.kind === 'observed') || {}).id, rows = [];
+  const a1 = sm(st.sc + '|' + st.cl + '|' + capacities[0].id), b1 = capacities[1] && sm(st.sc + '|' + st.cl + '|' + capacities[1].id);
+  if (a1 && b1) rows.push(['Capacity Set A vs Set B (this flood level)', 'without a place: ' + fmtR(a1.unassigned) + ' vs ' + fmtR(b1.unassigned)]);
+  if (res && res.summary && res.summary.placed > 0) rows.push(['Reach: 1 h by road (this map) vs 2 km straight line (shelter report)', 'this plan sends ' + fmtR(near2km(res.assign || [])) + ' of ' + fmtR(res.summary.placed) + ' people placed to a building within 2 km' +
+    (sameAsQ3() ? '; the report (same flood, cautious capacity), allowing only 2 km, places far fewer'
+      : (scenarios.find(x => x.id === st.sc) || {}).kind === 'observed' ? '; the report\'s optimistic case (10 km straight line) also places everyone' : '; the report covers only the July 2021 flood, so it has no figure for this flood level')]);
+  Object.keys(meta.limit_check || {}).forEach(k => rows.push(['Reach 1 h vs 2 h (' + esc(plainLevel(k.split('|')[0])) + ')', 'without a place: ' + fmtR(meta.limit_check[k].unassigned_1h) + ' vs ' + fmtR(meta.limit_check[k].unassigned_2h)]));
+  const m1 = sm(o + '|any|' + capacities[0].id), m2 = sm(o + '|mapped|' + capacities[0].id);
+  if (m1 && m2) rows.push(['Closure: flood + traces vs mapped flood only (2021)', 'closed road segments: ' + fmt(m1.closed_edges) + ' vs ' + fmt(m2.closed_edges) + '; without a place: ' + fmtR(m1.unassigned) + ' vs ' + fmtR(m2.unassigned)]);
+  const p25 = sm(o + '|any|' + capacities[0].id + '|pop2025');
+  if (m1 && p25) rows.push(['Residents 2020 vs 2025 projection (2021 flood)', 'to place: ' + fmtR(m1.people_to_place) + ' vs ' + fmtR(p25.people_to_place) + ' (' + (100 * (p25.people_to_place - m1.people_to_place) / m1.people_to_place).toFixed(1) + ' %)']);
+  if (meta.candidate_list_check) rows.push(['Candidate list ' + meta.candidate_list_check.k + ' vs ' + meta.candidate_list_check.k_double + ' buildings', 'placed: ' + fmtR(meta.candidate_list_check.placed) + ' vs ' + fmtR(meta.candidate_list_check.placed_double)]);
+  if (CP) rows.push(['Split plan vs one building per area (2021 flood)', 'mean time ' + CP.main_plan_summary.mean_time_min + ' vs ' + CP.summary.mean_time_min + ' min']);
+  h += '<h3>4. Uncertainty and how sure we are</h3><p class="small">No error rate can be computed: there is no observed record of where people went. Instead, each assumption was moved and the answer recomputed:</p>' +
+    tbl(['What we changed', 'Effect'], rows) +
+    '<p class="small"><b>How sure (our judgement from these checks, not a statistical confidence):</b></p><ul class="small conf">' +
+    '<li><span class="lvl hi">higher</span> where the 2021 flood reached in the mapped areas, and which roads it cut;</li>' +
+    '<li><span class="lvl mid">medium</span> how many residents were inside (modelled minimum) and which places stand out;</li>' +
+    '<li><span class="lvl lo">low</span> the exact building, its capacity and the minutes for a given area (unsourced assumptions, not checked on the ground).</li></ul>';
+  el.innerHTML = h;
+}
+// full analysis: which assignment method made the plan, and the citizen plan next to it (B23 / B25)
+function renderMethod() {
+  const el = $('methodPanel'); if (!el) return;
+  const tip = 'Optimised assignment: (1) fastest routes on the roads that stay open (Dijkstra shortest paths), the 200 fastest candidate buildings within 1 hour per 500 m zone, plus the walk to the first open road; (2) a capacity-limited transportation problem (Hitchcock 1941 / Kantorovich) solved as a linear programme (HiGHS) that minimises the total travel time of everyone together without exceeding any building. It may split a zone over several buildings. People who cannot be placed are reported as unassigned.';
+  const tip2 = CP ? 'One building per area: the same routes, but each 250 m cell of residents goes WHOLE to one building (single assignment, a mixed-integer programme solved with HiGHS). Cells that cannot fit into one building within 1 hour share the places left over and are shown as split. Areas = neighbouring cells with the same building and the same first open road, so they share one route.' : '';
+  let h = '<h2>Assignment method</h2><p><span class="methodname" title="' + esc(tip) + '" tabindex="0"><b>Optimised assignment (transportation problem)</b> ⓘ</span>: used for every number on this page.</p>';
+  if (CP) { const c = CP.summary, m = CP.main_plan_summary;
+    h += '<p class="small"><span title="' + esc(tip2) + '" tabindex="0"><b>One building per area</b> ⓘ</span> (used in the citizen view; July 2021 flood, Set A, 2020 residents):</p>' +
+      '<table class="small"><thead><tr><th></th><th class="n">Placed</th><th class="n">Mean time</th><th class="n">Buildings</th></tr></thead><tbody>' +
+      '<tr><td>Optimised (split)</td><td class="n">' + fmtP(m.placed) + '</td><td class="n">' + m.mean_time_min + ' min</td><td class="n">' + m.shelters_used + '</td></tr>' +
+      '<tr><td>One building per area</td><td class="n">' + fmtP(c.placed) + '</td><td class="n">' + c.mean_time_min + ' min</td><td class="n">' + c.buildings_used + '</td></tr></tbody></table>' +
+      '<p class="small muted">' + c.areas + ' areas; ' + fmtR(c.placed_one_building) + ' people go whole to one building, ' + fmtR(c.split_people) + ' (' + c.split_cells + ' cells too large for one building) share several.</p>';
+  }
+  el.innerHTML = h;
+}
+// full analysis: the map and the panel take exactly the space below the cards (measured, since the cards change height)
+function fitLayout() {
+  if (window.__setHdr) window.__setHdr();
+  const m = document.querySelector('.main'); if (!m) return;
+  // the title row hosts the disclaimer button in the full analysis, the full-width banner elsewhere
+  const tr = document.querySelector('.titlerow'), bn = $('banner');
+  if (bn.nextSibling !== $('purpose')) tr.insertBefore(bn, $('purpose'));   // one row: title, profiles, disclaimer button, short purpose
+  document.documentElement.style.setProperty('--mainTop', Math.ceil(m.getBoundingClientRect().top + window.scrollY) + 'px');
+  map.invalidateSize();
+}
+function renderProfile() {
+  setTimeout(fitLayout, 0);
+  if (pst.profile === 'full') { safe('method', renderMethod); safe('data', renderData); }
+  if (pst.profile !== 'full') {   // plain flood-level names in the selector and the level note
+    Array.from($('selScenario').options).forEach(o => { o.textContent = plainLevel(o.value); });
+    const T = Number(String(st.sc).replace(/\D/g, ''));
+    const help = sc().kind === 'observed' ? 'July 2021 flood as mapped from satellite images of 14-20 July (one snapshot per area, not the peak), only in the requested areas: an unmapped place is not proven dry.'
+      : 'A computer model of river floods. A flood at least this big has ' + probTxt(T) + '; the area of more frequent floods is included. The model misses smaller rivers (for example at Kall and on the Ahr), so 0 here does not mean no risk.';
+    $('selScenario').title = help;
+    const ml = $('muniLevel');
+    if (ml) { ml.innerHTML = scenarios.map(x => '<option value="' + esc(x.id) + '"' + (x.id === st.sc ? ' selected' : '') + '>' + esc(plainLevel(x.id)) + '</option>').join(''); ml.title = help; }
+  }
+  if (pst.profile === 'citizen') { renderCitizen(); }
+  if (pst.profile === 'municipality') { drawMuniAreas(); renderMuni(); }
+}
+
+// ---- citizen (v2: areas of the citizen plan, one building and one route per area; POLICY_TOOL_PLAN.md section 0 "Citizen v2") ----
+// search: case, umlauts (ä/ae), ß/ss, 'str.' and dots are folded the same way on both sides
+const norm = s => String(s || '').toLowerCase().replace(/ß/g, 'ss').replace(/ä/g, 'a').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ae/g, 'a').replace(/oe/g, 'o').replace(/ue/g, 'u')
+  .normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/str\.(?=\s|$)/g, 'strasse').replace(/[.\-,]/g, ' ').replace(/\s+/g, ' ').trim();
+const STREET_KEYS = STREETS.map(s => norm(s.n + ' ' + s.m));
+const CP = B.citizen_plan || null, AREAS = CP ? CP.areas : [];
+const AREA = new Map(AREAS.map(a => [a.id, a]));
+let areaLayer = null;
+const areaAt = (lat, lon) => AREAS.find(a => inGeom(lat, lon, a.geometry)) || null;
+// a building a resident can find: its OSM name, else type + street, else type near the closest named road
+function bName(s) {
+  const where = esc(s.muni);
+  if (s.name) return '<b>' + esc(s.name) + '</b> (' + esc(tEN(s.type)) + ', ' + where + ')';
+  if (s.street) return esc(tEN(s.type)) + ', ' + esc(s.street) + ', ' + where;
+  if (s.near_street) return esc(tEN(s.type)) + ' near ' + esc(s.near_street) + ', ' + where;
+  return esc(tEN(s.type)) + ' in ' + where;
+}
+function areaStyle(a, hover) {
+  const sel = pst.area === a.id;
+  // clean map: an area is drawn only while the mouse is on it, or when it is selected
+  return { renderer: canvas, color: '#111', weight: sel ? 3 : 2.5, opacity: sel || hover ? 1 : 0, fill: true, fillColor: BROWN, fillOpacity: sel ? 0.35 : hover ? 0.3 : 0 };
+}
+function areaTip(a) {
+  const d = a.dest[0] && S.get(a.dest[0].s);
+  return 'Area in ' + esc(a.muni) + ', ' + fmtR(a.people) + ' residents → ' + (a.dest.length > 1 ? 'shared over ' + a.dest.length + ' buildings' : d ? bName(d) : 'no building in this plan') + '. Click for the route.';
+}
+function drawAreas() {
+  if (areaLayer || !AREAS.length) return;
+  areaLayer = L.geoJSON({ type: 'FeatureCollection', features: AREAS.map(a => ({ type: 'Feature', properties: { id: a.id }, geometry: a.geometry })) }, {
+    style: f => areaStyle(AREA.get(f.properties.id), false),
+    onEachFeature: (f, l) => {
+      const a = AREA.get(f.properties.id);
+      l.bindTooltip(areaTip(a), { sticky: true });
+      l.on('mouseover', () => l.setStyle(areaStyle(a, true)));
+      l.on('mouseout', () => l.setStyle(areaStyle(a, false)));
+    } });
+  gp.cit.addLayer(areaLayer);
+}
+function restyleAreas() { if (areaLayer) areaLayer.eachLayer(l => l.setStyle(areaStyle(AREA.get(l.feature.properties.id), false))); }
+function citizenSearch(q) {
+  const ul = $('citHits'); ul.innerHTML = '';
+  if (!q) { clearCitizen(); return; }
+  const qn = norm(q); if (qn.length < 3) return;
+  const toks = qn.split(' ');
+  const hits = [];
+  STREETS.forEach((s, i) => { const k = STREET_KEYS[i]; if (toks.every(t => k.indexOf(t) >= 0)) hits.push(i); });
+  hits.sort((a, b) => (STREET_KEYS[b].startsWith(qn) ? 1 : 0) - (STREET_KEYS[a].startsWith(qn) ? 1 : 0) || STREETS[a].n.localeCompare(STREETS[b].n) || STREETS[a].m.localeCompare(STREETS[b].m));
+  hits.slice(0, 8).forEach(i => { const li = document.createElement('li'); const b = document.createElement('button'); b.type = 'button';
+    b.innerHTML = '<b>' + esc(STREETS[i].n) + '</b>, ' + esc(STREETS[i].m); b.addEventListener('click', () => pickStreet(i)); li.appendChild(b); ul.appendChild(li); });
+  if (hits.length > 8) { const li = document.createElement('li'); li.className = 'small muted'; li.textContent = (hits.length - 8) + ' more: add your town, for example "' + STREETS[hits[0]].n + ' ' + STREETS[hits[hits.length - 1]].m + '".'; ul.appendChild(li); }
+  if (!hits.length) ul.innerHTML = '<li class="small muted">No street found in Kreis Euskirchen or Landkreis Ahrweiler. Try part of the name, or click your area on the map.</li>';
+}
+// show a new answer with a short fold-open animation (the panel collapses and expands), so each selection visibly responds
+// big view changes: a short fade instead of a zoom flight (no dizziness; canvas lines are redrawn at the new zoom, never shown stretched)
+function softView(apply) {
+  pst.autoMove = true;
+  const el = $('map');
+  el.style.transition = 'opacity .28s ease'; el.style.opacity = '0.15';
+  clearTimeout(el._fade);
+  el._fade = setTimeout(() => { apply(); requestAnimationFrame(() => { el.style.transition = 'opacity .45s ease'; el.style.opacity = '1'; }); }, 280);
+}
+function setAnswer(el, html) {
+  el.innerHTML = html;
+  el.classList.remove('fold'); void el.offsetWidth; el.classList.add('fold');
+}
+function clearCitizen() { pst.area = null; pst.home = null; gp.cit.eachLayer(l => { if (l !== areaLayer) gp.cit.removeLayer(l); }); restyleAreas(); $('citResult').innerHTML = ''; }
+function pickStreet(i) {
+  rememberView();
+  const s = STREETS[i]; $('citHits').innerHTML = ''; $('citSearch').value = s.n + ', ' + s.m;
+  clearCitizen();
+  s.p.forEach(p => gp.cit.addLayer(L.circleMarker(p, { renderer: canvas, radius: 6, color: '#111', weight: 2, fillColor: '#F0E442', fillOpacity: 1, interactive: false })));
+  map.fitBounds(L.latLngBounds(s.p).pad(0.8), { maxZoom: 16, animate: false });
+  // the pipeline lists every area that any part of the street crosses (s.areas) and whether any part was flooded (s.wet); its few points alone miss stretches
+  const ids = (s.areas || []).filter(id => AREA.has(id));
+  if (!s.areas) s.p.forEach(p => { const a = areaAt(p[0], p[1]); if (a && ids.indexOf(a.id) < 0) ids.push(a.id); });
+  if (ids.length === 1) { selectArea(ids[0], true); return; }
+  const wet = s.wet != null ? s.wet : s.p.some(p => inFlood2021(p[0], p[1]));
+  const mapped = s.p.some(p => inEms(p[0], p[1]));
+  ids.forEach((id, k) => {      // several areas: outline each and letter it, the same letter as its button
+    const ol = L.geoJSON(AREA.get(id).geometry, { style: { renderer: canvas, color: '#111', weight: 2, fillColor: BROWN, fillOpacity: 0.25 }, interactive: false }); ol.options.className = 'cit-route'; gp.cit.addLayer(ol);
+    const lb = L.marker(ol.getBounds().getCenter(), { icon: numberIcon(String.fromCharCode(65 + k)), interactive: false, keyboard: false }); lb.options.className = 'cit-route'; gp.cit.addLayer(lb);
+  });
+  setAnswer($('citResult'), ids.length
+    ? '<p class="infobox">' + esc(s.n) + ' crosses ' + ids.length + ' flooded areas, lettered on the map. Click yours, or choose:</p><div class="areabtns">' +
+      ids.map((id, k) => { const a = AREA.get(id), d = a.dest[0] && S.get(a.dest[0].s); return '<button type="button" data-area="' + id + '"><b>' + String.fromCharCode(65 + k) + '</b> · ' + fmtR(a.people) + ' residents → ' + (a.dest.length > 1 ? 'shared over ' + a.dest.length + ' buildings' : d ? bName(d) : 'see details') + '</button>'; }).join('') + '</div>'
+    : '<div class="infobox">' + (wet ? '<b>Part of ' + esc(s.n) + ' lies inside the 2021 flood</b>, but our data count no residents there, so no plan was computed. Follow official instructions.'
+      : !mapped ? NOT_COVERED_CIT + modelNote(s.p[0][0], s.p[0][1])
+      : '<b>' + esc(s.n) + ' is not inside the 2021 flood in our data.</b> This does not mean there is no risk: smaller streams are missing from our data. Follow official warnings.' + modelNote(s.p[0][0], s.p[0][1])) + '</div>');
+  $('citResult').querySelectorAll('[data-area]').forEach(b => b.addEventListener('click', () => selectArea(Number(b.dataset.area), true)));
+  $('citResult').focus();
+}
+function routeSteps(eids) {
+  const out = [];
+  eids.forEach(id => { const e = E.get(id); const n = nm(e) || 'unnamed road'; if (!out.length || out[out.length - 1] !== n) out.push(n); });
+  while (out.length > 1 && out[0] === 'unnamed road') out.shift();      // a nameless first stretch tells a resident nothing
+  return out.length > 6 ? out.slice(0, 3).concat(['…'], out.slice(-2)) : out;
+}
+const routeKm = eids => eids.reduce((acc, id) => { const c = edgeLL.get(id) || []; for (let i = 1; i < c.length; i++) acc += map.distance(c[i - 1], c[i]); return acc; }, 0) / 1000;
+function numberIcon(n) { return L.divIcon({ className: 'citnum' + (n === 2 ? ' left' : n === 3 ? ' below' : ''), html: '<span>' + n + '</span>', iconSize: [0, 0] }); }
+const minTxt = s => Math.max(1, Math.round(s / 60));
+// a tap outside every area: say what we know about that spot, never "safe"
+// where the user clicked: one pin, replaced on every click
+function clickPin(lat, lon) {
+  gp.cit.eachLayer(l => { if (l.options && l.options.className === 'cit-pin') gp.cit.removeLayer(l); });
+  const m = L.circleMarker([lat, lon], { renderer: canvas, radius: 7, color: '#000', weight: 3, fillColor: '#F0E442', fillOpacity: 1, interactive: false }); m.options.className = 'cit-pin'; gp.cit.addLayer(m);
+}
+function tapOutside(lat, lon) {
+  clearCitizen();
+  clickPin(lat, lon);
+  setAnswer($('citResult'), inFlood2021(lat, lon)
+    ? '<div class="infobox"><b>This spot is inside the area flooded in July 2021.</b> Our data count no residents here, so no plan was computed for it. Click the shaded area nearest to your home, or follow official instructions and move to higher ground early.</div>'
+    : !inEms(lat, lon) ? '<div class="infobox">' + NOT_COVERED_CIT + modelNote(lat, lon) + '</div>'
+    : '<div class="infobox"><b>This spot is not inside the 2021 flood in our data.</b> This does not mean there is no risk: smaller streams are missing from our data. Follow official warnings.' + modelNote(lat, lon) + '</div>');
+}
+// history of selections: each entry is what was on screen before a new selection (area or none, and the view)
+// the view the user chose (by panning or zooming); moves made by the page itself are flagged and do not count
+function userView() { return pst.userView || [map.getCenter(), map.getZoom()]; }
+function rememberView() { pst.backView = userView(); }
+// blank click: drop the route and go back to a close view of the area that was selected (its outline stays, dashed, as a reminder)
+function goBack() {
+  const a = AREA.get(pst.area); pst.backView = null;
+  $('citSearch').value = ''; $('citHits').innerHTML = '';
+  clearCitizen(); setAnswer($('citResult'), '<p class="small muted">Route closed. Click your area again, another area, or find your street.</p>');
+  if (!a) return;
+  const ol = L.geoJSON(a.geometry, { style: { renderer: canvas, color: '#111', weight: 2, dashArray: '5 4', fill: false }, interactive: false });
+  ol.options.className = 'cit-pin'; gp.cit.addLayer(ol);
+  const b = ol.getBounds();
+  softView(() => { pst.autoMove = true; map.fitBounds(b, { maxZoom: 15, paddingTopLeft: [510, 60], paddingBottomRight: [60, 60], animate: false }); });
+}
+function selectArea(id, zoom, fromArea) {
+  const a = AREA.get(id); if (!a) return;
+  if (zoom) rememberView();
+  pst.area = id; restyleAreas();
+  gp.cit.eachLayer(l => { if (l !== areaLayer && l.options && l.options.className === 'cit-route') gp.cit.removeLayer(l); });
+  const add = l => { l.options.className = 'cit-route'; gp.cit.addLayer(l); return l; };
+  const pts = [];
+  const gj = L.geoJSON(a.geometry); pts.push(gj.getBounds().getSouthWest(), gj.getBounds().getNorthEast());
+  const walk = a.walk_s ? (minTxt(a.walk_s[0]) === minTxt(a.walk_s[1]) ? 'about ' + minTxt(a.walk_s[0]) : minTxt(a.walk_s[0]) + ' to ' + minTxt(a.walk_s[1])) + ' min' : null;
+  const draw = (d, n, main) => {
+    const s = S.get(d.s); if (!s) return null;
+    if (main) { add(multi(d.route || [], { color: '#fff', weight: 10, opacity: 0.95 })); add(multi(d.route || [], { color: '#111', weight: 5, opacity: 1 })); }
+    else add(multi(d.route || [], { color: '#555', weight: 4, opacity: 0.9, dashArray: '8 6' }));
+    add(L.marker([s.lat, s.lon], { icon: L.divIcon({ className: 'shel', html: shelterSvg('ok', 28, 1), iconSize: [28, 28], iconAnchor: [14, 14] }), interactive: false, keyboard: false }));   // citizen: a plain solid badge (the fill level belongs to the full analysis)
+    add(L.marker([s.lat, s.lon], { icon: numberIcon(n), interactive: false, keyboard: false }));
+    (d.route || []).forEach(eid => (edgeLL.get(eid) || []).forEach(q => pts.push(q))); pts.push([s.lat, s.lon]);
+    return s;
+  };
+  let h = '<div class="cit-status"><span class="chip flood">🌊 Flooded in July 2021</span> <span class="muted small">Area in ' + esc(a.muni) + ' · ' + fmtR(a.people) + ' residents</span></div>';
+  if (!a.dest.length) {
+    h += '<div class="infobox">In this planning exercise no public building could be reached from this area within 1 hour. Follow official instructions; move to higher ground early.</div>';
+  } else {
+    // one format for every area: building 1 with its route and steps, then 2 and 3 with their own (dashed) routes.
+    // A normal area: 1 = its building, 2 = a backup. A shared area (at most 3 buildings): its buildings, the one taking most of the area first.
+    const split = a.dest.length > 1;
+    const list = split ? a.dest.slice().sort((x, y) => (y.people || 0) - (x.people || 0)) : [a.dest[0]].concat(a.backup ? [a.backup] : []);
+    const walk1 = a.walk_s ? a.walk_s[1] : 0;
+    const d = list[0], s = draw(d, 1, true), km = routeKm(d.route || []), onFoot = !(d.route || []).length;
+    if (split) h += '<div class="infobox"><b>Your area is shared over ' + a.dest.length + ' buildings in this plan</b>, because the buildings close by are filled by people from other flooded areas. Building 1 takes the largest share (about ' + fmtR(d.people) + ' people).</div>';
+    if (a.unassigned >= 0.5) h += '<div class="infobox">This simple plan (one building per area) finds no building for about ' + fmtR(a.unassigned) + ' residents of your area. The full analysis finds room for everyone within 1 hour by road; follow official instructions on the day.</div>';
+    if (d.road_s + walk1 > 1800 || (!split && a.backup && d.road_s - a.backup.road_s > 900))
+      h += '<div class="infobox"><b>Why so far?</b> In this plan the buildings near you are filled by people from other flooded areas: there is room within 1 hour by road, but not enough close by.</div>';
+    h += '<div class="dest"><div class="dest-n">1</div><div><div class="dest-name">' + bName(s) + '</div><div class="pills">' +
+      (onFoot ? '<span class="pill">🚶 about ' + minTxt(walk1) + ' min on foot</span>'
+        : '<span class="pill">about ' + minTxt(d.road_s + walk1) + ' min' + (walk1 >= 60 ? ' (walk ' + minTxt(walk1) + ' + drive ' + minTxt(d.road_s) + ')' : '') + '</span><span class="pill">🚗 ' + km.toFixed(km < 10 ? 1 : 0) + ' km by road</span>') + '</div></div></div><ol class="steps">' +
+      (onFoot ? '<li><span class="ic">🚶</span>Walk to building 1 (' + (walk || 'a few min') + '); it stands by the nearest road that stayed open. Do not walk through water.</li>'
+        : (walk1 >= 60 ? '<li><span class="ic">🚶</span>Walk ' + walk + ' to the nearest road that stayed open. Do not walk or drive through water.</li>' : '') +
+          '<li><span class="ic">🚗</span>Drive along ' + routeSteps(d.route).map(esc).join(' → ') + '.</li>') +
+      '<li><span class="ic">🏫</span>Arrive at building 1: ' + bName(s) + '.</li></ol>';
+    list.slice(1, 3).forEach((b, k) => { const n = k + 2, bs = draw(b, n, false); if (!bs) return;
+      h += '<div class="backup"><div class="dest-n small2">' + n + '</div><div><b>' + (split ? 'Building ' + n : 'Backup ' + (n - 1)) + ':</b> ' + bName(bs) + ', about ' + minTxt(b.road_s + walk1) + ' min (dashed line). ' +
+        (split ? 'It takes about ' + fmtR(b.people) + ' people of your area in this plan.' : (b.has_room ? 'It still has room for your whole area in this plan. ' : 'In this plan it has no room left for your whole area. ') + 'Use it only if building 1 cannot be reached.') + '</div></div>'; });
+  }
+  h += '<p class="small">No car? Ask neighbours, or follow the official pick-up instructions.</p>' +
+    '<p class="small muted">Candidate public buildings from OpenStreetMap, not officially designated shelters. The route avoids roads that touched the 2021 flood; conditions on the day can differ. Planning exercise, not live guidance.</p>';
+  setAnswer($('citResult'), h);
+  const fit = { maxZoom: 15, paddingTopLeft: [510, 30], paddingBottomRight: [40, 30] };
+  if (zoom) pst.autoMove = true;
+  if (zoom === 'instant') map.fitBounds(L.latLngBounds(pts), Object.assign(fit, { animate: false })); else if (zoom) softView(() => map.fitBounds(L.latLngBounds(pts), Object.assign(fit, { animate: false })));
+  $('citResult').focus();
+}
+// a street that lies in ONE area with ONE building (working case first): shown greyed in the search bar, used when Enter is pressed on an empty bar
+const EXAMPLE_STREET = (() => {
+  const ok = i => { const s = STREETS[i]; if (s.p.length < 3) return false; const as = s.p.map(p => areaAt(p[0], p[1])); return as[0] && as.every(a => a === as[0]) && as[0].dest.length === 1; };
+  const order = STREETS.map((s, i) => i).sort((a, b) => (WORKING_MUNIS.indexOf(STREETS[b].m) >= 0) - (WORKING_MUNIS.indexOf(STREETS[a].m) >= 0));
+  for (const i of order) { if (ok(i)) return i; }
+  return null;
+})();
+// street names along the roads when zoomed in close (citizen): from the OSM names already in the bundle, largest gaps first, no overlaps
+const citLabels = L.layerGroup();
+function drawStreetNames() {
+  citLabels.clearLayers();
+  if (pst.profile === 'full' || map.getZoom() < 15) return;
+  const b = map.getBounds(), placed = [], seen = new Set();
+  edges.forEach(e => {
+    const n = nm(e); if (!n || seen.has(n) || /^[A-Z]{1,2} ?\d/.test(n)) return;
+    const c = edgeLL.get(e.id); if (!c || c.length < 2) return; const mid = c[Math.floor(c.length / 2)];
+    if (!b.contains(mid)) return;
+    const pt = map.latLngToContainerPoint(mid), hw = n.length * 3.4 + 4, box = [pt.x - hw, pt.y - 8, pt.x + hw, pt.y + 8];
+    if (placed.some(q => box[0] < q[2] && box[2] > q[0] && box[1] < q[3] && box[3] > q[1]) || placed.length > 60) return;
+    placed.push(box); seen.add(n);
+    citLabels.addLayer(L.marker(mid, { icon: L.divIcon({ className: 'stlab', html: '<span>' + esc(n) + '</span>', iconSize: [0, 0] }), interactive: false, keyboard: false }));
+  });
+}
+function renderCitizen() {
+  drawAreas(); restyleAreas();
+  if (EXAMPLE_STREET != null) { $('citSearch').placeholder = '🔍  ' + STREETS[EXAMPLE_STREET].n + ', ' + STREETS[EXAMPLE_STREET].m; $('citHint').textContent = 'Press Enter to try this example, or type your own street.'; }
+  if (!map.hasLayer(citLabels)) citLabels.addTo(map);
+  drawStreetNames();
+}
+
+// ---- municipality ---------------------------------------------------------------
+let muniLayer = null;
+const muniById = new Map(MUNIS.map(m => [m.id, m]));
+function muniStyle(m, hover) {
+  const inList = pst.muniList.indexOf(m.id) >= 0, picked = pst.muniPick === m.id;
+  return { renderer: canvas, color: inList ? BROWN : picked ? '#E69F00' : hover ? '#111' : '#5a5a5a', weight: inList || picked || hover ? 3 : 1.6, dashArray: picked && !inList ? '6 4' : (inList || hover ? null : '5 4'),
+           fill: true, fillColor: inList ? BROWN : '#888', fillOpacity: inList ? 0.12 : hover ? 0.12 : 0.02 };
+}
+function pickMuni(id) { pst.muniPick = id; restyleMunis(); renderMuni(); }
+function drawMuniAreas() {
+  if (!muniLayer) {
+    muniLayer = L.geoJSON({ type: 'FeatureCollection', features: MUNIS.map(m => ({ type: 'Feature', properties: { id: m.id, name: m.name }, geometry: m.geometry })) },
+      { style: f => muniStyle(muniById.get(f.properties.id), false),
+        onEachFeature: (f, l) => {
+          l.bindTooltip(esc(f.properties.name), { sticky: true });
+          l.on('mouseover', () => l.setStyle(muniStyle(muniById.get(f.properties.id), true)));
+          l.on('mouseout', () => l.setStyle(muniStyle(muniById.get(f.properties.id), false)));
+          l.on('click', () => pickMuni(f.properties.id));
+        } });
+    gp.mun.addLayer(muniLayer);
+    const sel = $('muniSelect');
+    sel.innerHTML = '<option value="">Choose a municipality…</option>' + MUNIS.slice().sort((a, b) => a.name.localeCompare(b.name)).map(m => '<option value="' + esc(m.id) + '">' + esc(m.name) + '</option>').join('');
+    sel.addEventListener('change', () => { if (sel.value) pickMuni(sel.value); });
+    $('muniLevel').addEventListener('change', e => setScenario(e.target.value));
+  }
+  restyleMunis();
+}
+function restyleMunis() { if (muniLayer) muniLayer.eachLayer(l => l.setStyle(muniStyle(muniById.get(l.feature.properties.id), false))); }
+function muniAdd(id) {
+  if (id && pst.muniList.indexOf(id) < 0) pst.muniList.push(id); pst.muniPick = null; $('muniSelect').value = ''; restyleMunis(); renderMuni();
+  // glide to the whole list and the buildings its residents use, clear of the card on the right
+  const b = L.latLngBounds([]); pst.muniList.forEach(m => { const mm = muniById.get(m); if (mm) b.extend(L.geoJSON(mm.geometry).getBounds()); });
+  gp.munUse.eachLayer(l => l.getLatLng && b.extend(l.getLatLng()));
+  if (b.isValid()) softView(() => map.fitBounds(b, { paddingTopLeft: [510, 40], paddingBottomRight: [40, 40], maxZoom: 13, animate: false }));
+}
+function muniRemove(id) { pst.muniList = pst.muniList.filter(x => x !== id); restyleMunis(); renderMuni(); }
+const muniAtPoint = (lat, lon) => (MUNIS.find(m => inGeom(lat, lon, m.geometry)) || {}).id || null;
+function muniStats(ids) {
+  const set = new Set(ids), zs = zones.filter(z => set.has(z.lau) && zoneShown(z)), zid = new Set(zs.map(z => z.id));
+  const as = ((res && res.assign) || []).filter(a => zid.has(a[0]));
+  const o = { people: 0, un: 0, placed: 0, over30: 0, byMuni: {}, sh: new Map(), dest: {} };
+  zs.forEach(z => { const p = peopleOf(z), u = unassignedOf(z.id); o.people += p; o.un += u; const m = o.byMuni[z.lau] || (o.byMuni[z.lau] = { p: 0, u: 0 }); m.p += p; m.u += u; });
+  as.forEach(a => { o.placed += a[2]; if (a[3] > 1800) o.over30 += a[2]; o.sh.set(a[1], (o.sh.get(a[1]) || 0) + a[2]); const s = S.get(a[1]); if (s) o.dest[s.muni] = (o.dest[s.muni] || 0) + a[2]; });
+  o.near = near2km(as);
+  const geoms = ids.map(id => muniById.get(id)).filter(Boolean).map(m => m.geometry), names = new Set(ids.map(id => (muniById.get(id) || {}).name));
+  o.closed = ((res && res.closed) || []).filter(eid => { const c = edgeLL.get(eid); if (!c || !c.length) return false; const q = c[Math.floor(c.length / 2)]; return geoms.some(gm => inGeom(q[0], q[1], gm)); }).length;
+  o.floodedShelters = shelters.filter(s => names.has(s.muni) && isFlooded(s)).length;
+  o.full = Array.from(o.sh.keys()).filter(sid => { const s = S.get(sid); return s && shelterState(s) === 'full'; }).length;
+  // residents of each area in the observed 2021 flood (for "the model misses this area")
+  const obs = (scenarios.find(x => x.kind === 'observed') || {}).id;
+  o.obsByMuni = {}; zones.forEach(z => { if (set.has(z.lau)) o.obsByMuni[z.lau] = (o.obsByMuni[z.lau] || 0) + (popPeople(z)[obs] || 0); });
+  // coverage of the July 2021 map: residents (this level) in zones it never looked at, and municipalities it did not (fully) cover
+  o.outEms = zs.reduce((n, z) => n + (z.in_ems_area === false ? peopleOf(z) : 0), 0);
+  o.unmapped = ids.filter(id => zones.some(z => z.lau === id && z.in_ems_area === false) ||
+    (!zones.some(z => z.lau === id) && (() => { const m = muniById.get(id); const c = m && L.geoJSON(m.geometry).getBounds().getCenter(); return c && !inEms(c.lat, c.lng); })()));
+  o.outArea = as.reduce((n, a) => { const s = S.get(a[1]); return n + (s && s.in_area === false ? a[2] : 0); }, 0);
+  return o;
+}
+function renderMuni() {
+  const pick = pst.muniPick && muniById.get(pst.muniPick);
+  $('muniPick').innerHTML = pick ? '<p>Picked: <b>' + esc(pick.name) + '</b> ' + (pst.muniList.indexOf(pick.id) >= 0 ? '(already in your list)' : '<button type="button" id="btnMuniAdd">Add</button>') + '</p>' : '<p class="small muted">No municipality picked.</p>';
+  if ($('btnMuniAdd')) $('btnMuniAdd').addEventListener('click', () => muniAdd(pick.id));
+  $('muniList').innerHTML = pst.muniList.map(id => { const nm_ = (muniById.get(id) || {}).name || id; return '<li><span>' + esc(nm_) + '</span><button type="button" class="link" data-rm="' + esc(id) + '" aria-label="Remove ' + esc(nm_) + '">Remove</button></li>'; }).join('');
+  $('muniList').querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', () => muniRemove(b.dataset.rm)));
+  gp.munUse.clearLayers();
+  const el = $('muniResult');
+  if (!pst.muniList.length) { el.innerHTML = '<p class="small muted">Your list is empty.</p>'; return; }
+  const html0 = el.innerHTML;
+  const o = muniStats(pst.muniList), lvl = plainLevel(st.sc), modelled = sc().kind !== 'observed';
+  const missed = [];
+  const num = v => v < 0.5 ? '0' : fmtP(v);
+  const unm = new Set(o.unmapped), unmNames = o.unmapped.map(id => esc((muniById.get(id) || {}).name || id));
+  const rows = pst.muniList.map(id => { const m = o.byMuni[id] || { p: 0, u: 0 }, ob = o.obsByMuni[id] || 0, nm_ = muniById.get(id).name;
+    if (modelled && m.p < 0.5 && ob >= 0.5) missed.push(esc(nm_) + ' (' + fmtR(ob) + ' in July 2021)');
+    // the July 2021 map never looked here: no number, a 'not yet' (we are working on more data), never 0
+    if (!modelled && m.p < 0.5 && unm.has(id)) return '<tr><td>' + esc(nm_) + ' †</td><td class="n" colspan="3">July 2021 data not yet available: we are working on it</td></tr>';
+    return '<tr><td>' + esc(nm_) + (modelled && m.p < 0.5 && ob >= 0.5 ? ' *' : '') + (unm.has(id) ? ' †' : '') + '</td><td class="n">' + num(m.p) + '</td><td class="n">' + num(m.p - m.u) + '</td><td class="n">' + num(m.u) + '</td></tr>'; }).join('');
+  const dk = Object.keys(o.dest).sort((a, b) => o.dest[b] - o.dest[a]).slice(0, 3), dsh = o.placed > 0 ? Math.round(100 * dk.reduce((n, k) => n + o.dest[k], 0) / o.placed) : 0;
+  const dest = dk.map(k => esc(k) + ' (' + fmtR(o.dest[k]) + ')').join(', ');
+  const covLine = unm.size ? '<p class="infobox">† Part of your list lies outside the area mapped from satellite in July 2021 (' + unmNames.join(', ') + '). We are working on more data for these places; the river-flood model levels already include them.</p>' : '';
+  el.innerHTML = '<h3>' + esc(lvl) + '</h3>' + covLine +
+    (o.people < 0.5 ? '<p><b>0 residents in the ' + (modelled ? 'modelled flood' : 'mapped July 2021 flood') + '</b> in your list at this flood level. This does not mean there is no risk: the flood data are incomplete.</p>'
+      : '<ul><li><b>' + fmtR(o.people) + '</b> residents live inside the flood (a minimum).</li>' +
+        '<li><b>' + fmtR(o.placed) + '</b> get a place in a public building within 1 hour; <b>' + fmtR(o.un) + '</b> do not.</li>' +
+        '<li><b>' + fmtR(o.near) + '</b> of them go to a building within 2 km (straight line); the rest travel further.</li>' +
+        '<li><b>' + fmtR(o.over30) + '</b> would travel more than 30 minutes.</li>' +
+        (modelled && o.outEms >= 0.5 ? '<li><b>' + fmtR(o.outEms) + '</b> of these residents (' + Math.round(100 * o.outEms / o.people) + ' %) live where the July 2021 satellite map did not look, so 2021 and this level cannot be compared there.</li>' : '') +
+        '<li>They use <b>' + o.sh.size.toLocaleString('en') + '</b> buildings (' + o.full.toLocaleString('en') + ' of them filled to their assumed capacity). The largest destinations are ' + (dest || 'n/a') + (dest ? ' (together ' + dsh + ' %)' : '') + '.</li>' +
+        (o.outArea >= 0.5 ? '<li><b>' + fmtR(o.outArea) + '</b> (' + Math.round(100 * o.outArea / o.placed) + ' %) go to candidate buildings outside Kreis Euskirchen and Landkreis Ahrweiler; using them would need agreement with the neighbouring districts.</li>' : '') +
+        '<li><b>' + o.closed.toLocaleString('en') + '</b> stretches of road in your areas are closed by the flood; <b>' + o.floodedShelters.toLocaleString('en') + '</b> candidate buildings in your areas are flooded themselves.</li></ul>') +
+    '<table class="mtab"><thead><tr><th>Municipality</th><th class="n">Residents in the flood</th><th class="n">With a shelter place</th><th class="n">Without a place</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<p class="small muted" style="margin-top:2px">All numbers are modelled estimates of residents, rounded, and minimums.' + (missed.length ? ' * The river model misses this area; inside the July 2021 flood: ' + missed.join(', ') + '.' : '') + '</p>' +
+    '<p class="small"><b>Map key:</b> <span style="color:#C2185B">●</span> building that receives your residents (bigger = more people) · <span style="color:#111">- -</span> road closed by the flood · <span style="color:#0072B2">■</span> flood · <span style="color:' + EMS_COL + '">- -</span> edge of the area mapped in July 2021 · <span style="color:' + BROWN + '">▭</span> your areas.</p>' +
+    '<p class="small muted">Fixed planning assumptions: residents of 2020, core public buildings only (cautious capacity, the same per building as in the shelter report; but here people may travel up to 1 hour by road, there only 2 km), a road is closed when it touches the flood. Counts are modelled minimums, rounded. Candidate buildings from OpenStreetMap, not designated shelters. Not an evacuation plan. The citizen view uses a separate plan of the July 2021 flood with one building per area.</p>';
+  if (el.innerHTML !== html0) { el.classList.remove('fold'); void el.offsetWidth; el.classList.add('fold'); }
+  o.sh.forEach((n, sid) => { const s = S.get(sid); if (!s) return;
+    const mk = L.circleMarker([s.lat, s.lon], { renderer: canvas, radius: Math.max(5, Math.min(14, 3 + Math.sqrt(n))), color: '#12000A', weight: 1.5, fillColor: '#C2185B', fillOpacity: 0.9 })
+      .bindTooltip(esc(tEN(s.type)) + ' in ' + esc(s.muni) + ': receives ' + fmtR(n) + ' people from your areas' + (shelterState(s) === 'full' ? '; filled to its assumed capacity' : ''), { sticky: true });
+    mk.on('click', e => { const id = muniAtPoint(e.latlng.lat, e.latlng.lng); if (id) pickMuni(id); });   // a click on a marker still picks the area under it
+    gp.munUse.addLayer(mk); });
+}
+
+// instant hover and focus help: the browser's own title tooltip appears only after about 1 s, is tiny and is missing on touch,
+// so every [title] in the page is moved to data-tip on first use and shown in one styled box (map features keep Leaflet tooltips)
+function initHelpTip() {
+  const tip = document.createElement('div'); tip.id = 'tip'; tip.setAttribute('role', 'tooltip'); tip.hidden = true; document.body.appendChild(tip);
+  let cur = null;
+  const take = e => {
+    const t = e.target && e.target.closest ? e.target.closest('[title],[data-tip]') : null;
+    if (!t || t.closest('.leaflet-marker-pane')) return null;
+    if (t.hasAttribute('title')) { t.dataset.tip = t.getAttribute('title'); t.setAttribute('aria-description', t.dataset.tip); t.removeAttribute('title'); }
+    return t.dataset.tip ? t : null;
+  };
+  const place = (x, y) => { const w = tip.offsetWidth, h = tip.offsetHeight; let top = y + 18; if (top + h > innerHeight - 8) top = y - h - 12; tip.style.left = Math.max(8, Math.min(x + 14, innerWidth - w - 8)) + 'px'; tip.style.top = Math.max(8, top) + 'px'; };
+  // a select opens its list BELOW itself, so its help goes ABOVE it (fixed, does not follow the mouse); other help follows the pointer
+  const above = t => { const r = t.getBoundingClientRect(), h = tip.offsetHeight, w = tip.offsetWidth;
+    tip.style.left = Math.max(8, Math.min(r.left, innerWidth - w - 8)) + 'px'; tip.style.top = Math.max(8, r.top - h - 8) + 'px'; };
+  const show = (t, x, y) => { cur = t; tip.textContent = t.dataset.tip; tip.hidden = false; if (t.tagName === 'SELECT') above(t); else place(x, y); };
+  const hide = () => { cur = null; tip.hidden = true; };
+  document.addEventListener('mouseover', e => { const t = take(e); if (t) show(t, e.clientX, e.clientY); else if (cur && !mapTip) hide(); });
+  document.addEventListener('mousemove', e => { if (cur && cur.tagName !== 'SELECT') place(e.clientX, e.clientY); });
+  document.addEventListener('focusin', e => { const t = take(e); if (t) { const r = t.getBoundingClientRect(); show(t, r.left, r.bottom - 10); } });
+  document.addEventListener('focusout', hide);
+  document.addEventListener('scroll', hide, true);
+  // map tooltips (Leaflet) live inside the map, under the floating cards: show their text in the same top-most help box instead
+  let mx = 0, my = 0, mapTip = null;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; if (mapTip) place(mx, my); }, true);
+  map.on('tooltipopen', e => { mapTip = e.tooltip; cur = null; tip.innerHTML = e.tooltip.getContent(); tip.hidden = false; place(mx, my); });
+  map.on('tooltipclose', e => { if (mapTip === e.tooltip) { mapTip = null; tip.hidden = true; } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') hide(); });
+}
+
+// ====================================================================
+// INIT
+// ====================================================================
+function init() {
+  const p = readParams(), bad = [];
+  const bk = defaultKey();
+  const parts = (bk || '||').split('|');
+  const rq = p.get('scenario');
+  if (rq && !scById(rq)) bad.push('scenario "' + rq + '" is not in the bundle');
+  st.sc = (rq && scById(rq)) ? rq : (parts[0] || (scenarios[0] && scenarios[0].id));
+  const cls = (sc().closures || []).map(c => c.id), rc = p.get('closure');
+  if (rc && cls.indexOf(rc) < 0) bad.push('closure rule "' + rc + '" does not exist for this flood level');
+  st.cl = cls.indexOf(rc) >= 0 ? rc : (rq ? cls[0] : (cls.indexOf(parts[1]) >= 0 ? parts[1] : cls[0]));
+  const caps = capacities.map(c => c.id), rk = p.get('capacity');
+  if (rk && caps.indexOf(rk) < 0) bad.push('capacity "' + rk + '" is not in the bundle');
+  st.cap = caps.indexOf(rk) >= 0 ? rk : (caps.indexOf(parts[2]) >= 0 ? parts[2] : caps[0]);
+  const rp_ = p.get('pop');
+  if (rp_ && !populations.some(x => x.id === rp_)) bad.push('population year "' + rp_ + '" is not in the bundle');
+  else if (rp_) st.pop = rp_;
+  if (p.get('layers')) { const on = p.get('layers').split(','); Object.keys(st.layers).forEach(k => { st.layers[k] = on.indexOf(k) >= 0; }); if (!st.layers.zones) st.resMode = 'off'; }
+  if (['cells', 'rings', 'squares', 'off'].indexOf(p.get('residents')) >= 0) st.resMode = p.get('residents');
+  st.layers.zones = st.resMode !== 'off';
+  // OSM's public tile servers block pages opened from a local file (no referrer), so the basemap is off by default and only offered over http(s)
+  st.basemap = location.protocol !== 'file:' && p.get('basemap') === '1';
+
+  safe('top', renderTop); safe('layers', renderLayers); safe('assumptions', renderAssumptions); safe('about', renderAbout); safe('footer', renderFooter);
+  safe('roads', drawRoads); safe('munis', drawMuniLabels);
+  update();
+  const zp = p.get('zone'), sp = p.get('shelter');
+  if (zp != null && zp !== 'none') {
+    if (Z.get(Number(zp)) && zoneShown(Z.get(Number(zp)))) selectZone(Number(zp), true, true); else bad.push('zone "' + zp + '" does not exist or has no residents at this flood level');
+  } else if (sp != null) {
+    if (S.get(Number(sp))) selectShelter(Number(sp), true, true); else bad.push('shelter "' + sp + '" is not in the bundle');
+  }
+  if (st.zone == null && st.shelter == null && zp !== 'none') { const lz = largestZone(); if (lz != null) selectZone(lz, false, true); }
+  // demo/verification hook: ?view=lat,lon,zoom
+  if (p.get('view')) { const v = p.get('view').split(',').map(Number); if (v.length === 3 && v.every(x => !isNaN(x))) map.setView([v[0], v[1]], v[2], { animate: false }); drawZones(); drawShelters(); updateMuniLabels(); safe('selection', drawSelection); restack(); }   // the zoom handlers are not attached yet here
+  if (bad.length) setNote('Ignored in the link: ' + bad.join('; ') + '. The default view is shown instead.');
+
+  $('selScenario').addEventListener('change', e => setScenario(e.target.value));
+  $('selClosure').addEventListener('change', e => { st.cl = e.target.value; update(); });
+  $('selCapacity').addEventListener('change', e => { st.cap = e.target.value; update(); });
+  $('selPop').addEventListener('change', e => { st.pop = e.target.value; update(); });
+  // verification hook: ?scrollto=<element id> scrolls that element into view after load
+  if (p.get('scrollto') && $(p.get('scrollto'))) setTimeout(() => $(p.get('scrollto')).scrollIntoView({ block: 'start' }), 300);
+  $('selZone').addEventListener('change', e => { if (e.target.value === '') clearSelection(); else selectZone(Number(e.target.value), true); });
+  $('selShelter').addEventListener('change', e => { if (e.target.value === '') clearSelection(); else selectShelter(Number(e.target.value), true); });
+  $('skipLink').addEventListener('click', e => { const t = $(($('skipLink').getAttribute('href') || '#selZone').slice(1)); e.preventDefault(); setTimeout(() => t && t.focus(), 0); });
+  // theme change: canvas colours are read once, so redraw the road layers
+  if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { drawRoads(); applyLayerVisibility(); refreshSelection(false); });
+  // cells are sized in metres (and drawn at least 9 px wide): redraw them, the labels and the selection when the zoom changes
+  map.on('zoomend', () => { drawZones(); drawShelters(); updateMuniLabels(); safe('selection', drawSelection); restack(); });
+  map.on('moveend', () => { drawZoneLabels(); safe('munis', drawMuniLabels); });
+  initHelpTip();
+  // profiles: tabs, citizen search and tap, ?profile=citizen|municipality|full (default: full)
+  document.querySelectorAll('.profiles [data-profile]').forEach(b => b.addEventListener('click', () => setProfile(b.dataset.profile)));
+  $('citSearch').addEventListener('input', e => citizenSearch(e.target.value));
+  $('citSearch').addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return; e.preventDefault();
+    const first = document.querySelector('#citHits button');
+    if (first) first.click(); else if (!e.target.value && EXAMPLE_STREET != null) pickStreet(EXAMPLE_STREET);
+  });
+  map.on('moveend', () => { if (pst.profile !== 'full') { if (!map.hasLayer(citLabels)) citLabels.addTo(map); drawStreetNames(); } else citLabels.clearLayers(); });
+  map.on('zoomstart', () => citLabels.clearLayers());   // street names belong to one zoom: hide them while the map glides
+  // a click on a zone or shelter also reaches the map (paths bubble): ignore the map click right after a selection
+  map.on('click', () => { if (pst.profile === 'full' && performance.now() - fullClickAt > 300) fullBack(); });
+  map.on('click', e => { if (pst.profile !== 'citizen') return; const a = areaAt(e.latlng.lat, e.latlng.lng); if (a) { $('citSearch').value = ''; $('citHits').innerHTML = ''; const prevA = pst.area; clearCitizen(); selectArea(a.id, true, prevA); clickPin(e.latlng.lat, e.latlng.lng); } else if (pst.area != null || pst.backView) goBack(); else tapOutside(e.latlng.lat, e.latlng.lng); });
+  map.on('moveend', () => { if (pst.autoMove) { pst.autoMove = false; return; } pst.userView = [map.getCenter(), map.getZoom()]; });
+  L.DomEvent.disableClickPropagation($('citCard')); L.DomEvent.disableScrollPropagation($('citCard'));
+  document.querySelector('.mapwrap').appendChild($('muniPanel'));
+  buildSideTabs();
+  // drag the bar between the panel and the map to resize the panel (full analysis); remembered for this visit
+  const rz = $('resizer');
+  const setW = w => { w = Math.max(340, Math.min(window.innerWidth * 0.6, w)); document.documentElement.style.setProperty('--sidew', Math.round(w) + 'px'); map.invalidateSize(); };
+  rz.addEventListener('mousedown', e0 => { e0.preventDefault(); const left = document.querySelector('.main').getBoundingClientRect().left + 16;
+    rz.classList.add('drag'); document.body.classList.add('resizing');
+    const mv = e => setW(e.clientX - left - 3), up = () => { rz.classList.remove('drag'); document.body.classList.remove('resizing'); document.removeEventListener('mousemove', mv); document.removeEventListener('mouseup', up); map.invalidateSize(); safe('munis', drawMuniLabels); };
+    document.addEventListener('mousemove', mv); document.addEventListener('mouseup', up); });
+  window.__setW = setW;
+  const setHdr = () => { const h = document.querySelector('header.top'); if (h) document.documentElement.style.setProperty('--hdr', Math.ceil(h.getBoundingClientRect().height + 0) + 'px'); map.invalidateSize(); };
+  window.addEventListener('resize', () => { setHdr(); fitLayout(); }); setTimeout(setHdr, 0); window.__setHdr = setHdr;   // the municipality card floats over the map
+  L.DomEvent.disableClickPropagation($('muniPanel')); L.DomEvent.disableScrollPropagation($('muniPanel'));
+  const pr = p.get('profile');
+  if (pr && ['citizen', 'municipality', 'full'].indexOf(pr) < 0) setNote('Ignored in the link: profile "' + pr + '" does not exist.');
+  setProfile(pr || 'full', true);
+  window.__tool = { clearCitizen: () => { clearCitizen(); pst.backView = null; pst.userView = null; }, revealEl: revealEl, showTab: showTab, pst: pst, areaAt: areaAt, selectArea: selectArea, CP: CP, inFlood2021: inFlood2021, OBS_FEATS: OBS_FEATS, setProfile: setProfile, zoneAt: zoneAt, muniStats: muniStats, STREETS: STREETS, st: st, update: update, buildCsv: buildCsv, copyText: copyText, selectZone: selectZone, selectShelter: selectShelter, map: map, Z: Z, S: S, zoneShown: zoneShown, isFlooded: isFlooded, zoneLayerCount: () => g.zones.getLayers().length, panes: () => [map.getPane('roadsPane').style.zIndex, map.getPane('floodImgPane').style.zIndex, map.getPane('overlayPane').style.zIndex || getComputedStyle(map.getPane('overlayPane')).zIndex, getComputedStyle(map.getPane('markerPane')).zIndex], res: () => res };
+  if (p.get('selftest')) selfTest();
+  fitMapHeight();
+  window.addEventListener('resize', () => { fitMapHeight(); });
+}
+// desktop: make the map end at the bottom of the first screen, so the legend overlay is visible without scrolling
+function fitMapHeight() {
+  const m = $('map'), side = $('side');
+  if (isPhone()) { m.style.height = ''; side.style.maxHeight = ''; }
+  else {
+    const top = m.getBoundingClientRect().top + window.scrollY;
+    const h = Math.max(520, Math.min(900, window.innerHeight - top - 12));
+    m.style.height = h + 'px'; side.style.maxHeight = h + 'px';
+  }
+  map.invalidateSize();
+}
+// Verification helper (?selftest=1): switches through every result key, times the JS part, prints CSV head and clipboard result.
+function selfTest() {
+  const keep = { sc: st.sc, cl: st.cl, cap: st.cap }, lines = [];
+  Object.keys(results).forEach(k => {
+    const a = k.split('|'); st.sc = a[0]; st.cl = a[1]; st.cap = a[2];
+    const t0 = performance.now(); update();
+    const zid = ((res && res.assign[0]) || [])[0];
+    const t1 = performance.now(); if (zid != null) selectZone(zid, false);
+    lines.push(k + ': switch ' + Math.round(t1 - t0) + ' ms, +zone panel ' + Math.round(performance.now() - t1) + ' ms');
+  });
+  console.log('SELFTEST timings (JS only, canvas paint is async)\n' + lines.join('\n'));
+  st.sc = keep.sc; st.cl = keep.cl; st.cap = keep.cap; update();
+  const zid = (res.assign[3] || res.assign[0])[0]; selectZone(zid, false);
+  console.log('SELFTEST csv head\n' + buildCsv().split('\r\n').slice(0, 6).join('\n'));
+  console.log('SELFTEST message EN\n' + $('msgEN').textContent);
+  copyText('selftest', ok => console.log('SELFTEST clipboard ok=' + ok));
+}
+init();
+})();
+</script>
+</body>
+</html>
