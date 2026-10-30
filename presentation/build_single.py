@@ -2,8 +2,8 @@
 
 Inlines every local stylesheet and script that index.html links, pitch-data.js, and every image under assets/
 as data URIs, so the deck runs from a USB stick, an email attachment or the venue laptop without the folder.
-The map uses the team's SVG when one exists (assets/ or next to the PNG in powerpoint/), else the PNG.
-Fonts still come from Google Fonts when online; system fonts otherwise.
+The map comes from the same pitch-data.js metadata used by the live deck, preserving overlay alignment.
+System fonts and embedded organiser logos work offline without external requests.
 
     python powerpoint/pitch/build_single.py      ->  powerpoint/pitch/johan-pitch.html
 """
@@ -52,19 +52,29 @@ def js(m):
 
 html = re.sub(r'<link rel="stylesheet" href="((?!https?:)[^"]+)">', css, html)
 
-base_map = next((p for p in (HERE / "assets" / f"{MAP}.svg", HERE.parent / f"{MAP}.svg", HERE / "assets" / f"{MAP}.png") if p.exists()))
-logos = {p.stem: data_uri(p) for p in sorted((HERE / "assets" / "logos").glob("*")) if p.suffix.lower() in MIME}
+data_text = (HERE / "pitch-data.js").read_text(encoding="utf-8")
+pitch = json.loads(data_text.split("window.PITCH =", 1)[1].strip().rstrip(";"))
+base_map = HERE / "assets" / pitch["screenshot"]["file"]
+if not base_map.is_file():
+    raise FileNotFoundError(f"The georeferenced map is missing: {base_map.name}")
+logos = {}
+for key, supplied in {"fari": "logo FARI.png", "jrc": "logo JRC.jpg"}.items():
+    candidates = [HERE / "assets" / "logos" / supplied]
+    candidates += [HERE / "assets" / "logos" / f"{key}{ext}" for ext in MIME]
+    found = next((p for p in candidates if p.is_file()), None)
+    if found:
+        logos[key] = data_uri(found)
 inline = "<script>window.DECK_INLINE = " + json.dumps({"map": data_uri(base_map), "logos": logos}) + ";</script>\n"
 html = html.replace('<script src="js/deck.js"></script>', inline + '<script src="js/deck.js"></script>')
 html = re.sub(r'<script src="((?!https?:)[^"]+)"></script>', js, html)
 # the map's own file name may also appear literally (agents' code), raw or URL-encoded
 for name in (f"assets/{MAP}.png", "assets/" + MAP.replace(" ", "%20").replace("+", "%2B") + ".png"):
-    html = html.replace(name, data_uri(HERE / "assets" / f"{MAP}.png"))
+    html = html.replace(name, data_uri(base_map))
 
+if missing:
+    raise FileNotFoundError("Cannot build the deck; missing dependencies: " + ", ".join(missing))
 OUT.write_text(html, encoding="utf-8")
 left = sorted(set(re.findall(r"(?<![\w:/])assets/[^\"'`)\s]+", html)))
 print(f"wrote {OUT.name}: {OUT.stat().st_size / 1e6:.1f} MB; map = {base_map.name}; logos = {sorted(logos) or 'none (typographic lockup)'}")
-if missing:
-    print("not found (skipped):", ", ".join(missing))
 if left:
     print("asset paths still referenced (dynamic or missing):", ", ".join(left[:10]))

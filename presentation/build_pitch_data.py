@@ -1,12 +1,11 @@
 """Build pitch-data.js for the 5-minute pitch from the Smart Shelter System bundle.
 
 Input: the tool's bundle (ideas/05-smart-shelter-map/data/bundle.json, or the same path read from a git ref)
-and georef.json (the fit of the screenshot 'visualisation busy roates + flooded areas.png' to Web Mercator,
-written by fit_screenshot.py). Output: pitch-data.js with
+and georef.json (the fit of the map assets/route-stress-map.svg to Web Mercator, written by fit_screenshot.py). Output: pitch-data.js with
   - region summaries for 8 plans: 4 flood levels x 2 shelter assumption sets (2020 residents; roads closed
     if they touch the 2021 flood, or under any modelled water),
   - Johan's zone (default 246, Bad Neuenahr-Ahrweiler): his household's shelter, times and route per plan,
-  - slide-3 overlay geometry in screenshot pixels.
+  - slide-3 overlay geometry in map pixels (1244 x 894).
 Every number comes from the bundle; the build stops when a check fails.
 
 Run from the repository root:
@@ -14,15 +13,18 @@ Run from the repository root:
     python powerpoint/pitch/build_pitch_data.py --bundle path/to/bundle.json --zone 246
 """
 import argparse
+import hashlib
 import json
 import math
 import subprocess
+import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-ROOT = next(p for p in HERE.parents if (p / ".git").exists())  # repo root, wherever this folder sits
+ROOT = next(p for p in HERE.parents if (p / "AGENTS.md").is_file())
 BUNDLE_PATH = "ideas/05-smart-shelter-map/data/bundle.json"
+BUNDLE_BLOB = "92c3d36692b7a17d34fec8c90d9f8c59c728d91c"
 LEVELS = [("obs2021", "any"), ("rp10", "wet"), ("rp100", "wet"), ("rp500", "wet")]
 SETS = ["restrictive", "generous"]
 R = 6378137.0
@@ -42,6 +44,8 @@ else:
     raw = subprocess.run(["git", "show", f"{args.ref}:{BUNDLE_PATH}"], cwd=ROOT, capture_output=True, check=True).stdout
     origin = f"{args.ref}:{BUNDLE_PATH}"
 blob = subprocess.run(["git", "hash-object", "--stdin"], cwd=ROOT, input=raw, capture_output=True, check=True).stdout.decode().strip()
+if blob != BUNDLE_BLOB:
+    raise SystemExit(f"Bundle changed: expected pinned blob {BUNDLE_BLOB}, got {blob}; no output written")
 B = json.loads(raw)
 G = json.loads(Path(args.georef).read_text())
 
@@ -56,6 +60,22 @@ def check(name, ok, **info):
     CHECKS.append({"check": name, "ok": bool(ok), **info})
     if not ok:
         raise SystemExit(f"CHECK FAILED: {name} {info}")
+
+
+check("map fit uses the pinned bundle", G.get("bundle_blob") == blob)
+check("map fit uses July 2021 set A", G.get("key") == "obs2021|any|restrictive")
+map_file = G.get("file", "")
+check("map filename is an asset basename", bool(map_file) and Path(map_file).name == map_file)
+map_path = HERE / "assets" / map_file
+check("map asset matches fitted bytes", map_path.is_file() and hashlib.sha256(map_path.read_bytes()).hexdigest() == G.get("map_sha256"))
+if map_path.suffix.lower() == ".svg":
+    svg = ET.parse(map_path).getroot()
+    check("SVG dimensions and viewBox match map pixels",
+          [float(svg.get("width")), float(svg.get("height"))] == [G["W"], G["H"]]
+          and [float(v) for v in svg.get("viewBox", "").split()] == [0, 0, G["W"], G["H"]])
+check("map has a valid Mercator transform", all(math.isfinite(G[k]) for k in ("X0", "Y0", "s_px_per_merc_m", "zoom_eff"))
+      and G["s_px_per_merc_m"] > 0
+      and math.isclose(G["s_px_per_merc_m"], 256 * 2 ** G["zoom_eff"] / (2 * math.pi * R), rel_tol=1e-5))
 
 
 def name_of(e):
@@ -230,8 +250,12 @@ worst_edge = max((int(e) for e in res0["load"]), key=lambda e: (ratio(e, res0["l
 w_mid = px(E[worst_edge]["c"][len(E[worst_edge]["c"]) // 2])
 closed_km = sum(sum(metres(p, q) for p, q in zip(E[e]["c"], E[e]["c"][1:])) for e in res0["closed"]
                 if in_poly(E[e]["c"][len(E[e]["c"]) // 2], bna["geometry"])) / 1000
-flood_px = (450.0, 590.0)
-check("flood callout sits on a closed road in the screenshot", any(math.dist(flood_px, px(p)) < 25 for e in res0["closed"] for p in E[e]["c"]))
+# flood callout: the town's closed-road vertex nearest the centroid of the town's closed-road vertices inside the map
+town_closed = [px(p) for e in res0["closed"] if in_poly(E[e]["c"][len(E[e]["c"]) // 2], bna["geometry"]) for p in E[e]["c"] if inside(px(p), -20)]
+check("town has closed roads in the map", len(town_closed) > 50, vertices=len(town_closed))
+cx, cy = sum(p[0] for p in town_closed) / len(town_closed), sum(p[1] for p in town_closed) / len(town_closed)
+flood_px = tuple(round(v, 1) for v in min(town_closed, key=lambda p: math.dist(p, (cx, cy))))
+check("flood callout sits on a closed road in the map", any(math.dist(flood_px, px(p)) < 5 for e in res0["closed"] for p in E[e]["c"]))
 residents_town = sum(z["people"]["obs2021"] for z in B["zones"] if z["muni"] == zone["muni"])
 callouts = {"flood": {"px": list(flood_px), "closed_km_town": round(closed_km)},
             "jam": {"px": [round(v, 1) for v in w_mid], "road": name_of(E[worst_edge]), "ratio": round(ratio(worst_edge, res0["load"][str(worst_edge)]), 1),
@@ -244,7 +268,7 @@ out = {
     "source": {"bundle": origin, "git_blob": blob, "bundle_generated_utc": meta["generated_utc"], "area": meta["area"],
                "osm_state": meta["provenance"]["osm_state"], "population": "GHS-POP 2020 (modelled estimate), residents inside the flood",
                "assumptions": {"vehicles": veh, "road_capacity_veh_per_h": cap, "walk_kmh": 4, "capacity_sets": B["capacities"]}},
-    "screenshot": {"file": "visualisation busy roates + flooded areas.png", "w": G["W"], "h": G["H"], "plan": G["key"]},
+    "screenshot": {"file": G["file"], "w": G["W"], "h": G["H"], "plan": G["key"], "sha256": G["map_sha256"]},
     "levels": [{"id": l, "closure": c, "label": next(s["label"] for s in B["scenarios"] if s["id"] == l)} for l, c in LEVELS],
     "sets": [{"id": c["id"], "label": c["label"]} for c in B["capacities"]],
     "plans": plans,

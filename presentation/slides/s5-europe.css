@@ -1,95 +1,204 @@
-/* Slide 5 · Every valley in Europe (agent 6).
-   0: Johan's shelter at dawn. 1: the camera pulls back into Europe, Johan's scene shrinks into the Ahr pin.
-   2: the ask and the closing lockup. */
+/* Slide 5 · Every valley in Europe.
+   0: Johan's outcome. 1: the existing Europe map and brief figures. 2: the ask and organisers. */
 #s5 {
-  --map-x: 880px; --map-y: 130px; --map-w: 1000px;           /* europe.png box; its height follows the 2500 × 2166 ratio */
-  --pin-x: calc(var(--map-x) + var(--map-w) * 0.3296);         /* the Ahr pin on the stage, for the zoom origin */
-  --pin-y: calc(var(--map-y) + var(--map-w) * 0.8664 * 0.589);
+  --map-x: 990px;
+  --map-y: 140px;
+  --map-w: 830px; /* Original europe.png aspect ratio and Ahr pin coordinates are retained. */
+  --logo-filter: none;
+  --m-in-fade: 400ms;
+  --m-in-move: 460ms;
+  --m-out-fade: 300ms;
+  --m-from: 1;
+  --m-from-back: 1;
+  --m-b-fade: 320ms;
+  --m-b-move: 400ms;
+  --m-b-rise: 10px;
+  background: #FFFFFF;
+  color: #132B50;
 }
 
-/* step 0 · shelter (image 2047 × 976, full width, bottom-anchored). Transparent sky → dawn plate behind it. */
+/* Step 0: keep the original illustration on paper, with ample space for the outcome. */
 #s5 .s5-shelter {
-  position: absolute; inset: 0; pointer-events: none; transform-origin: var(--pin-x) var(--pin-y);
-  transition: opacity 900ms var(--spring), transform 1700ms var(--spring);
-  will-change: transform, opacity;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 300ms var(--spring), transform 400ms var(--spring);
 }
-#s5.s1 .s5-shelter { opacity: 0; transform: scale(0.06); }
-#s5 .s5-shot {
-  position: absolute; left: 0; top: 164px; width: 1920px; height: 916px; margin: 0;
-  background: linear-gradient(to bottom, rgba(20, 32, 58, 0) 0%, rgba(20, 32, 58, 0) 9%, rgba(52, 74, 108, 0.62) 25%,
-                              rgba(128, 152, 172, 0.9) 38%, rgba(196, 212, 220, 0.98) 52%, #D6E2E6 64%);
-  transform-origin: 42% 70%; transform: scale(1); transition: transform 12s var(--spring);
+#s5.s1 .s5-shelter { opacity: 0; transform: translateY(8px); }
+#s5 .s5-shot { position: absolute; left: 1330px; top: 330px; height: 560px; margin: 0; }
+#s5 .s5-shot img { display: block; height: 100%; width: auto; }
+#s5 .s5-title {
+  position: absolute;
+  left: var(--margin);
+  top: 188px;
 }
-#s5.is-active .s5-shot { transform: scale(1.04); }
-#s5 .s5-shot img { display: block; width: 100%; height: 100%; object-fit: contain; }
-#s5 .s5-title { position: absolute; left: var(--margin); top: 124px; }
+#s5 .s5-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -44px;
+  width: 56px;
+  height: 4px;
+  background: var(--eu-blue);
+}
 
-/* step 1 · Europe (light-grey land on transparent, tinted to soft slate) */
+/* Step 1: the supplied map, untinted, with a static, precisely positioned marker. */
 #s5 .s5-map {
-  position: absolute; left: var(--map-x); top: var(--map-y); width: var(--map-w);
-  opacity: 0; transform: scale(2.6); transform-origin: 32.96% 58.9%;
-  transition: opacity 1000ms var(--spring), transform 1800ms var(--spring);
-  will-change: transform, opacity;          /* own layer: smooth zoom, and the tint filter paints reliably */
+  position: absolute;
+  left: var(--map-x);
+  top: var(--map-y);
+  width: var(--map-w);
+  opacity: 0;
+  transform: translateY(10px);
+  transform-origin: top left;
+  transition: opacity 400ms var(--spring), transform 460ms var(--spring);
+  pointer-events: none;
 }
 #s5.s1 .s5-map { opacity: 1; transform: none; }
-#s5.s1:not(.s2) .s5-map { transition-delay: 120ms; }
-#s5.s2 .s5-map { opacity: 0.36; transform: translate3d(330px, 26px, 0) scale(0.9); }
-#s5 .s5-europe { display: block; width: 100%; height: auto; filter: brightness(0.2) sepia(1) hue-rotate(180deg) saturate(1.7); }
-
+#s5.s2 .s5-map { opacity: 0.4; transform: translate(330px, 150px) scale(0.6); }
+#s5 .s5-europe { display: block; width: 100%; height: auto; opacity: 0.72; }
 #s5 .s5-pin { position: absolute; width: 0; height: 0; }
-#s5 .s5-dot, #s5 .s5-ring { position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; }
-#s5 .s5-dot { background: var(--gold); box-shadow: 0 0 0 4px rgba(255, 204, 0, 0.18), 0 0 26px rgba(255, 204, 0, 0.6); }
-#s5 .s5-ring { border: 2px solid var(--gold); opacity: 0.3; transform: scale(2); animation: s5-pulse 2.4s var(--spring) infinite; }
-@keyframes s5-pulse { from { opacity: 0.85; transform: scale(1); } to { opacity: 0; transform: scale(4.2); } }
+#s5 .s5-dot {
+  position: absolute;
+  left: -8px;
+  top: -8px;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--eu-blue);
+  border-radius: 50%;
+  background: var(--gold);
+}
+#s5 .s5-ring {
+  position: absolute;
+  left: -17px;
+  top: -17px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(0, 51, 153, 0.24);
+  border-radius: 50%;
+}
 #s5 .s5-pin-label {
-  position: absolute; left: 26px; top: -11px; white-space: nowrap;
-  font: 500 20px/1 var(--mono); letter-spacing: 0.02em; color: var(--ink); text-shadow: 0 1px 10px rgba(5, 8, 16, 0.8);
+  position: absolute;
+  left: 25px;
+  top: -16px;
+  padding: 6px 8px;
+  white-space: nowrap;
+  font: 500 19px/1.1 var(--font);
+  color: #132B50;
+  background: #FFFFFF;
 }
 
-#s5 .s5-stats { position: absolute; left: var(--margin); top: 170px; }
-#s5 .s5-stat + .s5-stat { margin-top: 42px; }
-#s5 .s5-num { display: block; font: 500 100px/1 var(--mono); letter-spacing: -0.05em; color: var(--ink); white-space: nowrap; }
-#s5 .s5-dim { color: var(--ink-3); margin-right: 0.05em; }
+#s5 .s5-stats { position: absolute; left: var(--margin); top: 174px; width: 680px; }
+#s5 .s5-stat { padding-bottom: 26px; border-bottom: 1px solid rgba(0, 51, 153, 0.14); }
+#s5 .s5-stat + .s5-stat { margin-top: 30px; }
+#s5 .s5-num {
+  display: block;
+  font: 500 88px/1 var(--font);
+  letter-spacing: -0.045em;
+  color: #132B50;
+  white-space: nowrap;
+}
+#s5 .s5-dim { color: #53647B; margin-right: 0.05em; }
 #s5 .s5-cur { margin-right: 0.04em; }
-#s5 .s5-dash { margin: 0 -0.1em 0 -0.06em; color: var(--ink-2); }
-#s5 .s5-unit { font-size: 0.42em; letter-spacing: 0; margin-left: 0.32em; color: var(--ink-2); }
-#s5 .s5-lbl { display: block; margin-top: 12px; font: 500 28px/1.2 var(--font); letter-spacing: -0.005em; color: var(--ink-2); }
-#s5 .s5-data { position: absolute; left: var(--margin); top: 768px; width: 760px; margin: 0;
-  font: 600 28px/1.25 var(--font); letter-spacing: -0.01em; color: var(--ink); }
-#s5 .s5-data-list { display: block; margin-top: 12px; font: 500 20px/1.35 var(--mono); letter-spacing: 0.01em; color: var(--ink-2); }
-
-/* step 2 · the ask, then the closing lockup */
-#s5 .s5-ask { position: absolute; left: var(--margin); top: 196px; width: 1200px; }
-#s5 .s5-ask .kicker { margin: 0 0 46px; color: var(--ink-2); }
-#s5 .s5-ask ol { margin: 0; padding: 0; list-style: none; }
-#s5 .s5-ask li { display: flex; align-items: baseline; gap: 30px; font: 650 58px/1.08 var(--font); letter-spacing: -0.028em; }
-#s5 .s5-ask li + li { margin-top: 30px; }
-#s5 .s5-an { flex: none; width: 34px; font: 500 26px/1 var(--mono); color: var(--gold); }
-
-/* closing lockup: a left-aligned stack under a hairline; Europe and the pin stay quiet on the right */
-#s5 .s5-lockup {
-  position: absolute; left: var(--margin); top: 656px; width: 1090px;
-  display: flex; flex-direction: column; align-items: flex-start;
-  padding-top: 50px; border-top: 1px solid rgba(245, 247, 251, 0.16);
+#s5 .s5-dash { margin: 0 0.02em; color: #53647B; }
+#s5 .s5-unit { font-size: 0.42em; letter-spacing: 0; margin-left: 0.3em; color: #53647B; }
+#s5 .s5-lbl {
+  display: block;
+  margin-top: 10px;
+  font: 500 27px/1.25 var(--font);
+  letter-spacing: -0.01em;
+  color: #53647B;
 }
-#s5 .s5-team { font: 600 20px/1 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }
-#s5 .s5-event { margin-top: 22px; font: 700 80px/0.95 var(--font); letter-spacing: -0.035em; color: var(--ink); white-space: nowrap; }
-#s5 .s5-orgs { margin-top: 30px; display: flex; align-items: center; font: 500 30px/1 var(--font); color: var(--ink-2); white-space: nowrap; }
+#s5 .s5-data {
+  position: absolute;
+  left: var(--margin);
+  top: 800px;
+  width: 790px;
+  margin: 0;
+  font: 600 27px/1.3 var(--font);
+  letter-spacing: -0.015em;
+  color: #132B50;
+}
+#s5 .s5-data-list {
+  display: block;
+  margin-top: 14px;
+  font: 400 23px/1.4 var(--font);
+  letter-spacing: 0;
+  color: #53647B;
+}
+#s5 .s5-src { color: #53647B; }
+
+/* Step 2: three clear actions, then a generous organiser lockup on white. */
+#s5 .s5-ask { position: absolute; left: var(--margin); top: 190px; width: 1190px; }
+#s5 .s5-ask .kicker { margin: 0 0 42px; color: var(--eu-blue); letter-spacing: 0.08em; }
+#s5 .s5-ask ol { margin: 0; padding: 0; list-style: none; }
+#s5 .s5-ask li {
+  display: flex;
+  align-items: baseline;
+  gap: 26px;
+  padding: 0 0 30px;
+  border-bottom: 1px solid rgba(0, 51, 153, 0.14);
+  font: 650 60px/1.06 var(--font);
+  letter-spacing: -0.03em;
+}
+#s5 .s5-ask li + li { margin-top: 30px; }
+#s5 .s5-an { flex: none; width: 32px; font: 500 24px/1 var(--mono); color: var(--eu-blue); }
+
+#s5 .s5-lockup {
+  position: absolute;
+  left: var(--margin);
+  right: var(--margin);
+  top: 750px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "team orgs" "event orgs";
+  align-items: center;
+  column-gap: 72px;
+  row-gap: 14px;
+  padding-top: 42px;
+  border-top: 1px solid rgba(0, 51, 153, 0.14);
+}
+#s5 .s5-team {
+  grid-area: team;
+  align-self: end;
+  font: 500 19px/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--eu-blue);
+}
+#s5 .s5-event {
+  grid-area: event;
+  align-self: start;
+  font: 600 56px/1.06 var(--font);
+  letter-spacing: -0.035em;
+  color: #132B50;
+  white-space: nowrap;
+}
+#s5 .s5-orgs {
+  grid-area: orgs;
+  display: flex;
+  align-items: center;
+  --art: 72px;
+  gap: 64px;
+  align-items: flex-end;
+  min-height: 120px;
+  font: 500 30px/1 var(--font);
+  color: #53647B;
+  white-space: nowrap;
+}
 #s5 .s5-wm { display: inline-flex; align-items: center; }
-#s5 .s5-wm-fari .s5-wm-text { font-weight: 700; letter-spacing: 0.14em; margin-right: -0.14em; color: var(--ink); }
-#s5 .s5-x { margin: 0 16px; font-weight: 300; color: var(--ink-3); }
-#s5 .s5-wm img { display: block; height: 48px; width: auto; filter: var(--logo-filter); }
+#s5 .s5-wm-fari .s5-wm-text { font-weight: 700; letter-spacing: 0.14em; margin-right: -0.14em; color: var(--eu-blue); }
 #s5 .s5-wm.has-logo .s5-wm-text { display: none; }
 
-/* staggered builds, only while entering a step */
-#s5.s1:not(.s2) .s5-stat:nth-child(1) { transition-delay: 560ms; }
-#s5.s1:not(.s2) .s5-stat:nth-child(2) { transition-delay: 700ms; }
-#s5.s1:not(.s2) .s5-stat:nth-child(3) { transition-delay: 840ms; }
-#s5.s1:not(.s2) .s5-data { transition-delay: 1000ms; }
-#s5.s1:not(.s2) .s5-src, #s5.s1:not(.s2) .s5-pin-label { transition-delay: 1100ms; }
-#s5.s2 .s5-ask li:nth-child(1) { transition-delay: 200ms; }
-#s5.s2 .s5-ask li:nth-child(2) { transition-delay: 380ms; }
-#s5.s2 .s5-ask li:nth-child(3) { transition-delay: 560ms; }
-#s5.s2 .s5-lockup { transition-delay: 900ms; }
+/* Small, sequential reveals; all numbers arrive at their final values. */
+#s5.s1:not(.s2) .s5-stat:nth-child(2) { transition-delay: 90ms; }
+#s5.s1:not(.s2) .s5-stat:nth-child(3) { transition-delay: 180ms; }
+#s5.s1:not(.s2) :is(.s5-data, .s5-src, .s5-pin-label) { transition-delay: 260ms; }
+#s5.s2 .s5-ask li:nth-child(1) { transition-delay: 80ms; }
+#s5.s2 .s5-ask li:nth-child(2) { transition-delay: 150ms; }
+#s5.s2 .s5-ask li:nth-child(3) { transition-delay: 220ms; }
+#s5.s2 .s5-lockup { transition-delay: 300ms; }
 
-@media (prefers-reduced-motion: reduce) { #s5 .s5-ring { animation: none; } }
+@media (prefers-reduced-motion: reduce) {
+  #s5 .s5-shelter, #s5 .s5-map, #s5 [data-b] { transition: none !important; }
+}

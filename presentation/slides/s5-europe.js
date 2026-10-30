@@ -11,7 +11,6 @@
     roi: 10,                   // ~10× return on early warning: WMO 2022, brief ref [24]
   };
   const PIN = { x: 32.96, y: 58.9 };                        // Ahr valley in europe.png, % of the image box (blueprint 4)
-  let timer = 0;
 
   Deck.register({
     id: 's5', order: 5, title: 'Every valley in Europe', steps: 3, time: [255, 300],
@@ -19,16 +18,16 @@
     notes: {
       title: 'Every valley in Europe',
       script: 'Next time, Johan knows where to go: a shelter with room, and a route that avoids flooded roads. ' +
-        "Johan's valley is one of many: in July 2021, the floods cost around 230 lives and 32 to 53 billion euros. " +
-        'Early warning pays back about ten times its cost. ' +
-        'We built this only on open EU-wide data, so the method can be repeated for other valleys. ' +
+        'July 2021 cost roughly 230 lives and an estimated 32 to 53 billion euros. ' +
+        'The WMO estimates that early warning returns about ten times its cost. ' +
+        'We built this on open data, so it could be repeated for other valleys. ' +
         'So, to crisis authorities in Belgium, Germany and the Netherlands: designate and publish flood shelters, ' +
         'make every alert answer three questions, and drill the route at school. ' +
         'Next time, Johan knows what to do and where to go.',
       notes: [
         'Outcome: Johan knows where to go, a shelter with room and a route that avoids flooded roads.',
-        'Stakes: July 2021 cost ~230 lives and €32-53 bn in BE, DE and NL (team brief refs [2], [9], [20]); early warning returns ~10× (WMO 2022, ref [24]).',
-        'Built only on open EU-wide data (Copernicus EMS, EFAS, GHSL, OpenStreetMap), so the method can be repeated elsewhere.',
+        'Stakes: roughly 230 lives and an estimated €32-53 bn in BE, DE and NL (team brief refs [2], [9], [20]); WMO estimates early warning returns about 10× its cost (WMO 2022, ref [24]). Not independently verified here.',
+        'Built on open data (Copernicus EMS, EFAS, GHSL, OpenStreetMap), so it could be repeated for other valleys.',
         'The ask to crisis authorities in BE, DE and NL: designate and publish flood shelters; make every alert answer three questions; drill the route at school.',
       ],
     },
@@ -36,8 +35,8 @@
     html: `
       <div class="s5-shelter">
         <figure class="s5-shot">
-          <img src="assets/johan/johan-shelter.png" width="2047" height="976" decoding="async"
-               alt="Illustration: Johan walking with his phone along a path to a shelter on a hill above the water">
+          <img src="assets/johan/johan-phone-tight.png" width="535" height="1152" decoding="async"
+               alt="Illustration: Johan reading the message on his phone, relieved">
         </figure>
       </div>
       <h1 class="h1 s5-title" data-b="0" data-b-out="1">Next time, Johan<br>knows where to go.</h1>
@@ -54,19 +53,19 @@
       <div class="s5-stats">
         <div class="s5-stat" data-b="1" data-b-out="2">
           <span class="s5-num num"><span class="s5-dim">~</span><span class="tk" data-to="${FIG.deaths}">${FIG.deaths}</span></span>
-          <span class="s5-lbl">lives lost</span>
+          <span class="s5-lbl">lives lost, roughly</span>
         </div>
         <div class="s5-stat" data-b="1" data-b-out="2">
           <span class="s5-num num"><span class="s5-cur">€</span><span class="tk" data-to="${FIG.damageLo}">${FIG.damageLo}</span><span class="s5-dash">-</span><span class="tk" data-to="${FIG.damageHi}">${FIG.damageHi}</span><span class="s5-unit">bn</span></span>
-          <span class="s5-lbl">damage</span>
+          <span class="s5-lbl">estimated damage</span>
         </div>
         <div class="s5-stat" data-b="1" data-b-out="2">
           <span class="s5-num num"><span class="s5-dim">~</span><span class="tk" data-to="${FIG.roi}">${FIG.roi}</span>×</span>
-          <span class="s5-lbl">return on early warning</span>
+          <span class="s5-lbl">WMO estimate: early warning returns about 10× its cost</span>
         </div>
       </div>
-      <p class="s5-data" data-b="1" data-b-out="2">Built only on open EU-wide data:<span class="s5-data-list">Copernicus EMS · EFAS · GHSL · OpenStreetMap</span></p>
-      <p class="src s5-src" data-b="1" data-b-out="2">July 2021 floods in BE, DE and NL. Deaths and damage: team policy brief refs [2], [9], [20]; return on early warning: WMO 2022, ref [24]</p>
+      <p class="s5-data" data-b="1" data-b-out="2">Built on open data:<span class="s5-data-list">Copernicus EMS · EFAS · GHSL · OpenStreetMap</span></p>
+      <p class="src s5-src" data-b="1" data-b-out="2">July 2021 floods in BE, DE and NL. Deaths and damage: team policy brief refs [2], [9], [20]; return on early warning: WMO 2022, ref [24]. Figures from the team policy brief, not independently verified here.</p>
 
       <div class="s5-ask">
         <p class="kicker" data-b="2">To crisis authorities in BE · DE · NL</p>
@@ -82,12 +81,12 @@
         <span class="s5-event">European AI Challenge 2026</span>
         <span class="s5-orgs">
           <span class="s5-wm s5-wm-fari" data-wordmark="fari"><span class="s5-wm-text">FARI</span></span>
-          <span class="s5-x" aria-hidden="true">×</span>
           <span class="s5-wm s5-wm-jrc" data-wordmark="jrc"><span class="s5-wm-text">Joint Research Centre</span></span>
         </span>
       </div>`,
 
     mount(el, P, D) {
+      el.dataset.mood = 'editorial';
       // organisers' logo files (assets/logos/), when the engine finds them: replace the typographic wordmarks
       const put = (name, src) => {
         const slot = el.querySelector(`[data-wordmark="${name}"]`);
@@ -102,15 +101,6 @@
       document.addEventListener('deck:logos', e => put(e.detail.name, e.detail.src));
     },
 
-    step(el, n, dir) {
-      clearTimeout(timer);
-      if (n !== 1) return;
-      const ticks = [...el.querySelectorAll('.s5-stat .tk')];
-      if (dir < 0 || Deck.reduced) { ticks.forEach(t => Deck.tick(t, +t.dataset.to, { duration: 0 })); return; }
-      ticks.forEach(t => Deck.tick(t, 0, { duration: 0 }));
-      timer = setTimeout(() => ticks.forEach(t => Deck.tick(t, +t.dataset.to, { duration: 1500 })), 820);
-    },
-
-    leave() { clearTimeout(timer); },
+    // Figures remain at their stated values; the build only reveals them.
   });
 })();

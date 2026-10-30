@@ -1,40 +1,35 @@
-/* Motion layer (agent 9). Loaded after the slide files and before Deck.start(); it never changes the engine.
-   A MutationObserver watches each slide <section> (class, data-step) and drives:
-
-   Events on document, detail:
+/* Motion layer. Loaded after the slide files and before Deck.start(); it never changes the engine.
+   A MutationObserver watches slide class/data-step and emits the existing document events:
      deck:leave {id, el, dir}   deck:enter {id, el, index, dir}   deck:step {id, el, step, dir, enter}
-     dir: 1 forward, -1 back, 0 first paint or jump.
+     dir: 1 forward, -1 back, 0 first paint.
 
-   Opt-in attributes. Each fires when its element's build is on screen (step >= its data-b, or at once without one):
-     data-stagger="100"            container: its [data-b] and [data-stagger-item] descendants get rising delays,
-                                   counted per build step (+ data-stagger-delay="ms"; data-stagger-order="row|col|random", default DOM order)
-     data-tick="1234.5"            counts up from 0 (data-decimals, data-prefix, data-suffix, data-tick-ms,
-                                   data-tick-delay); writing a new data-tick eases to it (data-tick-update-ms)
-     data-draw                     SVG shape, or a group of shapes, draws in (data-draw-ms, data-draw-delay,
-                                   data-draw-ease); erased when its build is hidden again going back
-     data-kenburns                 image wrapper: its picture zooms 1 -> 1.04 over 14 s while the slide is on screen (CSS)
-     .pulse                        gold halo ring (CSS ::after; an SVG circle.pulse gets a ring circle)
-     .flow[data-path="M0 0 H200"]  HTML gold dot along a path, in its positioned parent's px
-     path[data-flow]               SVG gold dot along that path (data-flow-ms, data-flow-delay, data-flow-dots, data-flow-r)
-   Moods (light theme): data-mood on each slide (s1, s5 cinematic; s2 editorial; s3, s4 pro; a slide may set its own in mount),
-   mirrored on #stage[data-mood] for the faint navy grid (editorial, pro) and a soft spotlight (cinematic).
+   Opt-in attributes, active within the element's/ancestors' data-b and data-b-out window:
+     data-stagger="50"    bounded delays per build, with data-stagger-delay and order (dom/row/col/random)
+     data-tick="1234.5"   short numeric update; data-decimals, prefix, suffix, tick-ms/delay/update-ms
+     data-draw           SVG shape/group reveal; data-draw-ms/delay/ease, up to 550ms
+   Legacy data-kenburns, .pulse and flow hooks no longer add decorative motion or cloned elements.
+   Mood metadata and DeckMotion.refresh/current remain available for existing consumers.
 
-   Builds animate going forward; going back restores final states at once (draws are erased).
-   Under Deck.reduced (prefers-reduced-motion or ?static) everything lands in its final state at once. */
+   Forward builds reveal once; back restores numbers/visible paths and cancels hidden work.
+   ?static, reduced motion and instant jumps settle immediately. Preference changes cancel pending work. */
 (function () {
   'use strict';
   const D = window.Deck;
   const host = document.getElementById('deck') || document.querySelector('.deck') || document.getElementById('slides');
   if (!D || !host) return;
   const stage = document.getElementById('stage') || host.parentElement;
-  const REDUCED = !!D.reduced;
-  const SPRING = D.SPRING || 'cubic-bezier(0.16, 1, 0.3, 1)';
-  const EASE_IO = 'cubic-bezier(0.65, 0, 0.35, 1)';
-  const SVGNS = 'http://www.w3.org/2000/svg';
+  const STATIC = new URLSearchParams(location.search).has('static');
+  const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
+  // Read the live preference; the engine may have cached its value at page load.
+  const reduced = () => STATIC || motionQuery.matches;
+  const isQuiet = () => reduced() || (stage && stage.classList.contains('instant'));
+  const EASE = 'cubic-bezier(0.2, 0, 0.2, 1)';
+  if (STATIC) document.documentElement.classList.add('static');
   const MOODS = { s1: 'cinematic', s5: 'cinematic', s2: 'editorial', s3: 'pro', s4: 'pro' };
-  const PRIM = '[data-tick], [data-draw], .flow[data-path], [data-flow]';
-  const LIVE_MS = 1600;            // a slide that left keeps its loops running while it fades out
-  const DRAW_MS = 1200;
+  const PRIM = '[data-tick], [data-draw]';
+  const LIVE_MS = 400;            // matches the slide crossfade
+  const DRAW_MS = 450;
+  const bounded = (value, max) => Math.max(0, Math.min(max, value));
 
   const num = (v, d) => { const n = parseFloat(v); return Number.isFinite(n) ? n : d; };
   const attr = (el, name, d) => num(el.getAttribute(name), d);
@@ -64,7 +59,7 @@
   /* data-stagger: delays per build step, exposed as --m-delay (read by motion.css on the way in only). */
   function stagger(root) {
     root.querySelectorAll('[data-stagger]').forEach(box => {
-      const gap = attr(box, 'data-stagger', 100), base = attr(box, 'data-stagger-delay', 0);
+      const gap = bounded(attr(box, 'data-stagger', 50), 60), base = bounded(attr(box, 'data-stagger-delay', 0), 100);
       const order = box.getAttribute('data-stagger-order') || 'dom';          // dom | row | col | random
       const slide = box.closest('.slide') || root, groups = new Map();
       box.querySelectorAll('[data-b], [data-stagger-item]').forEach(it => {
@@ -85,212 +80,145 @@
           for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
         }
         list.forEach((it, i) => {
-          it._mDelay = REDUCED ? 0 : base + i * gap;
+          it._mDelay = reduced() ? 0 : bounded(base + i * gap, 100);
           it.style.setProperty('--m-delay', it._mDelay + 'ms');
         });
       });
     });
   }
 
-  /* data-draw: stroke-dashoffset, like Deck.draw, plus a short opacity fade and erase from the current length. */
+  /* Reveal the original SVG geometry once; preserve its build opacity transition. */
+  const drawings = new WeakMap();
   const shapes = el => (el instanceof SVGGeometryElement ? [el]
     : Array.from(el.querySelectorAll('path, line, polyline, polygon, circle, ellipse, rect')));
   function stroke(el, on, opt) {
-    const list = [];
     shapes(el).forEach(p => {
       let len = 0;
       try { len = p.getTotalLength(); } catch (e) { /* not rendered */ }
-      if (len > 0) list.push([p, len]);
-    });
-    if (!list.length) return;
-    list.forEach(([p, len]) => {
+      if (!(len > 0)) return;
+      // SVG pathLength normalises dash units when it is supplied.
+      len = p.pathLength && p.pathLength.baseVal.value > 0 ? p.pathLength.baseVal.value : len;
+      let state = drawings.get(p);
+      if (!state) {
+        state = { original: ['stroke-dasharray', 'stroke-dashoffset'].map(name =>
+          [name, p.style.getPropertyValue(name), p.style.getPropertyPriority(name)]), animation: null };
+        drawings.set(p, state);
+      }
+      if (state.animation) { state.animation.cancel(); state.animation = null; }
+      const restore = () => state.original.forEach(([name, value, priority]) => {
+        if (value) p.style.setProperty(name, value, priority); else p.style.removeProperty(name);
+      });
+      if (on && !opt) { restore(); return; }
       p.style.strokeDasharray = `${len} ${len}`;
-      p.style.transition = 'none';
-      if (!opt) { p.style.strokeDashoffset = on ? 0 : len; return; }
-      p.style.strokeDashoffset = opt.fromCurrent ? (parseFloat(getComputedStyle(p).strokeDashoffset) || 0) : (on ? len : 0);
-    });
-    if (!opt) return;
-    list[0][0].getBoundingClientRect();                                          // commit the start state
-    const { ms, delay, ease } = opt;
-    const fade = on ? `opacity 240ms linear ${delay}ms` : `opacity 160ms linear ${Math.max(0, delay + ms - 160)}ms`;
-    list.forEach(([p, len]) => {
-      p.style.transition = `stroke-dashoffset ${ms}ms ${ease} ${delay}ms, ${fade}`;
-      p.style.strokeDashoffset = on ? 0 : len;
+      p.style.strokeDashoffset = on ? '0' : String(len);
+      if (!on || !opt) return;
+      // A separate animation leaves authored opacity/transform transitions untouched.
+      const animation = p.animate([{ strokeDashoffset: String(len) }, { strokeDashoffset: '0' }], {
+        duration: opt.ms, delay: opt.delay, easing: opt.ease, fill: 'backwards',
+      });
+      state.animation = animation;
+      animation.onfinish = () => {
+        if (state.animation !== animation) return;
+        state.animation = null;
+        restore();
+        animation.cancel();
+      };
     });
   }
   const drawOpt = (el, slide) => ({
-    ms: attr(el, 'data-draw-ms', DRAW_MS),
-    delay: attr(el, 'data-draw-delay', 0) + delayOf(el, slide),
-    ease: el.getAttribute('data-draw-ease') || SPRING,
+    ms: bounded(attr(el, 'data-draw-ms', DRAW_MS), 550),
+    delay: bounded(attr(el, 'data-draw-delay', 0) + delayOf(el, slide), 100),
+    ease: el.getAttribute('data-draw-ease') || EASE,
   });
 
-  /* data-tick: count up with Deck.tick (easeOutExpo). mode 'up' from 0, 'to' from the shown value, 'final' at once. */
+  /* Keep the actual displayed value so an interrupted update starts where the audience saw it. */
   function tickOpt(el, mode) {
     return {
-      decimals: Math.max(0, parseInt(el.getAttribute('data-decimals'), 10) || 0),
+      decimals: bounded(parseInt(el.getAttribute('data-decimals'), 10) || 0, 20),
       prefix: el.getAttribute('data-prefix') || '',
       suffix: el.getAttribute('data-suffix') || '',
-      duration: mode === 'to' ? attr(el, 'data-tick-update-ms', 450) : attr(el, 'data-tick-ms', 1100),
+      duration: bounded(attr(el, mode === 'to' ? 'data-tick-update-ms' : 'data-tick-ms', 400), 500),
     };
   }
   function tick(el, mode, slide) {
+    clearTimeout(el._mTickT);
+    cancelAnimationFrame(el._tickRaf);
+    el._mTickT = el._tickRaf = null;
     const to = parseFloat(el.getAttribute('data-tick'));
     if (!Number.isFinite(to)) return;
     const o = tickOpt(el, mode);
     const paint = v => { el._tickVal = v; el.textContent = o.prefix + D.fmt(v, o.decimals) + o.suffix; };
-    clearTimeout(el._mTickT);
-    cancelAnimationFrame(el._tickRaf);
-    if (mode === 'final' || REDUCED) { paint(to); return; }
+    if (mode === 'final' || isQuiet() || !o.duration) { paint(to); return; }
+    slide = slide || el.closest('.slide');
     if (mode === 'up') paint(0);
-    const delay = mode === 'up' ? attr(el, 'data-tick-delay', 0) + delayOf(el, slide) : 0;
-    const run = () => D.tick(el, to, o);
+    const from = Number.isFinite(el._tickVal) ? el._tickVal : to;
+    if (from === to) { paint(to); return; }
+    const delay = mode === 'up' ? bounded(attr(el, 'data-tick-delay', 0) + delayOf(el, slide), 100) : 0;
+    const live = () => el.isConnected && slide === cur && isOn(slide) && onAt(el, slide, curStep);
+    const run = () => {
+      el._mTickT = null;
+      if (!live()) return;
+      if (isQuiet()) { paint(to); return; }
+      const start = performance.now();
+      const frame = now => {
+        el._tickRaf = null;
+        if (!live()) return;
+        const t = isQuiet() ? 1 : bounded((now - start) / o.duration, 1);
+        paint(t === 1 ? to : from + (to - from) * (1 - Math.pow(1 - t, 3)));
+        if (t < 1) el._tickRaf = requestAnimationFrame(frame);
+      };
+      el._tickRaf = requestAnimationFrame(frame);
+    };
     if (delay > 0) el._mTickT = setTimeout(run, delay); else run();
   }
 
-  /* .flow / [data-flow]: dots move with transform keyframes sampled along the path (Web Animations, GPU for HTML). */
-  let sampler = null;
-  function pathFromD(d) {
-    if (!sampler) {
-      sampler = document.createElementNS(SVGNS, 'svg');
-      sampler.setAttribute('aria-hidden', 'true');
-      sampler.style.cssText = 'position:absolute;left:0;top:0;width:0;height:0;overflow:hidden;visibility:hidden;pointer-events:none';
-      sampler.appendChild(document.createElementNS(SVGNS, 'path'));
-      document.body.appendChild(sampler);
-    }
-    sampler.firstChild.setAttribute('d', d);
-    return sampler.firstChild;
-  }
-  function frames(path, svg) {
-    const len = path.getTotalLength(), n = Math.max(12, Math.min(180, Math.round(len / 8)));
-    const out = [];
-    for (let i = 0; i <= n; i++) {
-      const t = i / n, q = path.getPointAtLength(len * t);
-      out.push({
-        offset: t,
-        opacity: Math.max(0, Math.min(1, t / 0.08, (1 - t) / 0.14)),
-        transform: svg ? `translate(${q.x}px, ${q.y}px)` : `translate3d(${q.x}px, ${q.y}px, 0)`,
-      });
-    }
-    return out;
-  }
-  function svgDots(path, n) {
-    let track = path._mTrack;
-    if (!track || !track.isConnected) {
-      track = document.createElementNS(SVGNS, 'g');
-      track.setAttribute('class', 'm-flow-track');
-      track.setAttribute('aria-hidden', 'true');
-      const tf = path.getAttribute('transform');
-      if (tf) track.setAttribute('transform', tf);
-      path.after(track);
-      path._mTrack = track;
-    }
-    const r = attr(path, 'data-flow-r', 5);
-    while (track.childElementCount < n) {
-      const g = document.createElementNS(SVGNS, 'g');
-      g.setAttribute('class', 'm-flow-dot');
-      g.innerHTML = `<circle class="m-flow-glow" r="${r * 2.6}"></circle><circle r="${r}"></circle>`;
-      track.appendChild(g);
-    }
-    while (track.childElementCount > n) track.lastElementChild.remove();
-    return Array.from(track.children);
-  }
-  function htmlDots(el, n) {
-    const list = [el];
-    el._mClones = (el._mClones || []).filter(c => c.isConnected);
-    while (el._mClones.length < n - 1) {
-      const c = el.cloneNode(false);
-      ['id', 'data-path', 'data-b', 'data-b-out'].forEach(a => c.removeAttribute(a));
-      c.classList.add('m-flow-clone');
-      c.setAttribute('aria-hidden', 'true');
-      el.after(c);
-      el._mClones.push(c);
-    }
-    el._mClones.forEach((c, i) => { if (i < n - 1) list.push(c); });
-    return list;
-  }
-  function flowStop(el) {
-    (el._mFlow || []).forEach(a => a.cancel());
-    el._mFlow = null;
-  }
-  function flowStart(el, slide, withDelay) {
-    flowStop(el);
-    if (REDUCED || typeof el.animate !== 'function') return;
-    const svg = !el.classList.contains('flow');
-    const path = svg ? el : pathFromD(el.getAttribute('data-path') || '');
-    let kf;
-    try { kf = frames(path, svg); } catch (e) { return; }
-    const ms = attr(el, 'data-flow-ms', 2400);
-    const n = Math.max(1, parseInt(el.getAttribute('data-flow-dots'), 10) || 1);
-    let delay = 0;
-    if (withDelay) {
-      delay = attr(el, 'data-flow-delay', 0) + delayOf(el, slide);
-      if (el.hasAttribute('data-draw')) delay += attr(el, 'data-draw-ms', DRAW_MS) + attr(el, 'data-draw-delay', 0);
-    }
-    const easing = el.getAttribute('data-flow-ease') || (n > 1 ? 'linear' : 'cubic-bezier(0.45, 0, 0.55, 1)');
-    const dots = svg ? svgDots(el, n) : htmlDots(el, n);
-    el._mFlow = dots.map((dot, i) => dot.animate(kf, { duration: ms, delay: delay + (i * ms) / n, iterations: Infinity, easing, fill: 'backwards' }));
-  }
-
-  /* SVG pins: circle.pulse gets a ring behind it (HTML pins use .pulse::after in motion.css). */
   function prepare(slide) {
     if (!slide.dataset.mood) slide.dataset.mood = MOODS[slide.id] || 'editorial';
     stagger(slide);
-    slide.querySelectorAll('circle.pulse').forEach(c => {
-      if (c._mRing && c._mRing.isConnected) return;
-      const ring = c.cloneNode(false);
-      ['id', 'data-draw', 'data-flow', 'data-tick'].forEach(a => ring.removeAttribute(a));
-      ring.setAttribute('class', 'm-pulse-ring');
-      ring.setAttribute('aria-hidden', 'true');
-      c.before(ring);
-      c._mRing = ring;
-    });
   }
 
   function show(p, slide, animate) {
     if (p.hasAttribute('data-draw')) stroke(p, true, animate ? drawOpt(p, slide) : null);
     if (p.hasAttribute('data-tick')) tick(p, animate ? 'up' : 'final', slide);
-    if (p.hasAttribute('data-flow') || p.classList.contains('flow')) flowStart(p, slide, animate);
   }
-  function hide(p, slide, erase, entering) {
-    if (p.hasAttribute('data-draw')) {
-      if (erase) stroke(p, false, { ms: Math.min(700, Math.round(attr(p, 'data-draw-ms', DRAW_MS) * 0.45)), delay: 0, ease: EASE_IO, fromCurrent: true });
-      else if (entering) stroke(p, false, null);       // hidden at entry: no stale line
-    }
-    if (p.hasAttribute('data-tick')) clearTimeout(p._mTickT);
-    if (p.hasAttribute('data-flow') || p.classList.contains('flow')) flowStop(p);
+  function hide(p) {
+    if (p.hasAttribute('data-draw')) stroke(p, false, null);
+    if (p.hasAttribute('data-tick')) tick(p, 'final');
   }
   function applyStep(slide, step, dir, entering, quiet) {
     const animate = !quiet && dir > 0;                 // builds play forward; going back restores
     slide.querySelectorAll(PRIM).forEach(p => {
-      if (p.classList.contains('m-flow-clone')) return;
-      const on = onAt(p, slide, step), was = shown.get(p) === true;
-      if (on === was && !(entering && !on)) return;
+      const on = onAt(p, slide, step), was = shown.get(p);
+      if (on === was && !entering && !quiet && dir > 0) return;
       shown.set(p, on);
       if (on) show(p, slide, animate);
-      else hide(p, slide, !quiet && dir < 0, entering);
+      else hide(p);
     });
   }
 
-  function enterSlide(el, dir, quiet) {
+  function enterSlide(el, dir) {
     clearTimeout(el._mLiveT);
-    el.classList.remove('m-out');
+    el._mLiveT = null;
+    el.classList.remove('m-out', 'm-from');
     el.classList.toggle('m-back', dir < 0);
     el.classList.add('m-live');
     if (stage) stage.dataset.mood = el.dataset.mood || MOODS[el.id] || 'editorial';
-    if (quiet) return;
-    el.classList.add('m-from');                        // start state with transitions off (motion.css) ...
-    void el.offsetWidth;                               // ... committed ...
-    el.classList.remove('m-from');                     // ... then the spring takes it to rest
+    // Let CSS reverse an in-flight fade naturally; never reset a returning slide to opacity zero.
   }
   function leaveSlide(el, dir, quiet) {
     el.classList.add('m-out');
     el.classList.toggle('m-back', dir < 0);
-    el.querySelectorAll(PRIM).forEach(p => { shown.set(p, false); clearTimeout(p._mTickT); });
+    el.querySelectorAll(PRIM).forEach(p => {
+      if (p.hasAttribute('data-draw')) stroke(p, onAt(p, el, +el.dataset.step || 0), null);
+      if (p.hasAttribute('data-tick')) tick(p, 'final', el);
+      shown.set(p, false);
+    });
     clearTimeout(el._mLiveT);
     const stop = () => {
-      if (el === cur) return;
-      el.classList.remove('m-live');
-      el.querySelectorAll(PRIM).forEach(flowStop);
+      el._mLiveT = null;
+      if (el === cur || isOn(el)) return;
+      el.classList.remove('m-live', 'm-out', 'm-back', 'm-from');
+      el.querySelectorAll(PRIM).forEach(hide);
     };
     if (quiet) stop(); else el._mLiveT = setTimeout(stop, LIVE_MS);
   }
@@ -304,11 +232,12 @@
       if (el === cur && step === curStep) return;
       const idx = list.indexOf(el), prev = cur, entering = el !== prev;
       const dir = !prev ? 0 : entering ? Math.sign(idx - curIdx) : Math.sign(step - curStep);
-      const quiet = REDUCED || !prev || (stage && stage.classList.contains('instant'));
+      const quiet = isQuiet() || !prev;
       cur = el; curIdx = idx; curStep = step;
+      el.classList.toggle('m-back', dir < 0);
       if (entering) {
         if (prev) leaveSlide(prev, dir, quiet);
-        enterSlide(el, dir, quiet);
+        enterSlide(el, dir);
       }
       applyStep(el, step, dir, entering, quiet);
       if (entering && prev) emit('deck:leave', { id: prev.id, el: prev, dir });
@@ -331,21 +260,50 @@
   Array.prototype.filter.call(host.children, isSlide).forEach(attach);
 
   /* A slide that writes a new data-tick while it is on screen gets an eased update. */
-  new MutationObserver(recs => recs.forEach(r => {
-    const el = r.target;
-    if (r.oldValue !== el.getAttribute('data-tick') && shown.get(el) === true) tick(el, 'to');
-  })).observe(host, { subtree: true, attributes: true, attributeFilter: ['data-tick'], attributeOldValue: true });
+  new MutationObserver(recs => {
+    const changed = new Set(recs.filter(r => r.oldValue !== r.target.getAttribute('data-tick')).map(r => r.target));
+    changed.forEach(el => tick(el, shown.get(el) === true ? 'to' : 'final'));
+  }).observe(host, { subtree: true, attributes: true, attributeFilter: ['data-tick'], attributeOldValue: true });
 
+  function settle() {
+    Array.from(host.children).filter(isSlide).forEach(slide => {
+      clearTimeout(slide._mLiveT);
+      slide._mLiveT = null;
+      if (slide !== cur) slide.classList.remove('m-live', 'm-out', 'm-back', 'm-from');
+      slide.querySelectorAll(PRIM).forEach(p => {
+        const on = slide === cur && onAt(p, slide, curStep);
+        shown.set(p, on);
+        if (p.hasAttribute('data-draw')) stroke(p, on, null);
+        if (p.hasAttribute('data-tick')) tick(p, 'final', slide);
+      });
+    });
+  }
+  function settleReducedMotion() {
+    if (stage) stage.classList.toggle('motion-reduced', reduced());
+    Array.from(host.children).filter(isSlide).forEach(stagger);
+    if (isQuiet()) settle();
+  }
+  // Instant hash jumps can keep a visible primitive in the same build window.
+  if (stage) {
+    let instant = stage.classList.contains('instant');
+    new MutationObserver(() => {
+      const next = stage.classList.contains('instant');
+      if (next && !instant) settle();
+      instant = next;
+    }).observe(stage, { attributes: true, attributeFilter: ['class'] });
+  }
+  motionQuery.addEventListener('change', settleReducedMotion);
+  settleReducedMotion();
   sync();
 
   window.DeckMotion = {
-    reduced: REDUCED, moods: MOODS,
+    get reduced() { return reduced(); }, moods: MOODS,
     /* after a slide rebuilt its DOM: re-stagger and play primitives that are new on screen */
     refresh(root) {
       const slide = root || cur;
       if (!slide) return;
       prepare(slide);
-      if (slide === cur) applyStep(cur, curStep, 1, false, REDUCED);
+      if (slide === cur) applyStep(cur, curStep, 1, false, isQuiet());
     },
     get current() { return cur ? { id: cur.id, step: curStep } : null; },
   };

@@ -1,82 +1,89 @@
-/* Slide 2 · How it works. Three 300 px lenses centred on x 420 / 960 / 1500, y 520; gold pulses between them.
+/* Slide 2 · How it works. Light European theme: navy ink on the slide's own background, EU blue for rules and marks,
+   gold only for Johan and the pulses. Three columns on the 96 px margins (528 px wide, 72 px gutters); each column has a
+   head (number + rule) that is always on the slide, and a 300 px lens centred in it. Lens 1 is the transparent vector map
+   clipped to a circle with a hairline border and no fill, straight on the slide. Gold pulses run between the lenses.
    Only transform, opacity and stroke-dashoffset animate. */
-#s2 .s2-title { position: absolute; left: 0; right: 0; top: 150px; text-align: center; }
+#s2 .s2-title { position: absolute; left: 96px; top: 122px; }
 
-/* one column per stage: lens, then caption */
-#s2 .s2-fig { position: absolute; top: 370px; width: 520px; margin: 0 0 0 -260px; text-align: center; }
-#s2 .s2-fig-1 { left: 420px; }
-#s2 .s2-fig-2 { left: 960px; }
-#s2 .s2-fig-3 { left: 1500px; }
+#s2 .s2-fig { position: absolute; top: 290px; width: 528px; margin: 0; }
+#s2 .s2-fig-1 { left: 96px; }
+#s2 .s2-fig-2 { left: 696px; }
+#s2 .s2-fig-3 { left: 1296px; }
+
+/* column head: number, then a hairline with an EU-blue accent at its start */
+#s2 .s2-stage-head { display: flex; align-items: center; gap: 18px; height: 28px; }
+#s2 .s2-n { font: 600 18px/1 var(--mono); letter-spacing: 0.14em; color: var(--ink-3); transition: color 500ms var(--spring); }
+#s2 .s2-stage-rule { position: relative; flex: 1; height: 1px; background: rgba(0, 51, 153, 0.16); }
+#s2 .s2-stage-rule::before { content: ""; position: absolute; left: 0; top: -1px; width: 56px; height: 3px; background: var(--eu-blue); transform: scaleX(0); transform-origin: 0 50%; transition: transform 700ms var(--spring); }
+#s2.is-active .s2-fig-1 .s2-stage-rule::before, #s2.s1 .s2-fig-2 .s2-stage-rule::before, #s2.s2 .s2-fig-3 .s2-stage-rule::before { transform: none; }
+#s2.is-active .s2-fig-1 .s2-n, #s2.s1 .s2-fig-2 .s2-n, #s2.s2 .s2-fig-3 .s2-n { color: var(--eu-blue); }
 
 #s2 .s2-lens {
-  position: relative; width: 300px; height: 300px; margin: 0 auto; border-radius: 50%; overflow: hidden; isolation: isolate;
-  background: radial-gradient(120% 120% at 30% 18%, #18233F 0%, #0C1427 55%, #080D1A 100%);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16), 0 0 0 12px rgba(255, 255, 255, 0.03), 0 40px 90px rgba(0, 0, 0, 0.5);
-}
-#s2 .s2-lens::after {
-  content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none; z-index: 2;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 -36px 60px rgba(0, 0, 0, 0.26);
+  position: relative; width: 300px; height: 300px; margin: 48px auto 0; border-radius: 50%; overflow: hidden; isolation: isolate;
+  border: 1px solid rgba(0, 51, 153, 0.3); background: none; box-shadow: none;
 }
 
 /* lens 1: the real map, ZOOM x around the flood callout (size and offset set in mount) */
-#s2 .s2-map { position: absolute; max-width: none; display: block; transform: scale(1.12); transition: transform 2600ms var(--spring); }
+#s2 .s2-map { position: absolute; max-width: none; display: block; transform: scale(1.1); transition: transform 2600ms var(--spring); }
 #s2.is-active .s2-map { transform: none; }
-#s2 .s2-lens-map { background: #DCDBD7; }
-#s2 .s2-lens-map::after { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), inset 0 0 46px rgba(7, 11, 22, 0.42); }
 
-/* lens 2: zone -> links -> battery badges */
+/* lens 2: residents (EU-blue dots, Johan gold) -> links -> shelter badges (EU blue; the tool's magenta stays inside its map) */
 #s2 .s2-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-#s2 .s2-zone { fill: rgba(255, 255, 255, 0.05); stroke: rgba(255, 255, 255, 0.24); stroke-width: 1; stroke-dasharray: 3 4; }
-#s2 .s2-home { fill: var(--ink); }
-#s2 .s2-home.is-johan { fill: var(--gold); }
-#s2 .s2-link {
-  fill: none; stroke: rgba(245, 247, 251, 0.34); stroke-width: 1.5; stroke-linecap: round;
+#s2 .s2-zone { fill: rgba(0, 51, 153, 0.04); stroke: rgba(0, 51, 153, 0.3); stroke-width: 1; stroke-dasharray: 3 4; }
+#s2 .s2-home { fill: var(--eu-blue); }
+#s2 .s2-home.is-johan { fill: var(--gold); stroke: var(--ink); stroke-width: 1.6; }
+#s2 .s2-link, #s2 .s2-link-casing {
+  fill: none; stroke-linecap: round;
   stroke-dasharray: var(--len); stroke-dashoffset: var(--len); transition: stroke-dashoffset 1100ms var(--spring);
 }
+#s2 .s2-link { stroke: rgba(0, 51, 153, 0.4); stroke-width: 1.5; }
+#s2 .s2-link-casing { stroke: var(--ink); stroke-width: 5.4; }
 #s2 .s2-link.is-johan { stroke: var(--gold); stroke-width: 2.6; }
-#s2.s1 .s2-link { stroke-dashoffset: 0; transition-delay: 380ms; }
-#s2 .s2-fill { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); transition: transform 1300ms var(--spring); }
+#s2.s1 .s2-link, #s2.s1 .s2-link-casing { stroke-dashoffset: 0; transition-delay: 380ms; }
+#s2 .s2-badge-outline { fill: none; stroke: none; }
+#s2 .s2-badge-base { fill: #DCE6F8; }
+#s2 .s2-badge-rim { fill: none; stroke: var(--eu-blue); }
+#s2 .s2-badge-house { fill: #FFFFFF; stroke: var(--eu-blue); stroke-width: 1; stroke-linejoin: round; }
+#s2 .s2-fill { fill: var(--eu-blue); transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); transition: transform 1300ms var(--spring); }
 #s2.s1 .s2-fill { transform: scaleY(var(--f)); transition-delay: 1000ms; }
 
-/* lens 3: phone with three numbered answers */
-#s2 .s2-phone { fill: rgba(255, 255, 255, 0.03); stroke: rgba(245, 247, 251, 0.62); stroke-width: 2; }
-#s2 .s2-island { fill: rgba(245, 247, 251, 0.45); }
+/* lens 3: phone with three numbered answers (3 = where to go, Johan's gold) */
+#s2 .s2-phone { fill: #FFFFFF; stroke: var(--ink); stroke-width: 2; }
+#s2 .s2-island { fill: var(--ink); }
 #s2 .s2-net { font: 600 10px var(--mono); fill: var(--ink-3); }
-#s2 .s2-card { fill: rgba(255, 255, 255, 0.08); stroke: rgba(255, 255, 255, 0.1); stroke-width: 1; }
+#s2 .s2-card { fill: rgba(0, 51, 153, 0.06); stroke: rgba(0, 51, 153, 0.12); stroke-width: 1; }
 #s2 .s2-ans-n { font: 700 15px var(--mono); fill: var(--ink-2); opacity: 0; transition: opacity 400ms var(--spring); }
-#s2 .s2-bar { fill: rgba(245, 247, 251, 0.6); transform-box: fill-box; transform-origin: 0 50%; transform: scaleX(0); transition: transform 700ms var(--spring); }
-#s2 .s2-ans-3 .s2-ans-n, #s2 .s2-ans-3 .s2-bar { fill: var(--gold); }
+#s2 .s2-bar { fill: rgba(10, 31, 77, 0.55); transform-box: fill-box; transform-origin: 0 50%; transform: scaleX(0); transition: transform 700ms var(--spring); }
+#s2 .s2-ans-3 .s2-ans-n { fill: var(--gold-ink); }
+#s2 .s2-ans-3 .s2-bar { fill: var(--gold); }
 #s2.s2 .s2-ans-n { opacity: 1; transition-delay: var(--d); }
 #s2.s2 .s2-bar { transform: none; transition-delay: var(--d); }
 #s2.s2 .s2-bar + .s2-bar { transition-delay: calc(var(--d) + 140ms); }
 
 /* captions */
-#s2 figcaption { display: flex; flex-direction: column; align-items: center; margin-top: 46px; }
-#s2 .s2-n { font: 600 16px/1 var(--mono); letter-spacing: 0.14em; color: var(--ink-3); margin-bottom: 16px; }
+#s2 figcaption { display: flex; flex-direction: column; align-items: center; margin-top: 40px; text-align: center; }
 #s2 .s2-name { font: 650 42px/1.08 var(--font); letter-spacing: -0.03em; color: var(--ink); }
 #s2 .s2-sub { font: 500 27px/1.3 var(--font); letter-spacing: -0.01em; color: var(--ink-2); margin-top: 10px; }
-#s2 .s2-sub i { font-style: normal; color: var(--gold); margin-right: 2px; }
+#s2 .s2-sub i { font-style: normal; color: var(--eu-blue); margin-right: 2px; }
 #s2 .s2-micro { font: 400 15px/1.4 var(--mono); color: var(--ink-3); margin-top: 18px; }
 
-/* connectors: a faint gold rail and three pulses travelling right (transform + opacity only) */
-#s2 .s2-conn { position: absolute; top: 519px; width: 196px; height: 2px; opacity: 0; transition: opacity 600ms var(--spring); }
-#s2 .s2-conn-1 { left: 592px; }
-#s2 .s2-conn-2 { left: 1132px; }
+/* connectors between the lenses: a faint navy rail and three gold pulses travelling right (transform + opacity only) */
+#s2 .s2-conn { position: absolute; top: 488px; width: 240px; height: 2px; opacity: 0; transition: opacity 600ms var(--spring); }
+#s2 .s2-conn-1 { left: 540px; }
+#s2 .s2-conn-2 { left: 1140px; }
 #s2.s1 .s2-conn-1, #s2.s2 .s2-conn-2 { opacity: 1; transition-delay: 250ms; }
-#s2 .s2-rail {
-  position: absolute; inset: 0; border-radius: 1px;
-  background: linear-gradient(90deg, rgba(255, 204, 0, 0), rgba(255, 204, 0, 0.32) 18%, rgba(255, 204, 0, 0.32) 82%, rgba(255, 204, 0, 0));
-}
+#s2 .s2-rail { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0, 51, 153, 0), rgba(0, 51, 153, 0.28) 16%, rgba(0, 51, 153, 0.28) 84%, rgba(0, 51, 153, 0)); }
 #s2 .s2-conn i {
-  position: absolute; left: -5px; top: -4px; width: 10px; height: 10px; border-radius: 50%;
-  background: var(--gold); box-shadow: 0 0 14px 3px rgba(255, 204, 0, 0.5);
-  transform: translate3d(calc(var(--k) * 65px + 33px), 0, 0);       /* resting spots (static screenshots, reduced motion) */
+  position: absolute; left: -6px; top: -5px; width: 12px; height: 12px; border-radius: 50%;
+  background: var(--gold); box-shadow: 0 0 0 1.5px var(--ink);
+  transform: translate3d(calc(var(--k) * 80px + 40px), 0, 0);       /* resting spots (static screenshots, reduced motion) */
   animation: s2-move 2.4s linear infinite, s2-fade 2.4s linear infinite; animation-delay: calc(var(--k) * -0.8s);
 }
-@keyframes s2-move { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(196px, 0, 0); } }
+@keyframes s2-move { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(240px, 0, 0); } }
 @keyframes s2-fade { 0% { opacity: 0; } 16%, 78% { opacity: 1; } 100% { opacity: 0; } }
 
-#s2 .s2-src { text-align: center; }
+/* disclaimer: on the left margin, above the logo band */
+#s2 .s2-src { left: 96px; right: 96px; bottom: 100px; margin: 0; text-align: left; font-size: 15px; color: var(--ink-2); }
 
 @media (prefers-reduced-motion: reduce) {
   #s2 .s2-conn i { animation: none; }

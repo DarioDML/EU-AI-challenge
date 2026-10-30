@@ -51,8 +51,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 PITCH_DIR = HERE.parent
 CHROME = os.environ.get("PITCH_QA_CHROME", r"C:\Program Files\Google\Chrome\Application\chrome.exe")
-SCRATCH = Path(r"C:\Users\Louis\AppData\Local\Temp\claude\C--Users-Louis-Desktop-EU-AI-challenge-github"
-               r"\69d7543f-97b1-496d-9954-a2f6065e9070\scratchpad")
+ROOT = next(p for p in HERE.parents if (p / "AGENTS.md").is_file())
 W, H = 1920, 1080
 EXPECTED_STEPS = {1: 4, 2: 3, 3: 4, 4: 2, 5: 3}                    # blueprint section 7
 EXPECTED_FAILS = (r"/assets/logos/", r"visualisation(%20| )busy[^\"' ]*\.svg")  # route-stress-map.svg is the real map now   # optional files the engine probes
@@ -62,9 +61,7 @@ TIER2 = ("overflow", "overlapping", "blank", "image_broken", "chart_empty", "tex
 def default_out() -> Path:
     if os.environ.get("PITCH_QA_OUT"):
         return Path(os.environ["PITCH_QA_OUT"])
-    if SCRATCH.is_dir():
-        return SCRATCH / "qa"
-    return Path(tempfile.gettempdir()) / "pitch-qa"
+    return ROOT / "figures" / "generated" / "pitch" / "qa"
 
 
 def log(msg):
@@ -266,7 +263,7 @@ HOOK_JS = r"""
           const orig = v.register;
           v.register = function (d) {
             try {
-              const notes = typeof d.notes === 'string' ? d.notes.replace(/<[^>]+>/g, ' ') : '';
+              const notes = typeof d.notes === 'string' ? d.notes.replace(/<[^>]+>/g, ' ') : (d.notes && d.notes.script) || '';
               window.__qaDefs.push({ id: d.id, order: d.order, steps: d.steps, title: d.title, time: d.time,
                 notesWords: (notes.match(/\S+/g) || []).length });
             } catch (e) {}

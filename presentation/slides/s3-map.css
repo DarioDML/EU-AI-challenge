@@ -1,40 +1,45 @@
-/* Slide 3 · The map. The screenshot at native size in a 1489 x 894 box at stage (215, 140): never scaled,
-   so it stays crisp on a 1080p projector. Overlay coordinates are image pixels (viewBox 14 4 1489 894).
-   Only transform, opacity and stroke-dashoffset animate. */
-#s3 .s3-title { position: absolute; left: 215px; top: 44px; }
+/* Slide 3 · The map. Light European theme: navy ink, white glass, gold only as a mark.
+   Left column (x 96-540): title, key, HUD. The transparent vector map sits at NATIVE size (1244 x 894) straight on the
+   slide at the right margin (x 580-1824, y 110-1004): no panel, no fill, no frame, no shadow behind or around it.
+   Overlay coordinates are map pixels (viewBox 0 0 1244 894). Only transform, opacity and stroke-dashoffset animate. */
+#s3 .s3-title { position: absolute; left: 96px; top: 122px; }
 
-#s3 .s3-map {
-  position: absolute; left: 215px; top: 140px; width: 1489px; height: 894px; overflow: hidden; isolation: isolate;
-  border-radius: 20px; background: #DCDBD7;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14), 0 40px 100px rgba(0, 0, 0, 0.5);
+#s3 .s3-map { position: absolute; left: 580px; top: 110px; width: 1244px; height: 894px; }
+/* the vector map is cut at its frame: a soft 28 px edge fade (transparent, so no rectangle shows) */
+#s3 .s3-art {
+  position: absolute; inset: 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 28px, #000 calc(100% - 28px), transparent), linear-gradient(180deg, transparent, #000 28px, #000 calc(100% - 28px), transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent, #000 28px, #000 calc(100% - 28px), transparent), linear-gradient(180deg, transparent, #000 28px, #000 calc(100% - 28px), transparent);
+  mask-composite: intersect;
 }
-#s3 .s3-base { position: absolute; left: -14px; top: -4px; width: 1524px; height: 919px; max-width: none; display: block; }
-#s3 .s3-ov { position: absolute; left: 0; top: 0; width: 1489px; height: 894px; overflow: hidden; }
+#s3 .s3-base { position: absolute; left: 0; top: 0; width: 1244px; height: 894px; max-width: none; display: block; }
+#s3 .s3-ov { position: absolute; left: 0; top: 0; width: 1244px; height: 894px; overflow: hidden; }
 
-/* routes: A white on a dark casing, B gold with a soft glow */
+/* routes: A white on a navy casing, B gold on a navy casing with a soft glow */
 #s3 .s3-route path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-#s3 .ra-case { stroke: #0A1020; stroke-opacity: 0.88; stroke-width: 9; }
+#s3 .ra-case { stroke: var(--ink); stroke-opacity: 0.92; stroke-width: 9; }
 #s3 .ra-line { stroke: #FFFFFF; stroke-width: 4.5; }
-#s3 .rb-glow { stroke: var(--gold); stroke-opacity: 0.75; stroke-width: 18; }
-#s3 .rb-case { stroke: #0A1020; stroke-opacity: 0.88; stroke-width: 10; }
-#s3 .rb-line { stroke: var(--gold); stroke-width: 5.5; }
+#s3 .rb-glow { display: none; }
+#s3 .rb-case { stroke: var(--ink); stroke-opacity: 0.95; stroke-width: 10.5; }
+#s3 .rb-line { stroke: var(--gold); stroke-width: 6; }
 #s3 .s3-route { opacity: 0; transition: opacity 400ms var(--spring); }
 #s3.s2 .s3-ra { opacity: 1; }
 #s3.s3 .s3-ra { opacity: 0.25; transition-duration: 900ms; }
 #s3.s3 .s3-rb { opacity: 1; }
 
-/* pins: a dot on the feature, a dark hairline leader, a glass label */
+/* pins: a dot on the feature, a navy hairline leader, a white glass label */
 #s3 .s3-leader {
-  stroke: rgba(10, 16, 32, 0.85); stroke-width: 1.6; stroke-linecap: round;
+  stroke: var(--ink); stroke-opacity: 0.7; stroke-width: 1.6; stroke-linecap: round;
   stroke-dasharray: var(--len); stroke-dashoffset: var(--len); transition: stroke-dashoffset 500ms var(--spring);
 }
 #s3 .s3-dot { transform-box: fill-box; transform-origin: center; transform: scale(0); transition: transform 600ms var(--spring); }
-#s3 .dot-flood { fill: #0072B2; stroke: #FFFFFF; stroke-width: 3; }
-#s3 .dot-jam { fill: #7A0019; stroke: #FFFFFF; stroke-width: 3; }
-#s3 .dot-home { fill: var(--gold); stroke: #0A1020; stroke-width: 2.5; }
-#s3 .dot-dest circle { fill: var(--gold); stroke: #0A1020; stroke-width: 2.5; }
-#s3 .dot-dest path { fill: #0A1020; }
-#s3 .s3-ping { fill: none; stroke: var(--gold); stroke-width: 2.5; transform-box: fill-box; transform-origin: center; opacity: 0; }
+#s3 .dot-flood { fill: var(--flood-line); stroke: #FFFFFF; stroke-width: 3; }
+#s3 .dot-jam { fill: var(--stress-4); stroke: #FFFFFF; stroke-width: 3; }
+#s3 .dot-home { fill: var(--gold); stroke: var(--ink); stroke-width: 2.5; }
+#s3 .dot-dest circle { fill: var(--gold); stroke: var(--ink); stroke-width: 2.5; }
+#s3 .dot-dest path { fill: var(--ink); }
+#s3 .s3-ping { fill: none; stroke: var(--ink); stroke-opacity: 0.55; stroke-width: 2.5; transform-box: fill-box; transform-origin: center; opacity: 0; }
 
 #s3 .s3-anchor { position: absolute; width: 0; height: 0; z-index: 3; }
 #s3 .s3-row { position: absolute; display: flex; pointer-events: none; }
@@ -45,19 +50,21 @@
 #s3 .a-l .s3-row { right: 0; top: -60px; height: 120px; align-items: center; }
 
 #s3 .s3-call {
-  white-space: nowrap; padding: 10px 16px 11px; border-radius: 14px; background: rgba(10, 16, 32, 0.76);
-  font: 600 22px/1.15 var(--font); letter-spacing: -0.01em; color: var(--ink);
-  opacity: 0; transform: scale(0.88); transition: opacity 450ms var(--spring), transform 700ms var(--spring);
+  white-space: nowrap; padding: 10px 16px 11px; background: var(--glass); color: var(--ink);
+  font: 600 22px/1.15 var(--font); letter-spacing: -0.01em;
+  opacity: 0; transform: scale(0.9); transition: opacity 450ms var(--spring), transform 700ms var(--spring);
 }
 #s3 .s3-call b { font-weight: 600; }
-#s3 .s3-call small { display: block; margin-top: 4px; font: 500 14px/1.3 var(--mono); letter-spacing: 0; color: var(--ink-2); }
+#s3 .s3-call small { display: block; margin-top: 4px; font: 500 18px/1.3 var(--mono); letter-spacing: 0; color: var(--ink-2); }
+#s3 .s3-call-flood b { color: var(--flood-line); }
+#s3 .s3-call-jam b { color: var(--stress-4); }
 #s3 .a-up .s3-call { transform-origin: 50% 100%; }
 #s3 .a-down .s3-call { transform-origin: 50% 0; }
 #s3 .a-ul .s3-call { transform-origin: 100% 100%; }
 #s3 .a-ur .s3-call { transform-origin: 0 100%; }
 #s3 .a-l .s3-call { transform-origin: 100% 50%; }
-#s3 .s3-call-home { color: var(--gold); padding: 8px 14px 9px; }
-#s3 .s3-call-dest { color: var(--gold); border-color: rgba(255, 204, 0, 0.55); }
+#s3 .s3-call-home { background: var(--gold); border-color: rgba(10, 31, 77, 0.3); padding: 8px 16px 9px; }
+#s3 .s3-call-dest { border-color: var(--gold); border-width: 2px; }
 #s3 .s3-end { display: flex; align-items: center; gap: 8px; font-size: 20px; padding: 8px 12px 9px 16px; }
 #s3 .s3-arrow { width: 16px; height: 16px; fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -70,63 +77,52 @@
 #s3.s1 .s3-call-flood { transition-delay: 200ms; }
 #s3.s1 .s3-call-jam { transition-delay: 550ms; }
 #s3.s1 .s3-call-home { transition-delay: 900ms; }
-#s3.s1 .s3-ping { opacity: 0.45; transform: scale(2); animation: s3-ping 2.4s var(--spring) 1.2s infinite; }
-@keyframes s3-ping { 0% { transform: scale(1); opacity: 0.9; } 100% { transform: scale(3.6); opacity: 0; } }
+#s3.s1 .s3-ping { opacity: 0.5; transform: scale(2); animation: none; }
+@keyframes s3-ping { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(3.6); opacity: 0; } }
 
-/* step 2: the flood label has done its job (its dot stays), so the frame belongs to Johan's routes */
-#s3.s2 .s3-call-flood { opacity: 0; transform: scale(0.88); transition-delay: 0ms; }
+/* step 2: the flood label has done its job (its dot stays), so the map belongs to Johan's routes */
+#s3.s2 .s3-call-flood { opacity: 0; transform: scale(0.9); transition-delay: 0ms; }
 #s3.s2 .s3-pin-flood .s3-leader { stroke-dashoffset: var(--len); transition-delay: 0ms; }
 
 /* step 2: route A label after the draw; step 3: it fades with the route */
 #s3 .s3-end { opacity: 0; }
-#s3.s2 .s3-end { opacity: 1; transform: none; transition-delay: 1500ms; }
-#s3.s3 .s3-end { opacity: 0.35; transition-delay: 0ms; }
+#s3.s2 .s3-end { opacity: 1; transform: none; transition-delay: 550ms; }
+#s3.s3 .s3-end { opacity: 0.4; transition-delay: 0ms; }
 
 /* step 3: the kindergarten pin */
-#s3.s3 .s3-pin-dest .s3-leader { stroke-dashoffset: 0; transition-delay: 1100ms; }
-#s3.s3 .s3-pin-dest .s3-dot { transform: none; transition-delay: 1000ms; }
-#s3.s3 .s3-call-dest { opacity: 1; transform: none; transition-delay: 1300ms; }
+#s3.s3 .s3-pin-dest .s3-leader { stroke-dashoffset: 0; transition-delay: 400ms; }
+#s3.s3 .s3-pin-dest .s3-dot { transform: none; transition-delay: 320ms; }
+#s3.s3 .s3-call-dest { opacity: 1; transform: none; transition-delay: 450ms; }
 
-/* key (covers the Leaflet zoom buttons) */
-#s3 .s3-key {
-  position: absolute; left: 14px; top: 14px; z-index: 4; display: flex; flex-direction: column; gap: 8px;
-  padding: 12px 16px 12px 12px; border-radius: 14px; background: rgba(10, 16, 32, 0.76);
-  font: 500 16px/1.2 var(--font); color: var(--ink);
-}
-#s3 .s3-key span { display: flex; align-items: center; gap: 10px; }
-#s3 .s3-key svg { width: 36px; height: 18px; flex: none; }
-#s3 .s3-key .k-bg { fill: #DCDBD7; }
+/* key (left column, under the title) */
+#s3 .s3-key { position: absolute; left: 96px; top: 308px; display: flex; flex-direction: column; gap: 14px; font: 500 20px/1.2 var(--font); color: var(--ink-2); }
+#s3 .s3-key span { display: flex; align-items: center; gap: 14px; }
+#s3 .s3-key svg { width: 36px; height: 18px; flex: none; overflow: visible; }
 
-/* HUD (top right of the map, clear of the routes) */
-#s3 .s3-hud { position: absolute; right: 16px; top: 16px; z-index: 4; width: 364px; display: flex; flex-direction: column; gap: 8px; }
-#s3 .s3-chip {
-  align-self: flex-end; display: grid; padding: 8px 14px 9px; border-radius: 999px; background: rgba(10, 16, 32, 0.76);
-  font: 600 15px/1.2 var(--font); color: var(--ink);
-}
-#s3 .s3-chip span { grid-area: 1 / 1; text-align: right; transition: opacity 500ms var(--spring); }
-#s3 .chip-b { opacity: 0; color: var(--gold); }
+/* HUD (left column, below the key): white glass tiles, navy numbers */
+#s3 .s3-hud { position: absolute; left: 96px; top: 470px; width: 440px; display: flex; flex-direction: column; gap: 12px; }
+#s3 .s3-chip { align-self: flex-start; display: grid; padding: 9px 18px 10px; border-radius: 999px; font: 600 18px/1.2 var(--font); color: var(--ink); }
+#s3 .s3-chip span { grid-area: 1 / 1; transition: opacity 500ms var(--spring); }
+#s3 .chip-b { opacity: 0; color: var(--gold-ink); }
 #s3.s3 .chip-a { opacity: 0; }
 #s3.s3 .chip-b { opacity: 1; }
-#s3 .s3-tile {
-  display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 68px;
-  padding: 11px 20px 11px 20px; border-radius: 16px; background: rgba(10, 16, 32, 0.76);
-}
-#s3 .s3-hud > :nth-child(3) { transition-delay: 90ms; }
-#s3 .s3-hud > :nth-child(4) { transition-delay: 180ms; }
-#s3 .t-l { font: 500 16px/1.25 var(--font); color: var(--ink-2); max-width: 170px; text-wrap: balance; }
-#s3 .t-v { display: flex; align-items: baseline; gap: 7px; flex: none; }
-#s3 .t-v b { font: 600 42px/1 var(--mono); letter-spacing: -0.02em; color: var(--ink); }
-#s3 .t-v small { font: 500 18px/1 var(--font); color: var(--ink-2); }
-#s3.s3 .v-trip { color: var(--gold); }
+#s3 .s3-tile { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 84px; padding: 12px 24px; }
+#s3 .t-l { font: 500 20px/1.25 var(--font); color: var(--ink-2); max-width: 230px; text-wrap: balance; }
+#s3 .t-v { display: flex; align-items: baseline; gap: 8px; flex: none; }
+#s3 .t-v b { font: 600 46px/1 var(--mono); letter-spacing: -0.02em; color: var(--ink); }
+#s3 .t-v small { font: 500 20px/1 var(--font); color: var(--ink-2); }
+#s3.s3 .v-trip { color: var(--gold-ink); }
 
-/* sources: map credits cover the Leaflet legend button and attribution; the rest sits under the map */
-#s3 .s3-credit {
-  position: absolute; right: 0; bottom: 0; z-index: 4; padding: 10px 18px 11px 16px;
-  border-radius: 14px 0 0 0; border-width: 1px 0 0 1px; box-shadow: none; background: rgba(10, 16, 32, 0.78);
-  font: 400 12.5px/1.45 var(--mono); color: var(--ink-2);
-}
-#s3 .s3-src { left: 215px; right: auto; width: 1489px; bottom: 14px; margin: 0; font-size: 14px; }
+/* sources under the map, aligned with its left edge */
+#s3 .s3-src { left: 580px; right: 96px; bottom: 16px; margin: 0; text-align: left; font-size: 13px; }
 
 @media (prefers-reduced-motion: reduce) {
   #s3.s1 .s3-ping { animation: none; }
 }
+
+/* Flat comparison rows keep the map as the only large visual. */
+#s3 .s3-chip.glass { padding: 0 0 14px; border: 0; border-radius: 0; box-shadow: none; background: transparent; color: var(--eu-blue); }
+#s3 .s3-tile.glass { padding: 20px 0; border: 0; border-top: 1px solid #DEE5EF; border-radius: 0; box-shadow: none; background: transparent; }
+#s3 .chip-b, #s3.s3 .v-trip { color: var(--eu-blue); }
+#s3 .s3-time-note { display: block; margin-top: 7px; font: 400 16px/1.2 var(--font); color: var(--ink-3); }
+#s3.s3 .s3-end { opacity: 0; }

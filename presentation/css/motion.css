@@ -1,124 +1,70 @@
-/* Motion layer (agent 9). Loads last: retimes the slide and build transitions of deck.css and styles the opt-in
-   primitives driven by js/motion.js (API in its header). Only transform, opacity and stroke-dashoffset animate.
-   Moods (data-mood on each slide, set by motion.js): cinematic s1 s5 · editorial s2 · pro s3 s4. */
+/* Motion layer. Loads last; slide layout and the 1920 x 1080 stage belong to the deck.
+   One quiet rhythm throughout: crossfade slides, lift builds 12px, briefly reveal useful paths. */
 :root {
-  --m-ease: var(--spring, cubic-bezier(0.16, 1, 0.3, 1));   /* arrivals: quick start, long soft landing */
-  --m-ease-io: cubic-bezier(0.65, 0, 0.35, 1);               /* departures and loops */
-  --m-ease-film: cubic-bezier(0.4, 0, 0.2, 1);               /* slow cinematic fades */
+  --m-ease: cubic-bezier(0.2, 0, 0.2, 1);
 }
 
-/* ---------- timing per mood ---------- */
+/* Slides crossfade without changing scale or moving their contents. */
 .slide {
-  --m-in-fade: 760ms; --m-in-move: 900ms; --m-in-ease: var(--m-ease); --m-out-fade: 600ms;
-  --m-from: 1.015; --m-from-back: 0.985;
-  --m-b-fade: 700ms; --m-b-move: 860ms; --m-b-rise: 28px;
-}
-.slide[data-mood="cinematic"] {
-  --m-in-fade: 1300ms; --m-in-move: 1600ms; --m-in-ease: var(--m-ease-film); --m-out-fade: 900ms;
-  --m-from: 0.96; --m-from-back: 0.96;
-  --m-b-fade: 1100ms; --m-b-move: 1400ms; --m-b-rise: 24px;
-}
-.slide[data-mood="pro"] { --m-b-fade: 560ms; --m-b-move: 680ms; --m-b-rise: 18px; }
-
-/* ---------- slides: the incoming one lands on top from scale(--m-from); the outgoing one settles back ---------- */
-.slide {
-  will-change: opacity;              /* deck.css also hints transform, which freezes the raster scale (soft text at rest) */
-  transform: scale(var(--m-from));
-  transition: opacity var(--m-out-fade) var(--m-ease-io), transform 820ms var(--m-ease), visibility 0s linear var(--m-out-fade);
+  --m-b-rise: 12px;
+  will-change: opacity;
+  transform: none;
+  transition: opacity 400ms var(--m-ease), visibility 0s linear 400ms;
 }
 .slide.is-active {
   z-index: 2; transform: none;
-  transition: opacity var(--m-in-fade) var(--m-in-ease) 60ms, transform var(--m-in-move) var(--m-ease), visibility 0s;
+  transition: opacity 400ms var(--m-ease), visibility 0s;
 }
-.slide.m-out { z-index: 1; transform: scale(0.985); }
-.slide.m-out.m-back { transform: scale(1.015); }                  /* going back, the stack runs in reverse */
-.slide.is-active.m-from { opacity: 0; transform: scale(var(--m-from)); transition: none !important; }
-.slide.is-active.m-from.m-back { transform: scale(var(--m-from-back)); }
+.slide.m-out { z-index: 1; transform: none; }
 
-/* ---------- builds: in with the spring (staggered by --m-delay), out quick and quiet ---------- */
+/* Build delays are bounded so a complete reveal stays within half a second. */
 .slide [data-b] {
   transform: translate3d(0, var(--m-b-rise), 0);
-  transition: opacity 380ms var(--m-ease-io), transform 480ms var(--m-ease-io);
+  transition: opacity 350ms var(--m-ease), transform 400ms var(--m-ease);
+  transition-delay: 0ms !important;
 }
 .slide.is-active [data-b="0"],
-.slide.s1 [data-b="1"], .slide.s2 [data-b="2"], .slide.s3 [data-b="3"], .slide.s4 [data-b="4"], .slide.s5 [data-b="5"],
-.slide.s6 [data-b="6"], .slide.s7 [data-b="7"], .slide.s8 [data-b="8"], .slide.s9 [data-b="9"] {
+.slide.s1 [data-b="1"], .slide.s2 [data-b="2"], .slide.s3 [data-b="3"],
+.slide.s4 [data-b="4"], .slide.s5 [data-b="5"], .slide.s6 [data-b="6"],
+.slide.s7 [data-b="7"], .slide.s8 [data-b="8"], .slide.s9 [data-b="9"] {
   opacity: 1; transform: none;
-  transition: opacity var(--m-b-fade) var(--m-ease) var(--m-delay, 0ms), transform var(--m-b-move) var(--m-ease) var(--m-delay, 0ms);
+  transition-delay: clamp(0ms, var(--m-delay, 0ms), 100ms) !important;
 }
+.slide.s1 [data-b-out="1"], .slide.s2 [data-b-out="2"], .slide.s3 [data-b-out="3"],
+.slide.s4 [data-b-out="4"], .slide.s5 [data-b-out="5"], .slide.s6 [data-b-out="6"],
 .slide.s7 [data-b-out="7"], .slide.s8 [data-b-out="8"], .slide.s9 [data-b-out="9"] {
-  opacity: 0 !important; transform: translate3d(0, -16px, 0) !important; pointer-events: none;
+  opacity: 0 !important; transform: translate3d(0, -12px, 0) !important;
+  transition-delay: 0ms !important; pointer-events: none;
 }
-.slide [data-draw][data-b] { transform: none; }                    /* a drawn line does not also rise */
-.slide [data-stagger][data-b] { transform: none; }                 /* the container fades; its items rise */
-/* a slide that is leaving keeps its step-0 builds: it fades and settles as one piece */
+.slide [data-draw][data-b], .slide [data-stagger][data-b] { transform: none; }
+/* The outgoing slide retains its first build until the crossfade finishes. */
 .slide.m-out [data-b="0"] { opacity: 1; transform: none; }
-/* entering: builds jump to the entry step (no stale fades); going forward, step-0 builds rise in after it */
-.slide.is-active.m-from :is([data-b], [data-b-out]):not([style*="transition"]) { transition: none !important; }
-.slide.is-active.m-from:not(.m-back) [data-b="0"] { opacity: 0; }
-.slide.is-active.m-from:not(.m-back) [data-b="0"]:not([data-draw], [data-stagger]) { transform: translate3d(0, var(--m-b-rise), 0); }
+.slide.m-back [data-b] { transition-delay: 0ms !important; }
 
 [data-tick] { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
 
-/* ---------- data-kenburns: slow push-in while the slide is on screen ---------- */
-.slide [data-kenburns]:not(img) { overflow: hidden; }
-.slide :is([data-kenburns] > img, [data-kenburns] > picture, img[data-kenburns]) { transform-origin: var(--kb-origin, 50% 50%); }
-.slide:is(.is-active, .m-live) :is([data-kenburns] > img, [data-kenburns] > picture, img[data-kenburns]) {
-  animation: m-kenburns var(--kb-ms, 14s) cubic-bezier(0.33, 0, 0.25, 1) both;
+/* Legacy decorative hooks remain harmless; the original route and pin stay visible. */
+.slide :is([data-kenburns] > img, [data-kenburns] > picture, img[data-kenburns]) {
+  animation: none; transform: none;
 }
-@keyframes m-kenburns { from { transform: scale(1); } to { transform: scale(1.04); } }
+.pulse::after, .m-vignette::after {
+  content: none; animation: none; background: none;
+}
+.flow, .m-flow-track, .m-flow-dot, .m-flow-clone, .m-pulse-ring { display: none; animation: none; }
+/* Old slide-specific loops must not survive alongside newer slide styles. */
+#deck .s3-ping, #deck .s2-conn i { display: none; animation: none !important; }
+#deck .s2-map, #deck .s1-fig { transform: none !important; transition: opacity 400ms var(--m-ease); }
 
-/* ---------- .pulse: gold halo ring (HTML ::after; SVG circle.pulse gets .m-pulse-ring) ---------- */
-:where(.pulse) { position: relative; }
-.pulse::after {
-  content: ""; position: absolute; box-sizing: border-box; pointer-events: none;
-  left: calc(50% - var(--pulse-size, 100%) / 2); top: calc(50% - var(--pulse-size, 100%) / 2);
-  width: var(--pulse-size, 100%); height: var(--pulse-size, 100%);
-  border-radius: 50%; border: 2px solid var(--pulse-color, var(--gold));
-  box-shadow: 0 0 0 1px rgba(10, 31, 77, 0.35), 0 4px 14px rgba(10, 31, 77, 0.18);      /* navy hairline: reads on white */
-  opacity: 0.4; transform: scale(1.5);                              /* still frame: screenshots, reduced motion */
-  animation: m-pulse 2.4s var(--m-ease) infinite;
+/* Use none rather than a near-zero duration: screenshots and reduced motion have no delayed work. */
+html.static *, html.static *::before, html.static *::after,
+#stage.motion-reduced, #stage.motion-reduced *,
+#stage.motion-reduced::before, #stage.motion-reduced::after,
+#stage.motion-reduced *::before, #stage.motion-reduced *::after,
+#stage.instant *, #stage.instant *::before, #stage.instant *::after {
+  transition: none !important; animation: none !important;
 }
-.m-pulse-ring {
-  fill: none; stroke: var(--pulse-color, var(--gold)); stroke-width: 2.5; filter: drop-shadow(0 0 1px rgba(10, 31, 77, 0.6)); vector-effect: non-scaling-stroke;
-  transform-box: fill-box; transform-origin: 50% 50%; pointer-events: none;
-  stroke-opacity: 0.4; transform: scale(1.5);
-  animation: m-pulse-svg 2.4s var(--m-ease) infinite;
-}
-.slide:not(.is-active):not(.m-live) .pulse::after,
-.slide:not(.is-active):not(.m-live) .m-pulse-ring { animation: none; }       /* off screen: no work */
-@keyframes m-pulse { 0% { opacity: 0.9; transform: scale(0.9); } 100% { opacity: 0; transform: scale(2.6); } }
-@keyframes m-pulse-svg { 0% { stroke-opacity: 0.9; transform: scale(0.9); } 100% { stroke-opacity: 0; transform: scale(2.6); } }
-
-/* ---------- .flow / [data-flow]: gold dots, moved by motion.js (transform keyframes) ---------- */
-:where(.flow) { position: absolute; left: 0; top: 0; }
-.flow {
-  width: 10px; height: 10px; translate: -50% -50%; border-radius: 50%; pointer-events: none; opacity: 0;
-  background: var(--flow-color, var(--gold));
-  box-shadow: 0 0 0 1.5px rgba(10, 31, 77, 0.55), 0 3px 10px rgba(10, 31, 77, 0.25);
-}
-.m-flow-dot { fill: var(--flow-color, var(--gold)); stroke: rgba(10, 31, 77, 0.6); stroke-width: 1.5; opacity: 0; pointer-events: none; }
-.m-flow-glow { fill: rgba(10, 31, 77, 0.10); stroke: none; }
-
-/* ---------- soft blue edge for picture wrappers (light theme: no dark vignette) ---------- */
-:where(.m-vignette) { position: relative; }
-.m-vignette::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(130% 120% at 50% 45%, transparent 55%, rgba(0, 51, 153, 0.10) 100%);
-}
-
-/* ---------- stage atmosphere: grid on data slides, spotlight on cinematic ones ---------- */
-#stage::before, #stage::after {                                                     /* cinematic: a soft warm spotlight, no grain, no black */
-  background: radial-gradient(900px 620px at 62% 52%, rgba(255, 204, 0, 0.10), transparent 70%);
-}
-#stage[data-mood="cinematic"]::after { opacity: 1; }
-#stage.instant::before, #stage.instant::after { transition: none; }
-
-/* ---------- guards ---------- */
-html.static .flow, html.static .m-flow-dot { display: none; }
 @media (prefers-reduced-motion: reduce) {
-  .slide, .slide [data-b] { transition-delay: 0ms !important; }
-  .slide :is([data-kenburns] > img, [data-kenburns] > picture, img[data-kenburns]), .pulse::after, .m-pulse-ring { animation: none !important; }
-  .flow, .m-flow-dot { display: none; }
-  #stage::before, #stage::after { transition: none; }
+  #stage, #stage *, #stage::before, #stage::after, #stage *::before, #stage *::after {
+    transition: none !important; animation: none !important;
+  }
 }

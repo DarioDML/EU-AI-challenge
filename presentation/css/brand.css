@@ -1,29 +1,27 @@
-/* Brand lockup (agent 6). Top right on every slide:
-   "European AI Challenge 2026 | FARI × Joint Research Centre".
-   Typography only: no emblem, no flag stars, no imitation of an official logo. The organiser is FARI (not "FAIR").
-   If the organisers' own files are dropped into assets/logos/ (fari.svg|png, jrc.svg|png), the engine inserts
-   them as <img> and adds .has-logo; slide 5 reuses them in its closing lockup. */
-:root {
-  /* Organisers' logo files are shown in white on the dark stage. Set this to `none` to keep their original colours. */
-  --logo-filter: brightness(0) invert(1);
-}
+/* Brand (agent 6): the organisers' two logos, bottom left on every slide: no pill, card, border, shadow or rule.
+   The files are shown whole: not cropped, recoloured or stretched. Both carry padding, so each image is sized from
+   --art (the height of its visible artwork) and nudged by its own padding so the artwork sits on the 96 px margin and
+   on one baseline. 'logo JRC.jpg' has a white background: multiply makes it vanish on the light stage (so the blend sits on .brand itself, above the active slide). Without the files a typographic fallback shows. */
+:root { --logo-filter: none; }
 
 .brand {
-  top: 28px; right: var(--margin); height: 48px; gap: 0;
-  font: 500 15px/1 var(--font); letter-spacing: 0; color: var(--ink-2); white-space: nowrap;
-  text-shadow: 0 1px 14px rgba(5, 8, 16, 0.6);            /* stays legible if a slide puts light pixels nearby */
-  transition: opacity 600ms var(--spring), transform 900ms var(--spring);
+  --art: 38px;
+  position: absolute; left: var(--margin); right: auto; top: auto; bottom: 30px; z-index: 16; height: auto;
+  mix-blend-mode: multiply;   /* the whole block multiplies onto the slide: the white of the JRC jpg vanishes */
+  display: flex; align-items: flex-end; gap: 44px; padding: 0; margin: 0;
+  background: none; border: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+  pointer-events: none; transition: opacity 600ms var(--spring);
 }
-.brand-event { font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
-.brand-sep { width: 1px; height: 18px; margin: 0 18px; background: rgba(245, 247, 251, 0.26); }
-.brand-x { margin: 0 9px; font-weight: 400; font-size: 14px; color: var(--ink-3); }
+.brand::before, .brand::after { content: none; }
+.brand-logo { display: block; flex: none; }
+.brand-logo .brand-text { display: block; font: 600 19px/1 var(--font); color: var(--ink-2); }
+.brand-logo[data-logo="fari"] .brand-text { font-weight: 700; letter-spacing: 0.14em; color: var(--eu-blue); }
 
-.brand-logo { display: inline-flex; align-items: center; }
-.brand-logo[data-logo="fari"] .brand-text { font-weight: 700; letter-spacing: 0.14em; margin-right: -0.14em; color: var(--ink); }
-.brand-logo[data-logo="jrc"] .brand-text { font-weight: 500; color: var(--ink-2); }
+.brand-logo.has-logo > img, .s5-wm.has-logo > img { display: block; max-width: none; width: auto; filter: none; opacity: 1; }
+[data-logo="fari"].has-logo > img, [data-wordmark="fari"].has-logo > img {                 /* logo FARI.png 4980 × 1791, artwork 4233 × 1184 */
+  height: calc(var(--art) * 1.5128); margin-left: calc(var(--art) * -0.343); margin-bottom: calc(var(--art) * -0.3413); margin-right: calc(var(--art) * -0.288); }
+[data-logo="jrc"].has-logo > img, [data-wordmark="jrc"].has-logo > img {                   /* logo JRC.jpg 1024 × 440 on white, artwork 882 × 347 */
+  height: calc(var(--art) * 1.268); margin-left: calc(var(--art) * -0.2248); margin-bottom: calc(var(--art) * -0.1354); margin-right: calc(var(--art) * -0.1845);}
 
-/* organisers' files, when present */
-.brand-logo.has-logo img { height: 30px; width: auto; display: block; filter: var(--logo-filter); opacity: 0.92; }
-
-/* slide 5 ends on a large closing lockup: the small one steps aside */
-#stage:has(#s5.is-active.s2) .brand { opacity: 0; transform: translate3d(0, -8px, 0); }
+/* slide 5's last step shows the logos large: the small ones step aside */
+#stage:has(#s5.is-active.s2) .brand { opacity: 0; }
