@@ -1211,12 +1211,31 @@ function drawRoadResults() {
   g.closed.addLayer(multi(res.closed || [], { renderer: closedCanvas, color: '#111111', weight: 2.4, opacity: 1 }));
   const loadIds = Object.keys(res.load || {}).map(Number);
   g.routes.addLayer(multi(loadIds, { color: '#0072B2', weight: 2.5, opacity: 0.7 }));
-  const buckets = Array.from({ length: STRESS_STEPS + 1 }, () => []);
-  loadIds.forEach(id => {
-    const r = roadRatio(id, res.load[String(id)]); if (r == null) return;
-    buckets[Math.min(STRESS_STEPS, Math.floor(Math.max(0, r) / STRESS_MAX * STRESS_STEPS))].push(id);
+  // smooth along the road: each junction takes the mean stress of the stressed roads meeting there, and every segment is cut into short
+  // pieces coloured from the stress at one end to the stress at the other (no hard colour jumps at junctions)
+  const ratio = new Map(), nodeSum = new Map(), key = q => q[0].toFixed(5) + ',' + q[1].toFixed(5);
+  loadIds.forEach(id => { const r = roadRatio(id, res.load[String(id)]); const c = edgeLL.get(id); if (r == null || !c || c.length < 2) return; ratio.set(id, r);
+    [c[0], c[c.length - 1]].forEach(q => { const k = key(q), s = nodeSum.get(k) || [0, 0]; s[0] += r; s[1]++; nodeSum.set(k, s); }); });
+  const nodeR = q => { const s = nodeSum.get(key(q)); return s ? s[0] / s[1] : null; };
+  const buckets = Array.from({ length: STRESS_STEPS + 1 }, () => []), bin = r => Math.min(STRESS_STEPS, Math.floor(Math.max(0, r) / STRESS_MAX * STRESS_STEPS));
+  ratio.forEach((r, id) => {
+    const c = edgeLL.get(id), a = nodeR(c[0]), b = nodeR(c[c.length - 1]);
+    const r0 = (r + (a == null ? r : a)) / 2, r1 = (r + (b == null ? r : b)) / 2;      // half own value, half junction value: keeps each road's own level visible
+    let len = 0; const cum = [0]; for (let i = 1; i < c.length; i++) { len += Math.hypot(c[i][0] - c[i - 1][0], c[i][1] - c[i - 1][1]); cum.push(len); }
+    const PIECES = 6;
+    for (let k = 0; k < PIECES; k++) {
+      const t0 = k / PIECES, t1 = (k + 1) / PIECES, pts = [];
+      for (let i = 0; i < c.length - 1; i++) {      // the part of the polyline between t0 and t1 of its length
+        const s0 = len ? cum[i] / len : 0, s1 = len ? cum[i + 1] / len : 1; if (s1 < t0 || s0 > t1) continue;
+        const f = u => [c[i][0] + (c[i + 1][0] - c[i][0]) * u, c[i][1] + (c[i + 1][1] - c[i][1]) * u], span = s1 - s0 || 1;
+        if (!pts.length) pts.push(f(Math.max(0, (t0 - s0) / span)));
+        pts.push(f(Math.min(1, (t1 - s0) / span)));
+      }
+      if (pts.length > 1) buckets[bin(r0 + (r1 - r0) * (k + 0.5) / PIECES)].push(pts);
+    }
   });
-  buckets.forEach((ids, i) => { if (ids.length) { const r = (i + 0.5) / STRESS_STEPS * STRESS_MAX; g.stress.addLayer(multi(ids, { color: stressRGB(r), weight: stressW(r), opacity: 0.95 })); } });
+  buckets.forEach((lines, i) => { if (lines.length) { const r = (i + 0.5) / STRESS_STEPS * STRESS_MAX;
+    g.stress.addLayer(L.polyline(lines, { renderer: canvas, interactive: false, lineJoin: 'round', lineCap: 'round', color: stressRGB(r), weight: stressW(r), opacity: 0.95 })); } });
   // self-check against the bundle summary (visible in the console only)
   const worst = Math.max(0, ...loadIds.map(id => roadRatio(id, res.load[String(id)]) || 0));
   if (res.summary && res.summary.worst_road_ratio != null && Math.abs(worst - res.summary.worst_road_ratio) > 0.011) {
@@ -1861,7 +1880,7 @@ function renderSelected() {
     } else h += '<p>No zone is sent here at this setting.</p>';
     el.innerHTML = h;
   } else {
-    el.innerHTML = '<h2>Details</h2><p>Click ' + (st.resMode === 'rings' ? 'a ring' : st.resMode === 'squares' ? 'a square' : 'a town chip or a 500 m square') + ' (residents inside the flood) or a shelter building (solid round badge with a house) on the map, or pick one from the lists below, to see where people go, by which route, and a draft message.</p>' +
+    el.innerHTML = '<h2>Details</h2><p>Click ' + (st.resMode === 'rings' ? 'a ring' : st.resMode === 'squares' ? 'a square' : 'a town chip or a 500 m square') + ' (residents inside the flood) or a shelter building (a numbered circle) on the map, or pick one from the lists below, to see where people go, by which route, and a draft message.</p>' +
       '<div class="row"><button id="btnCsv">Export plan (CSV)</button></div>';
   }
   bindSelected();
