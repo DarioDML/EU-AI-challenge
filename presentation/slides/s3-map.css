@@ -86,6 +86,8 @@
 
 /* step 2: the flood label has done its job (its dot stays), so the map belongs to Johan's routes */
 #s3.s2 .s3-call-flood { opacity: 0; transform: scale(0.9); transition-delay: 0ms; }
+#s3.s2 .s3-call-jam { opacity: 0; transform: scale(0.9); transition-delay: 0ms; }
+#s3.s2 .s3-pin-jam .s3-leader { stroke-dashoffset: var(--len); transition-delay: 0ms; }
 #s3.s2 .s3-pin-flood .s3-leader { stroke-dashoffset: var(--len); transition-delay: 0ms; }
 
 /* step 2: route A label after the draw; step 3: it fades with the route */

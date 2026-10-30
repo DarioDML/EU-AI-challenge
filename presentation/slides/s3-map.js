@@ -48,23 +48,23 @@
 
   const srcLine = ['Smart Shelter System · bundle ' + bundleUtc + (commit ? ` (commit ${commit})` : ''), 'flood: Copernicus EMS EMSR517',
     'residents: GHS-POP 2020 estimate', 'roads © OpenStreetMap contributors',
-    'capacity, car share and speeds are assumptions; stress is an indicator, not a forecast'].join(' · ');
+    'capacity, car share and speeds are assumptions; trip minutes are model free-flow times; stress is an indicator, not a forecast'].join(' · ');
   const swatch = inner => `<svg viewBox="0 0 36 18" aria-hidden="true">${inner}</svg>`;
 
   const html = `
     <h2 class="h2 s3-title" data-b="0">Streets close.<br>Exits overload.</h2>
 
     <div class="s3-key" data-b="0" aria-label="Key">
-      <span>${swatch('<rect x="3" y="3" width="30" height="12" rx="2" fill="rgba(86,180,233,.35)" stroke="#0072B2" stroke-width="1.5"/>')}Flood, July 2021</span>
-      <span>${swatch('<path d="M3 9 H33" stroke="#111" stroke-width="2.6" stroke-linecap="round"/>')}Closed road</span>
-      <span>${swatch('<path d="M3 9 H11" stroke="#269B4E" stroke-width="4"/><path d="M11 9 H19" stroke="#E4CF2A" stroke-width="4"/><path d="M19 9 H27" stroke="#E17327" stroke-width="4"/><path d="M27 9 H35" stroke="#7A0019" stroke-width="4"/>')}Road stress, model</span>
+      <span>${swatch('<rect x="3" y="3" width="30" height="12" rx="2" fill="rgba(86,180,233,.35)" stroke="#0072B2" stroke-width="1.5"/>')}Flood</span>
+      <span>${swatch('<path d="M3 9 H33" stroke="#111" stroke-width="2.6" stroke-linecap="round"/>')}Closed</span>
+      <span>${swatch('<path d="M3 9 H11" stroke="#269B4E" stroke-width="4"/><path d="M11 9 H19" stroke="#E4CF2A" stroke-width="4"/><path d="M19 9 H27" stroke="#E17327" stroke-width="4"/><path d="M27 9 H35" stroke="#7A0019" stroke-width="4"/>')}Stress</span>
     </div>
 
     <div class="s3-hud">
-      <div class="s3-chip glass" data-b="2"><span class="chip-a">Core public buildings only</span><span class="chip-b">+ Extended buildings</span></div>
-      <div class="s3-tile glass" data-b="2"><span class="t-l">Johan's trip<small class="s3-time-note">Model, free-flow</small></span><span class="t-v"><b class="mono num v-trip">0.0</b><small>min</small></span></div>
-      <div class="s3-tile glass" data-b="2"><span class="t-l">Closed roads on driving route</span><span class="t-v"><b class="mono num v-wet">0</b></span></div>
-      <div class="s3-tile glass" data-b="2"><span class="t-l">Town residents sent to other districts</span><span class="t-v"><b class="mono num v-out">0</b></span></div>
+      <div class="s3-chip glass" data-b="2"><span class="chip-a">Core public</span><span class="chip-b">+ Extended</span></div>
+      <div class="s3-tile glass" data-b="2"><span class="t-l">Trip</span><span class="t-v"><b class="mono num v-trip">0.0</b><small>min</small></span></div>
+      <div class="s3-tile glass" data-b="2"><span class="t-l">Closed roads</span><span class="t-v"><b class="mono num v-wet">0</b></span></div>
+      <div class="s3-tile glass" data-b="2"><span class="t-l">Sent away</span><span class="t-v"><b class="mono num v-out">0</b></span></div>
     </div>
 
     <div class="s3-map">
@@ -83,11 +83,11 @@
         </svg>
       </div>
 
-      ${label('flood', pins.flood, `<b class="mono num" data-to="${num(C.flood && C.flood.closed_km_town) ? C.flood.closed_km_town : ''}" data-dec="0">${fmt(C.flood && C.flood.closed_km_town)}</b> km of streets closed`)}
-      ${label('jam', pins.jam, `<b class="mono num" data-to="${num(C.jam && C.jam.ratio) ? C.jam.ratio : ''}" data-dec="1" data-suf="×">${fmt(C.jam && C.jam.ratio, 1)}×</b> road capacity<small class="mono">${esc(C.jam && C.jam.road)} · model</small>`)}
+      ${label('flood', pins.flood, `<b class="mono num" data-to="${num(C.flood && C.flood.closed_km_town) ? C.flood.closed_km_town : ''}" data-dec="0">${fmt(C.flood && C.flood.closed_km_town)}</b> km closed`)}
+      ${label('jam', pins.jam, `<b class="mono num" data-to="${num(C.jam && C.jam.ratio) ? C.jam.ratio : ''}" data-dec="1" data-suf="×">${fmt(C.jam && C.jam.ratio, 1)}×</b> capacity<small class="mono">${esc(C.jam && C.jam.road)} · model</small>`)}
       ${label('home', pins.home, 'Johan')}
       ${label('dest', pins.dest, esc(shB.title))}
-      <div class="s3-anchor a-l" style="${at(endAnchor)}"><div class="s3-row"><div class="s3-call glass s3-end">${esc(shA.town)} · <b class="mono num">${fmt(A.total_min)}</b> min
+      <div class="s3-anchor a-l" style="${at(endAnchor)}"><div class="s3-row"><div class="s3-call glass s3-end">${esc(shA.town)}
         <svg class="s3-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4 L12 12 M12 5 V12 H5"/></svg></div></div></div>
     </div>
     <p class="src s3-src">${esc(srcLine)}</p>`;
@@ -103,17 +103,15 @@
   const notes = {
     title: 'The map',
     script:
-      `${town}, July 2021, in our tool. Blue is the flood Copernicus mapped; every dark street is closed. ` +
-      `${fmt(C.flood && C.flood.closed_km_town)} kilometres of the town's streets touch the flood, so the roads that stay open carry the routed residents. ` +
-      `On ${road}, the routed traffic would reach ${fmt(C.jam && C.jam.ratio, 1)} times an assumed road capacity. ` +
-      'Road stress is a model indicator, not a traffic forecast. Johan lives right here. ' +
-      `With core public buildings only, Johan is sent to a ${lower(shA.title)} in ${shA.town || ''}: ${fmt(A.total_min, 1)} minutes, ` +
-      `with no flooded road on the way${viaJam ? `, but through the overloaded ${road}` : ''}. ` +
-      `${fmt(townA.outside)} residents of the town are sent to other districts. The tool does not yet reroute around jams; it flags them. ` +
-      `Add extended buildings, such as kindergartens, and Johan reaches the ${lower(shB.title)} on ${shB.where || ''} in ${fmt(B.total_min, 1)} minutes; ` +
-      `${townB.outside === 0 ? 'no resident of the town is' : `${fmt(townB.outside)} residents of the town are`} sent to another district. ` +
+      `${town}, July 2021, in our tool. Blue is the mapped flood; dark lines are closed streets. ` +
+      `${fmt(C.flood && C.flood.closed_km_town)} kilometres of the town's streets touch it, so the roads that stay open carry the routed residents. ` +
+      `On ${road} the model's traffic reaches ${fmt(C.jam && C.jam.ratio, 1)} times an assumed capacity: an indicator, not a forecast. ` +
+      `With core public buildings only he goes to a ${lower(shA.title)} in ${shA.town || ''}, ${fmt(A.total_min, 1)} minutes; ${fmt(townA.outside)} residents are sent to other districts. ` +
+      'The tool does not yet reroute around jams; it flags them. ' +
+      `Add extended buildings and he reaches the ${lower(shB.title)} on ${shB.where || ''} in ${fmt(B.total_min, 1)} minutes, ` +
+      `${townB.outside === 0 ? 'and nobody leaves the town' : `and ${fmt(townB.outside)} residents leave the town`}. ` +
       'Same flood, same roads: what changes is which buildings count as shelters, and how much room we assume per person. ' +
-      'Trip minutes are model free-flow times, with no congestion.',
+      'Minutes are model free-flow times.',
     notes: [
       `Base map: the tool's full-analysis map of ${town}, July 2021 flood (Copernicus EMS EMSR517), assumption set A; overlays come from the same bundle (${bundleUtc}).`,
       `${fmt(C.flood && C.flood.closed_km_town)} km = length of the town's roads that touch the 2021 flood. ${fmt(C.jam && C.jam.ratio, 1)}× = ${fmt(C.jam && C.jam.people)} people routed on ${road}, as vehicles per hour ` +

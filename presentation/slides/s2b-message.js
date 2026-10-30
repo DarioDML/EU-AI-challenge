@@ -90,14 +90,11 @@
   const notes = {
     title: 'The message',
     script:
-      'Johan\'s phone shows one plain-text message. In its first words it tells him how serious it is and what to do, and it answers his three questions. ' +
-      `Am I in danger? ${L.danger} ` +
-      `How serious is it? ${L.severity} ` +
-      (g21 ? `In the model, about ${about(g21.v)} residents were inside that flood` : '') +
-      '. ' +
-      (A.street_closed ? 'His own street is closed by the flood. ' : '') +
-      `Where should I go? ${L.go} ${L.route} ` +
-      'The route avoids flooded roads. ' +
+      `Johan's phone shows one plain-text message. ` +
+      `Am I in danger? ${L.danger} How serious is it? ${L.severity} Where should I go? ${L.go} ${L.route} ` +
+      'The first words tell him how serious it is and what to do. ' +
+      (g21 ? `In the model, about ${about(g21.v)} residents were inside that flood, ` : '') +
+      (A.street_closed ? 'and his own street is closed. ' : '') +
       'It is a demonstration message, not a real alert.',
     notes: [
       `Plain text, written for Cell Broadcast, which the team describes as working on 2G. Nothing is sent: this is the tool's demo message for ${A.street || 'his street'}.`,
