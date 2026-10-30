@@ -34,7 +34,7 @@
     ${GAUGE.length ? `<div class="s2b-gauge" aria-label="How serious: residents inside the flood">
       <p class="g-head">About <b class="num">${g21 ? about(g21.v) : ''}</b> residents in the flood area</p>
       <ul class="g-rows">
-        ${GAUGE.map((g, i) => `<li class="g-row${g.id === 'obs2021' ? ' is-now' : ''}" style="--i:${i};--w:${(g.v / GMAX).toFixed(4)}"><span class="g-l">${esc(g.label)}</span><span class="g-track"><i class="g-bar"></i></span><b class="g-v mono num" data-v="${g.v}">0</b></li>`).join('')}
+        ${GAUGE.map((g, i) => `<li class="g-row${g.id === 'obs2021' ? ' is-now' : ''}" style="--i:${i};--w:${(g.v / GMAX).toFixed(4)}"><span class="g-l">${esc(g.label)}</span><span class="g-track"><i class="g-bar"></i>${g.id === 'obs2021' ? '<small class="g-note">The flood this alert describes</small>' : ''}</span><b class="g-v mono num" data-v="${g.v}">0</b></li>`).join('')}
       </ul>
       <p class="g-micro mono">Kreis Euskirchen + Landkreis Ahrweiler, modelled estimate</p>
       ${A.street_closed ? '<p class="g-street">Your street is closed by the flood<small class="mono">' + esc(A.street) + '</small></p>' : ''}
@@ -90,7 +90,7 @@
   const notes = {
     title: 'The message',
     script:
-      'Johan\'s phone shows one plain-text message that answers his three questions. ' +
+      'Johan\'s phone shows one plain-text message. In its first words it tells him how serious it is and what to do, and it answers his three questions. ' +
       `Am I in danger? ${L.danger} ` +
       `How serious is it? ${L.severity} ` +
       (g21 ? `In the model, about ${about(g21.v)} residents were inside that flood` : '') +

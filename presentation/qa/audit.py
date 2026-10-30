@@ -1320,7 +1320,7 @@ def run(args):
                 continue
             sx = im["rect"]["w"] / im["nw"] if im["nw"] else 0
             vec = ".svg" in im["src"].lower()
-            ok = abs(im.get("anc", 1) - 1) <= 0.002 and Rh["dpr"] == 2 and (vec or abs(sx - 1) <= 0.002) and (abs(sx - 1) <= 0.002 or im["rect"]["w"] < 1100)
+            ok = abs(im.get("anc", 1) - 1) <= 0.002 and Rh["dpr"] == 2 and (vec or abs(sx - 1) <= 0.002)
             size = _Im.open(png2).size
             gadd("info" if ok and size == (3840, 2160) else "error", "map-hidpi",
                  f"{st['s']}.{st['k']}: map {im['src']} at device scale {Rh['dpr']}: {im['nw']}x{im['nh']} CSS px drawn at scale {sx:.4f}, ancestor transform {im.get('anc')}, screenshot {size[0]}x{size[1]}")

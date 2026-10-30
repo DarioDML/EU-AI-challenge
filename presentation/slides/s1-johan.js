@@ -2,7 +2,7 @@
    One crowd of 100 person figures stays in place from step 2 to 4; only the state of the figures changes.
    Illustration of rates per 100 respondents, not 100 real people. Thieken et al. 2023, NHESS 23, 973-990 (online survey,
    n = 1,315): 29% of respondents in Rhineland-Palatinate got no warning (35% in North Rhine-Westphalia); of those who were
-   warned, 85% did not expect very severe flooding and 46% reported a lack of knowledge on how to protect themselves.
+   warned, 85% did not expect very severe flooding and 46% lacked knowledge on how to protect themselves.
    The paper does not report how the 85% and 46% overlap, so they are never drawn on the crowd at the same time.
    Johan (first figure, gold raincoat) is one of the 71 warned figures but is not part of any highlighted group. */
 (function () {
@@ -46,15 +46,15 @@
     notes: {
       title: 'Meet Johan',
       script: 'This is Johan. He is 11 and lives in Bad Neuenahr-Ahrweiler. Johan is a fictional character; he stands for residents of flood-prone streets. ' +
-        'In July 2021, the water came at night. Anyone in his place has three questions. Am I in danger? How serious is it? Where should I go? ' +
+        'In July 2021, the water came at night. He has three questions. Am I in danger? How serious is it? Where should I go? ' +
         'In a survey, 29% in Rhineland-Palatinate got no warning. ' +
-        'Of those who were warned, 85% did not expect very severe flooding, and 46% reported a lack of knowledge on how to protect themselves. ' +
+        'Of those who were warned, 85% did not expect very severe flooding, and 46% lacked knowledge on how to protect themselves. ' +
         "Johan doesn't need a generic alert. He needs to know where to go, and which road out is still open.",
       notes: [
         'Johan, 11, is fictional; he stands for residents of flood-prone streets.',
         'A useful alert answers three questions: Am I in danger? How serious is it? Where should I go?',
         'Thieken et al. 2023 (online survey, n = 1,315): 29% of respondents in Rhineland-Palatinate got no warning; the figure was 35% in North Rhine-Westphalia.',
-        'Of those who were warned: 85% did not expect very severe flooding; 46% reported a lack of knowledge on how to protect themselves.',
+        'Of those who were warned: 85% did not expect very severe flooding; 46% lacked knowledge on how to protect themselves.',
         'The 100 figures illustrate rates per 100 respondents, not real people. The paper does not report how the 85% and 46% overlap, so they are never shown together.',
       ],
     },
