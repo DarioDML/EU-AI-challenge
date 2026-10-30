@@ -4,8 +4,8 @@ Data:         EMS flood layers of all 19 AOIs (pinset q1_ems), EFAS river flood 
               hash-verified), all read from the challenge bucket.
 Assumptions:  hero bbox lon 6.30-7.45, lat 50.30-50.78 (Germany only). Residents are placed on OBAT buildings of their GHS-POP cell by footprint area (challenge.zonal.people_per_building,
               4 known-answer tests); buildings are read for the whole bbox plus a 3 km margin so border cells are complete. A building is 'in the flood' if it lies in the EMS flood or
-              trace (observed 2021) or has EFAS depth > 0 (RPxx). EFAS holds values only where wet (>= 0.1 m): an empty cell is 'dry OR not modelled' (rivers under about 500 km2 catchment are
-              missing), so a scenario count is a MINIMUM and never a 'known dry' share; the 500-year map is a ceiling that 2021 exceeded in places. Observed 2021 is a snapshot after the peak.
+              trace (observed 2021) or has EFAS depth > 0 (RPxx). EFAS holds values only where wet (>= 0.1 m): an empty cell is 'dry OR not modelled' (smaller rivers are
+              missing), so a scenario count is a MINIMUM and never a 'known dry' share; the 500-year map is a ceiling that 2021 exceeded in places. Observed 2021 is one satellite snapshot per area (14-20 July 2021), not the peak.
 Tools:        challenge.zonal / population / ems / efas / pins / common, shapely, numpy, pandas.
 Outputs:      $YUNAI_RUN_DIR/ scenario_nodes.csv (250 m nodes with people per scenario), efas_windows.npz (depth arrays + transforms), scenarios_meta.json
 Finding:      research/r01/NOTE.md

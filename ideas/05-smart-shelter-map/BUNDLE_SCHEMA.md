@@ -50,4 +50,41 @@ The pipeline (`research/r01/20_tool_pipeline.py`, local) writes ONE JSON object,
 }
 ```
 
+## Additions since the first contract (2026-10-30; the pipeline writes them, the page reads them when present)
+
+```jsonc
+{
+  "zones":    [{"...": "as above", "lau": "DE_05366024", "people_pop2025": {"obs2021": 526.8, "rp10": 0.0, "rp100": 0.0, "rp500": 0.0}}],   // lau = GISCO LAU id of the zone; residents from the 2025 projection (zone 55, Kall)
+  "shelters": [{"...": "as above",
+                "name": "Rathaus Kall",              // OSM name tag, "" when OSM has none (1,696 of 3,144 shelters have one; run of 30_tool_building_names.py, same 29 Oct 2026 extract)
+                "street": "Bahnhofstraße 9",         // OSM addr:street + addr:housenumber, "" when no addr:street (1,760 have one)
+                "near_street": "Bahnhofstraße",      // nearest NAMED road of the road graph within 300 m (fallback label), else "" (only 5 shelters have none of the three)
+                "in_area": true}],                   // inside Kreis Euskirchen or Landkreis Ahrweiler, by geometry (LAU polygon), never by name
+  "results": {"obs2021|any|restrictive|pop2025": {"...": "same shape as the other results; residents of the 2025 projection"}},
+  "populations": [{"id": "pop2020", "label": "2020 (default)", "year": 2020, "note": "string"},
+                  {"id": "pop2025", "label": "2025 projection", "year": 2025, "note": "string", "window_residents": 0, "dropped_no_usable_building": 0, "file": "string", "file_generation": "string"}],
+  "munis":    [{"id": "DE_05366028", "name": "Mechernich", "geometry": {"type": "Polygon"}}],   // every municipality of the two districts (GISCO LAU 2024, simplified 40 m)
+  "streets":  [{"n": "Zum Fahrenbach", "m": "Kall",  // street name + municipality: one record per pair, from the FULL road graph (not only the display network)
+                "p": [[50.55, 6.54]],                // [lat, lon] up to 6 points along the street PLUS the midpoint of every wet edge
+                "wet": true,                         // any edge closed in July 2021 (closure 'any') or touching the observed flood or a flood trace
+                "areas": [58, 60, 61]}],             // citizen_plan area ids that any of its edges crosses (use these, not the points, to open an area)
+  "citizen_plan": {                                  // the citizen profile: July 2021, closure 'any', set A, 2020 residents
+    "key": "obs2021|any|restrictive", "method": "string", "k": 200,
+    "solver": {"status": 0, "message": "string", "gap": 0.0},        // step 1: one building per 250 m cell (HiGHS MILP)
+    "solver_split": {"status": 0, "message": "string", "gap": 0.0},  // step 2: cells that cannot go whole to one building, at most 3 buildings each
+    "max_buildings_per_split_cell": 3,
+    "summary": {"people": 25559, "placed": 24792, "unassigned": 767, "mean_time_min": 22.9, "areas": 375, "buildings_used": 274, "split_cells": 12, "split_people": 4390, "placed_one_building": 22961},
+    "main_plan_summary": {"...": "summary of results[key], for comparison"},
+    "areas": [{"id": 0, "cells": 1, "people": 19.5, "muni": "Schleiden", "lau": "DE_05366036",
+               "split": false,                       // true = shared over up to 3 buildings (dest has 1-3 entries)
+               "no_open_road": false, "walk_s": [33, 33],             // walk to the first open road, min and max over the cells, seconds
+               "unassigned": 0.0,                    // people of this area without a building in THIS plan
+               "unassigned_reason": "",              // "" | "plan_rule" (the at-most-3-buildings rule; buildings in reach are full; the main plan places everyone) | "no_road" | "none_in_1h"
+               "dest": [{"s": 1959, "people": 19.5, "road_s": 108, "route": [64806, 64807]}],   // shelter id, people sent, road time s (without the walk), edge ids
+               "backup": {"s": 1787, "road_s": 315, "has_room": true, "route": [64806]},        // only for one-building areas: fastest other building, has_room = room for the whole area after the plan
+               "geometry": {"type": "Polygon"}}]}
+}
+```
+Citizen plan numbers are a simpler plan than `results[key]`: it keeps each 250 m cell together, so it leaves some people without a named building (`unassigned_reason` "plan_rule") although the main plan finds room for everyone within 1 h. The page must not word those people as "no room".
+
 Page rules (contract with the builder): (1) the disclaimer is always visible; (2) a scenario is labelled observed or modelled; (3) unassigned people are shown, never hidden; (4) shelters are 'candidate buildings from OpenStreetMap', never 'designated'; (5) everything works offline except the basemap, which is optional; (6) no personal data, no tracking, no calls to external services other than the pinned map library and basemap tiles.

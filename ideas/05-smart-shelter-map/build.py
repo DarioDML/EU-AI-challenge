@@ -38,7 +38,26 @@ def read(path):
         return f.read()
 
 
+def check_fresh():
+    """--check: fail loudly (exit 1) if dist is missing or older than src/app.html or the default bundle."""
+    out = os.path.join(HERE, "dist", "shelter_tool.html")
+    srcs = [os.path.join(HERE, "src", "app.html")]
+    for name in ("bundle.json", "mock_bundle.json"):
+        if os.path.exists(os.path.join(HERE, "data", name)):
+            srcs.append(os.path.join(HERE, "data", name))
+            break
+    if not os.path.exists(out):
+        sys.exit("STALE: dist/shelter_tool.html does not exist; run build.py")
+    stale = [x for x in srcs if os.path.getmtime(x) > os.path.getmtime(out)]
+    if stale:
+        sys.exit("STALE: dist/shelter_tool.html is older than " + ", ".join(os.path.basename(x) for x in stale) + "; run build.py")
+    print("dist is up to date")
+
+
 def main():
+    if "--check" in sys.argv:
+        check_fresh()
+        return
     # default: the real bundle if the pipeline has written one, else the synthetic mock
     real = os.path.join(HERE, "data", "bundle.json")
     mock = os.path.join(HERE, "data", "mock_bundle.json")
