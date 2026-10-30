@@ -52,15 +52,15 @@
 
       <div class="s5-stats">
         <div class="s5-stat" data-b="1" data-b-out="2">
-          <span class="s5-num num"><span class="s5-dim">~</span><span class="tk" data-to="${FIG.deaths}">${FIG.deaths}</span></span>
+          <span class="s5-num num"><span class="s5-dim">~</span><span class="tk" data-to="${FIG.deaths}" data-tick="${FIG.deaths}" data-tick-ms="1400" data-tick-delay="250">${FIG.deaths}</span></span>
           <span class="s5-lbl">lives lost, roughly</span>
         </div>
         <div class="s5-stat" data-b="1" data-b-out="2">
-          <span class="s5-num num"><span class="s5-cur">€</span><span class="tk" data-to="${FIG.damageLo}">${FIG.damageLo}</span><span class="s5-dash">-</span><span class="tk" data-to="${FIG.damageHi}">${FIG.damageHi}</span><span class="s5-unit">bn</span></span>
+          <span class="s5-num num"><span class="s5-cur">€</span><span class="tk" data-to="${FIG.damageLo}" data-tick="${FIG.damageLo}" data-tick-ms="1400" data-tick-delay="250">${FIG.damageLo}</span><span class="s5-dash">-</span><span class="tk" data-to="${FIG.damageHi}" data-tick="${FIG.damageHi}" data-tick-ms="1400" data-tick-delay="250">${FIG.damageHi}</span><span class="s5-unit">bn</span></span>
           <span class="s5-lbl">estimated damage</span>
         </div>
         <div class="s5-stat" data-b="1" data-b-out="2">
-          <span class="s5-num num"><span class="s5-dim">~</span><span class="tk" data-to="${FIG.roi}">${FIG.roi}</span>×</span>
+          <span class="s5-num num"><span class="s5-dim">~</span><span class="tk" data-to="${FIG.roi}" data-tick="${FIG.roi}" data-tick-ms="1400" data-tick-delay="250">${FIG.roi}</span>×</span>
           <span class="s5-lbl">WMO estimate: early warning returns about 10× its cost</span>
         </div>
       </div>
@@ -101,6 +101,7 @@
       document.addEventListener('deck:logos', e => put(e.detail.name, e.detail.src));
     },
 
-    // Figures remain at their stated values; the build only reveals them.
+    // Figures count up once when step 1 appears (data-tick, js/motion.js); at rest, and in static or reduced-motion
+    // mode, they show their stated values.
   });
 })();

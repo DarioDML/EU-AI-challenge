@@ -23,7 +23,7 @@
 #s3 .rb-glow { display: none; }
 #s3 .rb-case { stroke: var(--ink); stroke-opacity: 0.95; stroke-width: 10.5; }
 #s3 .rb-line { stroke: var(--gold); stroke-width: 6; }
-#s3 .s3-route { opacity: 0; transition: opacity 400ms var(--spring); }
+#s3 .s3-route { opacity: 0; transition: opacity 240ms linear; }
 #s3.s2 .s3-ra { opacity: 1; }
 #s3.s3 .s3-ra { opacity: 0.25; transition-duration: 900ms; }
 #s3.s3 .s3-rb { opacity: 1; }
@@ -39,7 +39,7 @@
 #s3 .dot-home { fill: var(--gold); stroke: var(--ink); stroke-width: 2.5; }
 #s3 .dot-dest circle { fill: var(--gold); stroke: var(--ink); stroke-width: 2.5; }
 #s3 .dot-dest path { fill: var(--ink); }
-#s3 .s3-ping { fill: none; stroke: var(--ink); stroke-opacity: 0.55; stroke-width: 2.5; transform-box: fill-box; transform-origin: center; opacity: 0; }
+#s3 .s3-ping { fill: rgba(255, 204, 0, 0.3); stroke: var(--ink); stroke-opacity: 0.5; stroke-width: 2; transform-box: fill-box; transform-origin: center; opacity: 0; }
 
 #s3 .s3-anchor { position: absolute; width: 0; height: 0; z-index: 3; }
 #s3 .s3-row { position: absolute; display: flex; pointer-events: none; }
@@ -78,8 +78,11 @@
 #s3.s1 .s3-call-flood { transition-delay: 200ms; }
 #s3.s1 .s3-call-jam { transition-delay: 550ms; }
 #s3.s1 .s3-call-home { transition-delay: 900ms; }
-#s3.s1 .s3-ping { opacity: 0.5; transform: scale(2); animation: none; }
-@keyframes s3-ping { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(3.6); opacity: 0; } }
+#s3.s1 .s3-ping { opacity: 0.5; transform: scale(2); }                     /* still frame: screenshots, reduced motion */
+/* Johan's halo: two rings leave his dot in turn while the slide is on screen (transform + opacity) */
+#s3.is-active.s1 .s3-ping { animation: s3-ping 2.6s var(--spring) 1.1s infinite backwards; }
+#s3.is-active.s1 .s3-ping-2 { animation-delay: 2.4s; }
+@keyframes s3-ping { 0% { transform: scale(1); opacity: 0; } 14% { opacity: 0.85; } 100% { transform: scale(4); opacity: 0; } }
 
 /* step 2: the flood label has done its job (its dot stays), so the map belongs to Johan's routes */
 #s3.s2 .s3-call-flood { opacity: 0; transform: scale(0.9); transition-delay: 0ms; }

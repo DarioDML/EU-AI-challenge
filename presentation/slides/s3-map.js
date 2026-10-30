@@ -72,19 +72,19 @@
         <img class="s3-base" width="${W}" height="${H}" alt="The tool's map of ${esc(P.town && P.town.name)}: the July 2021 flood in blue, closed roads dark, open roads coloured by modelled stress">
         <svg class="s3-ov" viewBox="${VB.join(' ')}" width="${W}" height="${H}" aria-hidden="true">
           <defs><filter id="s3-glow" filterUnits="userSpaceOnUse" x="${VB[0]}" y="${VB[1]}" width="${VB[2]}" height="${VB[3]}"><feGaussianBlur stdDeviation="5"/></filter></defs>
-          <g class="s3-route s3-ra"><path class="ra-case" d="${dPath(oa.path)}"/><path class="ra-line" d="${dPath(oa.path)}"/></g>
-          <g class="s3-route s3-rb"><path class="rb-glow" d="${dPath(ob.path)}" filter="url(#s3-glow)"/><path class="rb-case" d="${dPath(ob.path)}"/><path class="rb-line" d="${dPath(ob.path)}"/></g>
+          <g class="s3-route s3-ra" data-at="2" data-draw data-draw-lead data-draw-ms="1800" data-draw-ease="cubic-bezier(0.45, 0, 0.2, 1)"><path class="ra-case" d="${dPath(oa.path)}"/><path class="ra-line" d="${dPath(oa.path)}"/></g>
+          <g class="s3-route s3-rb" data-at="3" data-draw data-draw-lead data-draw-ms="1400" data-draw-delay="150" data-draw-ease="cubic-bezier(0.45, 0, 0.2, 1)"><path class="rb-glow" d="${dPath(ob.path)}" filter="url(#s3-glow)"/><path class="rb-case" d="${dPath(ob.path)}"/><path class="rb-line" d="${dPath(ob.path)}"/></g>
           <g class="s3-pin s3-pin-flood">${leader('flood', pins.flood)}<circle class="s3-dot dot-flood" cx="${F[0]}" cy="${F[1]}" r="7"/></g>
           <g class="s3-pin s3-pin-jam">${leader('jam', pins.jam)}<circle class="s3-dot dot-jam" cx="${J[0]}" cy="${J[1]}" r="7"/></g>
           <g class="s3-pin s3-pin-dest">${leader('dest', pins.dest)}
             <g class="s3-dot dot-dest"><g transform="translate(${K[0] - 12} ${K[1] - 12}) scale(0.75)"><circle cx="16" cy="16" r="15"/><path d="${HOUSE}"/></g></g></g>
           <g class="s3-pin s3-pin-home">${leader('home', pins.home)}
-            <circle class="s3-ping" cx="${Hm[0]}" cy="${Hm[1]}" r="9"/><circle class="s3-dot dot-home" cx="${Hm[0]}" cy="${Hm[1]}" r="8"/></g>
+            <circle class="s3-ping" cx="${Hm[0]}" cy="${Hm[1]}" r="9"/><circle class="s3-ping s3-ping-2" cx="${Hm[0]}" cy="${Hm[1]}" r="9"/><circle class="s3-dot dot-home" cx="${Hm[0]}" cy="${Hm[1]}" r="8"/></g>
         </svg>
       </div>
 
-      ${label('flood', pins.flood, `<b class="mono num">${fmt(C.flood && C.flood.closed_km_town)}</b> km of streets closed`)}
-      ${label('jam', pins.jam, `<b class="mono num">${fmt(C.jam && C.jam.ratio, 1)}×</b> road capacity<small class="mono">${esc(C.jam && C.jam.road)} · model</small>`)}
+      ${label('flood', pins.flood, `<b class="mono num" data-to="${num(C.flood && C.flood.closed_km_town) ? C.flood.closed_km_town : ''}" data-dec="0">${fmt(C.flood && C.flood.closed_km_town)}</b> km of streets closed`)}
+      ${label('jam', pins.jam, `<b class="mono num" data-to="${num(C.jam && C.jam.ratio) ? C.jam.ratio : ''}" data-dec="1" data-suf="×">${fmt(C.jam && C.jam.ratio, 1)}×</b> road capacity<small class="mono">${esc(C.jam && C.jam.road)} · model</small>`)}
       ${label('home', pins.home, 'Johan')}
       ${label('dest', pins.dest, esc(shB.title))}
       <div class="s3-anchor a-l" style="${at(endAnchor)}"><div class="s3-row"><div class="s3-call glass s3-end">${esc(shA.town)} · <b class="mono num">${fmt(A.total_min)}</b> min
@@ -124,39 +124,36 @@
     ],
   };
 
-  function setDrawn(p, shown) {
-    const len = p.getTotalLength();
-    p.style.transition = 'none';
-    p.style.strokeDasharray = `${len} ${len}`;
-    p.style.strokeDashoffset = shown ? 0 : len;
-  }
-
+  const timers = [];
   Deck.register({
     id: 's3', order: 3, title: 'The map', steps: 4, time: [125, 185], notes, html,
 
     mount(el, P2, D) {
       D.mapSrc(el.querySelector('.s3-base'));
       el.querySelectorAll('.s3-leader').forEach(l => l.style.setProperty('--len', `${Math.ceil(l.getTotalLength()) + 1}px`));
-      el.querySelectorAll('.s3-route path').forEach(p => setDrawn(p, false));
     },
 
     step(el, n, dir) {
       const D = Deck, fwd = dir > 0;
-      const ra = el.querySelectorAll('.s3-ra path'), rb = el.querySelectorAll('.s3-rb path');
-      // route A (set A): drawn in on the forward build of step 2, otherwise shown or hidden at once
-      if (n < 2) ra.forEach(p => setDrawn(p, false));
-      else if (n === 2 && fwd) ra.forEach(p => D.draw(p, { duration: 950 }));
-      else ra.forEach(p => setDrawn(p, true));
-      // route B (set B) at step 3; going back to step 2 restores step 2 exactly
-      if (n < 3) rb.forEach(p => setDrawn(p, false));
-      else if (fwd) rb.forEach(p => D.draw(p, { duration: 700, delay: 120 }));
-      else rb.forEach(p => setDrawn(p, true));
-      // HUD: set A values at step 2, set B values at step 3
+      // routes A and B draw themselves: data-draw / data-draw-lead in the markup (js/motion.js), 1.8 s and 1.4 s,
+      // with a gold dot riding the tip; going back restores the previous step at once.
+      // HUD: set A values at step 2, set B values at step 3 (the numbers run while the route is drawn)
       const val = (a, b) => (n < 2 ? 0 : n < 3 ? a : b);
-      const opt = d => ({ decimals: d, duration: fwd && n >= 2 ? 500 : 0 });
-      D.tick(el.querySelector('.v-trip'), val(A.total_min, B.total_min), opt(1));
-      D.tick(el.querySelector('.v-wet'), val(wet(A), wet(B)), opt(0));
-      D.tick(el.querySelector('.v-out'), val(townA.outside, townB.outside), opt(0));
+      const opt = (d, ms) => ({ decimals: d, duration: fwd && n >= 2 ? ms : 0 });
+      D.tick(el.querySelector('.v-trip'), val(A.total_min, B.total_min), opt(1, n === 2 ? 1800 : 1400));
+      D.tick(el.querySelector('.v-wet'), val(wet(A), wet(B)), opt(0, 600));
+      D.tick(el.querySelector('.v-out'), val(townA.outside, townB.outside), opt(0, n === 2 ? 1600 : 1200));
+      // pin labels count up once when they appear (step 1); anywhere else they show the final value
+      timers.forEach(clearTimeout); timers.length = 0;
+      el.querySelectorAll('.s3-call b[data-to]').forEach((b, i) => {
+        const to = parseFloat(b.dataset.to);
+        if (!isFinite(to)) return;
+        const o = { decimals: +b.dataset.dec || 0, suffix: b.dataset.suf || '', duration: 0 };
+        if (n === 1 && fwd) {
+          D.tick(b, 0, o);
+          timers.push(setTimeout(() => D.tick(b, to, { ...o, duration: 1100 }), 260 + 360 * i));
+        } else D.tick(b, to, o);
+      });
     },
   });
 })();

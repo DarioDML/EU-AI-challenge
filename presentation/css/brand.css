@@ -7,7 +7,7 @@
 .brand {
   --art: 38px;
   position: absolute; left: var(--margin); right: auto; top: auto; bottom: 30px; z-index: 16; height: auto;
-  mix-blend-mode: multiply;   /* the whole block multiplies onto the slide: the white of the JRC jpg vanishes */
+  mix-blend-mode: normal;
   display: flex; align-items: flex-end; gap: 44px; padding: 0; margin: 0;
   background: none; border: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none;
   pointer-events: none; transition: opacity 600ms var(--spring);

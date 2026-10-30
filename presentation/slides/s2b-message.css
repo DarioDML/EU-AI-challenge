@@ -1,1 +1,128 @@
-/* placeholder: agent builds this */
+/* Slide · The message. Light European theme. Left: Johan's three questions, big, popping in one after another
+   (the current one in full ink with a gold dot, the others muted). Right: a dark-titanium iPhone (540 x 1100, cut by the
+   bottom of the stage) with ONE emergency-alert card and a "Your route" map card. The phone starts centred (step 0), then
+   moves right when the questions appear. Only transform, opacity and stroke-dashoffset animate. */
+
+/* ---------- questions ---------- */
+#s2b .s2b-qs { position: absolute; left: 96px; top: 318px; width: 760px; margin: 0; padding: 0; list-style: none; }
+#s2b .s2b-q { display: grid; grid-template-columns: 34px 78px 1fr; align-items: center; margin: 0 0 66px; opacity: 0; transform: translate3d(0, 28px, 0); transition: opacity 700ms var(--spring), transform 700ms var(--spring); }
+#s2b .s2b-q .h2 { color: var(--ink); }
+#s2b .s2b-n { font: 600 20px/1 var(--mono); letter-spacing: 0.14em; color: var(--ink-3); }
+#s2b .s2b-dot { width: 18px; height: 18px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 2px var(--ink); transform: scale(0); transition: transform 600ms var(--spring); }
+#s2b.s1 .s2b-q1, #s2b.s2 .s2b-q2, #s2b.s3 .s2b-q3 { opacity: 0.38; transform: none; }
+#s2b[data-step="1"] .s2b-q1, #s2b[data-step="2"] .s2b-q2, #s2b[data-step="3"] .s2b-q3 { opacity: 1; }
+#s2b[data-step="1"] .s2b-q1 .s2b-dot, #s2b[data-step="2"] .s2b-q2 .s2b-dot, #s2b[data-step="3"] .s2b-q3 .s2b-dot { transform: scale(1); }
+#s2b[data-step="1"] .s2b-q1 .s2b-n, #s2b[data-step="2"] .s2b-q2 .s2b-n, #s2b[data-step="3"] .s2b-q3 .s2b-n { color: var(--eu-blue); }
+
+/* ---------- severity gauge (step 2 only; the route card takes over at step 3) ---------- */
+#s2b .s2b-gauge { position: absolute; left: 96px; top: 566px; width: 800px; opacity: 0; transform: translate3d(0, 26px, 0); pointer-events: none; transition: opacity 500ms var(--spring), transform 700ms var(--spring); }
+#s2b[data-step="2"] .s2b-gauge { opacity: 1; transform: none; transition-delay: 150ms; }
+#s2b .g-head { margin: 0 0 20px; font: 650 36px/1.1 var(--font); letter-spacing: -0.03em; color: var(--ink); }
+#s2b .g-head b { font-weight: 700; color: var(--ink); }
+#s2b .g-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+#s2b .g-row { display: grid; grid-template-columns: 112px 1fr 96px; align-items: center; gap: 16px; }
+#s2b .g-l { font: 500 20px/1 var(--font); color: var(--ink-3); }
+#s2b .g-track { position: relative; height: 22px; }
+#s2b .g-bar { position: absolute; left: 0; top: 0; bottom: 0; width: calc(100% * var(--w)); border-radius: 4px; background: rgba(10, 31, 77, 0.2); transform: scaleX(0); transform-origin: 0 50%; transition: transform 800ms var(--spring); }
+#s2b[data-step="2"] .g-bar { transform: none; transition-delay: calc(300ms + var(--i) * 110ms); }
+#s2b .g-v { font: 500 22px/1 var(--mono); color: var(--ink-3); text-align: right; }
+#s2b .g-row.is-now .g-l { color: var(--ink); font-weight: 650; }
+#s2b .g-row.is-now .g-bar { background: var(--gold); box-shadow: 0 0 0 1.5px var(--ink); }
+#s2b .g-row.is-now .g-v { color: var(--ink); font-weight: 600; }
+#s2b .g-micro { margin: 16px 0 0; font: 400 15px/1.4 var(--mono); color: var(--ink-3); }
+#s2b .g-street { margin: 22px 0 0; font: 600 26px/1.2 var(--font); letter-spacing: -0.02em; color: var(--ink); }
+#s2b .g-street small { display: block; margin-top: 6px; font: 500 16px/1 var(--mono); letter-spacing: 0; color: var(--ink-3); }
+
+/* ---------- phone: zoom in from slide 2's phone, then step aside for the questions ---------- */
+#s2b .s2b-rig { position: absolute; left: 690px; top: 58px; width: 540px; height: 1100px; transition: transform 900ms var(--spring); }
+#s2b.s1 .s2b-rig { transform: translate3d(420px, 0, 0); }
+#s2b .s2b-phone {
+  position: absolute; inset: 0; opacity: 0; transform: translate3d(600px, -130px, 0) scale(0.3); transform-origin: 50% 50%;
+  transition: opacity 400ms linear, transform 900ms var(--spring); will-change: transform;
+}
+#s2b.is-active .s2b-phone { opacity: 1; transform: none; }
+
+#s2b .s2b-frame {
+  position: absolute; inset: 0; border-radius: 88px; padding: 5px;
+  background: linear-gradient(150deg, #d3d6da 0%, #8b8f96 12%, #eceef0 27%, #767a81 46%, #b9bdc2 63%, #6c7077 82%, #cfd2d6 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.55), 0 60px 110px rgba(10, 31, 77, 0.3), 0 22px 44px rgba(10, 31, 77, 0.2);
+}
+#s2b .s2b-bezel { width: 100%; height: 100%; border-radius: 83px; padding: 13px; background: #030304; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+#s2b .s2b-screen {
+  position: relative; width: 100%; height: 100%; border-radius: 70px; overflow: hidden; color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", system-ui, sans-serif;
+  background:
+    radial-gradient(140% 55% at 50% 108%, rgba(152, 167, 194, 0.55) 0%, rgba(152, 167, 194, 0) 62%),
+    linear-gradient(172deg, #13294a 0%, #1f3b5c 30%, #3d5a80 68%, #7d8fb0 100%);
+}
+#s2b .s2b-btn { position: absolute; width: 5px; border-radius: 2px; background: linear-gradient(90deg, #6a6e75, #c7cacf 55%, #7b7f86); }
+#s2b .s2b-btn.action { left: -4px; top: 200px; height: 46px; }
+#s2b .s2b-btn.up { left: -4px; top: 280px; height: 84px; }
+#s2b .s2b-btn.down { left: -4px; top: 384px; height: 84px; }
+#s2b .s2b-btn.power { right: -4px; top: 320px; height: 134px; }
+
+#s2b .s2b-island { position: absolute; top: 15px; left: 50%; width: 164px; height: 48px; margin-left: -82px; border-radius: 24px; background: #000; }
+#s2b .s2b-island::after { content: ""; position: absolute; right: 17px; top: 15px; width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle at 38% 34%, #31435f 0%, #0d121c 58%, #05070b 100%); }
+#s2b .s2b-status { position: absolute; top: 28px; right: 40px; display: flex; align-items: center; gap: 7px; font-size: 20px; font-weight: 600; line-height: 1; }
+#s2b .s2b-status .sig { display: flex; align-items: flex-end; gap: 2px; height: 16px; }
+#s2b .s2b-status .sig i { width: 4.5px; border-radius: 1.5px; background: #fff; }
+#s2b .s2b-status .bat { position: relative; width: 33px; height: 16px; padding: 2px; border: 2px solid rgba(255, 255, 255, 0.55); border-radius: 5px; }
+#s2b .s2b-status .bat span { display: block; width: 72%; height: 100%; border-radius: 2px; background: #fff; }
+#s2b .s2b-status .bat::after { content: ""; position: absolute; right: -6px; top: 4px; width: 3px; height: 5px; border-radius: 0 1px 1px 0; background: rgba(255, 255, 255, 0.55); }
+#s2b .s2b-date { position: absolute; top: 86px; left: 0; right: 0; text-align: center; font-size: 24px; font-weight: 600; line-height: 1; opacity: 0.92; }
+#s2b .s2b-time { position: absolute; top: 114px; left: 0; right: 0; text-align: center; font-size: 106px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+
+/* ---------- stack: alert card, demo caption, route card ---------- */
+#s2b .s2b-stack { position: absolute; top: 240px; left: 14px; right: 14px; display: flex; flex-direction: column; gap: 14px; }
+#s2b .s2b-card {
+  display: flex; gap: 13px; padding: 17px 19px 19px 15px; border-radius: 30px; background: rgba(242, 242, 247, 0.96); color: var(--ink);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+}
+#s2b .s2b-appicon { flex: none; width: 46px; height: 46px; margin-top: 1px; border-radius: 11px; background: #ff3b30; display: grid; place-items: center; }
+#s2b .s2b-content { flex: 1; min-width: 0; }
+#s2b .s2b-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+#s2b .s2b-row .t { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+#s2b .s2b-row .w { font-size: 17px; color: rgba(60, 60, 67, 0.6); }
+#s2b .s2b-text { margin-top: 4px; font-size: 19.5px; line-height: 1.32; letter-spacing: -0.005em; overflow-wrap: anywhere; text-wrap: pretty; }
+
+/* message lines: reveal one after another; the line that answers the current question gets a soft gold marker, the rest dims */
+#s2b .ln {
+  position: relative; isolation: isolate; margin: 5px -8px 0; padding: 2px 8px; border-radius: 8px;
+  opacity: 0; transform: translate3d(0, 10px, 0);
+}
+#s2b .ln > span { display: block; text-wrap: pretty; }
+#s2b .ln > span + span { margin-top: 4px; }
+#s2b.is-active .ln { opacity: 1; transform: none; transition: opacity 500ms var(--spring), transform 700ms var(--spring); transition-delay: calc(700ms + var(--i) * 240ms); }
+#s2b .ln::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 8px; background: rgba(255, 204, 0, 0.58);
+  transform: scaleX(0); transform-origin: 0 50%; transition: transform 650ms var(--spring);
+}
+#s2b[data-step="1"] .ln[data-q="1"]::before, #s2b[data-step="2"] .ln[data-q="2"]::before, #s2b[data-step="3"] .ln[data-q="3"]::before { transform: scaleX(1); }
+#s2b[data-step="1"] .ln:not([data-q="1"]), #s2b[data-step="2"] .ln:not([data-q="2"]), #s2b[data-step="3"] .ln:not([data-q="3"]) { opacity: 0.55; transition-delay: 0ms; }
+
+#s2b .s2b-demo { text-align: center; font-size: 15px; line-height: 1.2; color: #fff; opacity: 0.82; }
+
+/* route card (step 3): a map crop of the same vector map, Johan's route in gold on a navy casing */
+#s2b .s2b-route {
+  padding: 10px; border-radius: 28px; background: rgba(255, 255, 255, 0.97); color: var(--ink); box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+  opacity: 0; transform: translate3d(0, 70px, 0); transition: opacity 500ms var(--spring), transform 800ms var(--spring);
+}
+#s2b.s3 .s2b-route { opacity: 1; transform: none; }
+#s2b .s2b-route-h { position: absolute; left: 12px; top: 12px; display: flex; align-items: center; gap: 8px; padding: 6px 14px 6px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 10px rgba(10, 31, 77, 0.2); font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+#s2b .s2b-map { position: relative; overflow: hidden; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 1px rgba(10, 31, 77, 0.12); }
+#s2b .s2b-base { position: absolute; max-width: none; display: block; }
+#s2b .s2b-ov { position: absolute; left: 0; top: 0; }
+#s2b .s2b-ov path.rt-case, #s2b .s2b-ov path.rt-line { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+#s2b .rt-case { stroke: var(--ink); }
+#s2b .rt-line { stroke: var(--gold); }
+#s2b .rt-home { fill: var(--gold); stroke: var(--ink); }
+#s2b .rt-home-ring { fill: none; stroke: var(--ink); stroke-opacity: 0.25; stroke-width: 0.8; }
+#s2b .rt-pin { fill: var(--gold); stroke: var(--ink); stroke-width: 2.4; }
+#s2b .rt-house { fill: var(--ink); }
+
+#s2b .s2b-home { position: absolute; bottom: 10px; left: 50%; width: 170px; height: 6px; margin-left: -85px; border-radius: 3px; background: rgba(255, 255, 255, 0.92); }
+#s2b .s2b-glare { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(118deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.02) 30%, rgba(255, 255, 255, 0) 46%); }
+
+@media (prefers-reduced-motion: reduce) {
+  #s2b .s2b-phone { transform: none; opacity: 1; }
+}

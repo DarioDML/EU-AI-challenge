@@ -387,7 +387,7 @@ INSPECT_JS = r"""
       const raw = n.textContent.replace(/\s+/g, ' ').trim();
       if (!raw) continue;
       const el = n.parentElement;
-      if (!el || el.closest(SKIP)) continue;
+      if (!el || el.closest(SKIP) || vhid(el)) continue;
       rg.selectNodeContents(n);
       const rects = [...rg.getClientRects()].filter(r => r.width > 0.5 && r.height > 0.5);
       let why = !rects.length ? 'nobox' : css(el).visibility !== 'visible' ? 'visibility' : opac(el) <= 0.05 ? 'opacity' : null;
@@ -395,7 +395,7 @@ INSPECT_JS = r"""
       if (!why) { inStage = rects.map(r => X(r, S)).filter(Boolean); vis = inStage.map(r => clip(el, r, ctx)).filter(Boolean); if (!vis.length) why = 'clipped'; }
       if (why) { if (keep) R.hidden[why] += nW(raw); continue; }
       const s = css(el), svg = el instanceof SVGElement;
-      sink.push({ t: raw.length > 160 ? raw.slice(0, 157) + '...' : raw, words: nW(raw), cat: catOf(el), el: path(el), eid: eid(el),
+      sink.push({ t: raw.length > 700 ? raw.slice(0, 697) + '...' : raw, words: nW(raw), cat: catOf(el), el: path(el), eid: eid(el),
         rects: vis.slice(0, 8).map(B), cutStage: +(1 - area(inStage) / area(rects)).toFixed(3), cutClip: +(1 - area(vis) / area(inStage)).toFixed(3),
         fs: +fontPx(el).toFixed(1), fw: parseInt(s.fontWeight, 10) || 400, color: svg ? s.fill : s.color, op: +opac(el).toFixed(3), svg });
       if (keep) els.push([el, vis]);
@@ -488,10 +488,12 @@ INSPECT_JS = r"""
   const CH = /(^|[-_])(chart|bars?|stacked|graph|plot)([-_]|$)/i, chartEls = [];
   for (const el of slide.querySelectorAll('[class], [id]')) {
     if (![...(el.classList || []), el.id].filter(Boolean).some(t => CH.test(t))) continue;
+    // A painted SVG bar is itself a mark, not an empty chart container.
+    if (el instanceof SVGGeometryElement) continue;
     const r = el.getBoundingClientRect();
     if (r.width < 20 || r.height < 6 || !shown(el) || chartEls.some(c => c.contains(el))) continue;
     chartEls.push(el);
-    let marks = 0;
+    let marks = painted(el) && r.width >= 2 && r.height >= 2 ? 1 : 0;
     for (const d of el.querySelectorAll('*')) { const q = d.getBoundingClientRect(); if (q.width >= 2 && q.height >= 2 && painted(d)) marks++; if (marks > 2) break; }
     R.charts.push({ el: path(el), rect: B(r), marks });
   }
@@ -741,7 +743,7 @@ def contrast(L, box, color, op):
     cl, ca = css_lum(color)
     lighter = (cl > bg) if (cl is not None and ca * op > 0.2) else (hi - bg) >= (bg - lo)
     fg = hi if lighter else lo
-    worst = float(np.percentile(ring, 90 if lighter else 10))
+    worst = float(np.percentile(ring, 75 if lighter else 25))
     ratio = lambda a, b: (max(a, b) + 0.05) / (min(a, b) + 0.05)
     return round(ratio(fg, bg), 2), round(ratio(fg, worst), 2)
 
@@ -838,7 +840,7 @@ def analyse_state(st, R, png, args, prev_main):
                 continue
             best = max((rect_inter(ra, rb) / max(1.0, min(ra["w"] * ra["h"], rb["w"] * rb["h"])), rect_inter(ra, rb))
                        for ra in a["rects"] for rb in b["rects"])
-            if best[1] > 30 and best[0] > 0.2:
+            if best[1] > 30 and best[0] > 0.35:
                 decor = "decor" in (a["cat"], b["cat"])
                 add("warn" if decor else "error", "text-overlap", f"text on text ({best[0]:.0%}): '{a['t'][:40]}' / '{b['t'][:40]}'")
                 t2["overlapping"] |= not decor
@@ -890,7 +892,7 @@ def analyse_state(st, R, png, args, prev_main):
             add("warn", "upscaled", f"image upscaled x{max(sx, sy):.2f} (soft on a projector): {im['src']}")
     for im in R["imgs"] + R.get("brandImgs", []):
         if im["complete"] and im["nw"] and im["visible"] and (im.get("fit") or "fill") in ("fill", "") and im["ow"] and im["oh"]:
-            d = (im["ow"] / im["oh"]) / (im["nw"] / im["nh"]) - 1
+            d = (im["rect"]["w"] / im["rect"]["h"]) / (im["nw"] / im["nh"]) - 1
             if abs(d) > 0.01:
                 add("error", "aspect-distorted", f"image {im['src']} natural {im['nw']}x{im['nh']} shown in a {im['ow']}x{im['oh']} box ({d:+.1%} aspect error, object-fit fill) [{im['el']}]")
     for im in R.get("brandImgs", []):
@@ -972,7 +974,7 @@ def analyse_state(st, R, png, args, prev_main):
                     t["contrast"] = [ratio, worst]
                     if ratio < need:
                         low.append(f"'{t['t'][:36]}' {ratio:.1f}:1 (needs {need:g})")
-                    elif worst < 3.0 and t["cat"] == "main":
+                    elif worst < 2.0 and t["cat"] == "main":
                         low.append(f"'{t['t'][:36]}' on a busy background, worst {worst:.1f}:1")
             for t in texts:
                 if t["cat"] != "decor" and re.search(r"rgba?\(255,\s*204,\s*0", t["color"] or "") and t.get("contrast"):

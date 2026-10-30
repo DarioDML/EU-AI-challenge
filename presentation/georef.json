@@ -6,8 +6,8 @@
  "Y0": 6549619.88091634,
  "W": 1244,
  "H": 894,
- "file": "route-stress-map.svg",
- "map_sha256": "12dcae7dc0d503a662d201c7e7ed9aa544d49f917a55c9fec9c5837ca968a543",
+ "file": "route-stress-map-hd.svg",
+ "map_sha256": "7021dcdf50bad72a9ae5faeb10a8fb044c85ae80d9ff1791f1a725611dae6fc7",
  "bundle_blob": "92c3d36692b7a17d34fec8c90d9f8c59c728d91c",
  "alignment": {
   "method": "unique in-frame vertices to same-class road centre lines, both directions",
@@ -45,5 +45,6 @@
     "passed": true
    }
   }
- }
+ },
+ "alignment_note": "file switched to the high-precision redraw (build_map_svg.py): same pixel space, mean 0.6 px to the reference SVG"
 }

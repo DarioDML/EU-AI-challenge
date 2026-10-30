@@ -59,10 +59,10 @@
     <figure class="s2-fig s2-fig-${n}">
       <div class="s2-stage-head"><span class="s2-n mono">0${n}</span><span class="s2-stage-rule" aria-hidden="true"></span></div>
       <div class="s2-lens ${cls}" data-b="${n - 1}">${inner}</div>
-      <figcaption data-b="${n - 1}">
-        <b class="s2-name">${name}</b>
-        <span class="s2-sub"><i aria-hidden="true">→</i> ${sub}</span>
-        <span class="s2-micro mono">${micro}</span>
+      <figcaption data-b="${n - 1}" data-stagger="110" data-stagger-delay="200">
+        <b class="s2-name" data-stagger-item>${name}</b>
+        <span class="s2-sub" data-stagger-item><i aria-hidden="true">→</i> ${sub}</span>
+        <span class="s2-micro mono" data-stagger-item>${micro}</span>
       </figcaption>
     </figure>`;
 

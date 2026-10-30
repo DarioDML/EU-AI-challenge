@@ -4,10 +4,12 @@
      dir: 1 forward, -1 back, 0 first paint.
 
    Opt-in attributes, active within the element's/ancestors' data-b and data-b-out window:
-     data-stagger="50"    bounded delays per build, with data-stagger-delay and order (dom/row/col/random)
-     data-tick="1234.5"   short numeric update; data-decimals, prefix, suffix, tick-ms/delay/update-ms
-     data-draw           SVG shape/group reveal; data-draw-ms/delay/ease, up to 550ms
-   Legacy data-kenburns, .pulse and flow hooks no longer add decorative motion or cloned elements.
+     data-stagger="120"   delays per build (max 1.2 s), with data-stagger-delay and order (dom/row/col/random)
+     data-tick="1234.5"   count up from 0; data-decimals, prefix, suffix, tick-ms/delay/update-ms
+     data-draw            SVG shape/group draws in; data-draw-ms/delay/ease (max 2.4 s); data-draw-lead adds a gold
+                          dot with a soft halo riding the drawn tip (the last shape of the group)
+     data-at="K" / data-until="K"   build window without build styling (like data-b / data-b-out)
+   Legacy data-kenburns, .pulse and flow hooks no longer add cloned elements; .pulse is a CSS halo only.
    Mood metadata and DeckMotion.refresh/current remain available for existing consumers.
 
    Forward builds reveal once; back restores numbers/visible paths and cancels hidden work.
@@ -27,8 +29,8 @@
   if (STATIC) document.documentElement.classList.add('static');
   const MOODS = { s1: 'cinematic', s5: 'cinematic', s2: 'editorial', s3: 'pro', s4: 'pro' };
   const PRIM = '[data-tick], [data-draw]';
-  const LIVE_MS = 400;            // matches the slide crossfade
-  const DRAW_MS = 450;
+  const LIVE_MS = 700;            // matches the slide crossfade
+  const DRAW_MS = 900;
   const bounded = (value, max) => Math.max(0, Math.min(max, value));
 
   const num = (v, d) => { const n = parseFloat(v); return Number.isFinite(n) ? n : d; };
@@ -44,7 +46,7 @@
   function range(el, slide) {
     let b = 0, out = Infinity;
     for (let n = el; n && n !== slide; n = n.parentElement) {
-      const vb = n.getAttribute('data-b'), vo = n.getAttribute('data-b-out');
+      const vb = n.getAttribute('data-b') ?? n.getAttribute('data-at'), vo = n.getAttribute('data-b-out') ?? n.getAttribute('data-until');
       if (vb !== null) b = Math.max(b, parseInt(vb, 10) || 0);
       if (vo !== null) out = Math.min(out, parseInt(vo, 10) || 0);
     }
@@ -59,7 +61,7 @@
   /* data-stagger: delays per build step, exposed as --m-delay (read by motion.css on the way in only). */
   function stagger(root) {
     root.querySelectorAll('[data-stagger]').forEach(box => {
-      const gap = bounded(attr(box, 'data-stagger', 50), 60), base = bounded(attr(box, 'data-stagger-delay', 0), 100);
+      const gap = bounded(attr(box, 'data-stagger', 80), 240), base = bounded(attr(box, 'data-stagger-delay', 0), 1000);
       const order = box.getAttribute('data-stagger-order') || 'dom';          // dom | row | col | random
       const slide = box.closest('.slide') || root, groups = new Map();
       box.querySelectorAll('[data-b], [data-stagger-item]').forEach(it => {
@@ -80,7 +82,7 @@
           for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
         }
         list.forEach((it, i) => {
-          it._mDelay = reduced() ? 0 : bounded(base + i * gap, 100);
+          it._mDelay = reduced() ? 0 : bounded(base + i * gap, 1200);
           it.style.setProperty('--m-delay', it._mDelay + 'ms');
         });
       });
@@ -91,7 +93,39 @@
   const drawings = new WeakMap();
   const shapes = el => (el instanceof SVGGeometryElement ? [el]
     : Array.from(el.querySelectorAll('path, line, polyline, polygon, circle, ellipse, rect')));
+  /* data-draw-lead: a gold dot with a soft halo rides the drawn tip. Same easing and duration as the stroke, so the
+     dot sits exactly on the end of the line; Web Animations transform keyframes sampled along the path. */
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  function stopLead(el) {
+    if (el._mLead) { el._mLead.anim && el._mLead.anim.cancel(); el._mLead.anim = null; el._mLead.g.style.opacity = '0'; }
+  }
+  function startLead(el, opt) {
+    stopLead(el);
+    const list = shapes(el), path = list[list.length - 1];
+    if (!path || typeof path.animate !== 'function') return;
+    let len = 0;
+    try { len = path.getTotalLength(); } catch (e) { return; }
+    if (!(len > 0)) return;
+    let lead = el._mLead;
+    if (!lead || !lead.g.isConnected) {
+      const g = document.createElementNS(SVGNS, 'g');
+      g.setAttribute('class', 'm-lead'); g.setAttribute('aria-hidden', 'true'); g.style.opacity = '0';
+      g.innerHTML = '<circle class="m-lead-halo" r="17"></circle><circle class="m-lead-core" r="7"></circle>';
+      (el.nextSibling ? el.parentNode.insertBefore(g, el.nextSibling) : el.parentNode.appendChild(g));
+      lead = el._mLead = { g, anim: null };
+    }
+    const n = Math.max(24, Math.min(220, Math.round(len / 6))), kf = [];
+    for (let i = 0; i <= n; i++) {
+      const t = i / n, q = path.getPointAtLength(len * t);
+      kf.push({ offset: t, opacity: Math.min(1, t / 0.03, (1 - t) / 0.05), transform: `translate(${q.x}px, ${q.y}px)` });
+    }
+    lead.anim = lead.g.animate(kf, { duration: opt.ms, delay: opt.delay, easing: opt.ease, fill: 'both' });
+    lead.anim.onfinish = () => { lead.g.style.opacity = '0'; lead.anim && lead.anim.cancel(); lead.anim = null; };
+  }
+
   function stroke(el, on, opt) {
+    stopLead(el);
+    if (on && opt && el.hasAttribute('data-draw-lead') && !isQuiet()) startLead(el, opt);
     shapes(el).forEach(p => {
       let len = 0;
       try { len = p.getTotalLength(); } catch (e) { /* not rendered */ }
@@ -126,9 +160,9 @@
     });
   }
   const drawOpt = (el, slide) => ({
-    ms: bounded(attr(el, 'data-draw-ms', DRAW_MS), 550),
-    delay: bounded(attr(el, 'data-draw-delay', 0) + delayOf(el, slide), 100),
-    ease: el.getAttribute('data-draw-ease') || EASE,
+    ms: bounded(attr(el, 'data-draw-ms', DRAW_MS), 2400),
+    delay: bounded(attr(el, 'data-draw-delay', 0) + delayOf(el, slide), 1500),
+    ease: el.getAttribute('data-draw-ease') || 'cubic-bezier(0.45, 0, 0.2, 1)',
   });
 
   /* Keep the actual displayed value so an interrupted update starts where the audience saw it. */
@@ -137,7 +171,7 @@
       decimals: bounded(parseInt(el.getAttribute('data-decimals'), 10) || 0, 20),
       prefix: el.getAttribute('data-prefix') || '',
       suffix: el.getAttribute('data-suffix') || '',
-      duration: bounded(attr(el, mode === 'to' ? 'data-tick-update-ms' : 'data-tick-ms', 400), 500),
+      duration: bounded(attr(el, mode === 'to' ? 'data-tick-update-ms' : 'data-tick-ms', mode === 'to' ? 450 : 1000), 2000),
     };
   }
   function tick(el, mode, slide) {
@@ -153,7 +187,7 @@
     if (mode === 'up') paint(0);
     const from = Number.isFinite(el._tickVal) ? el._tickVal : to;
     if (from === to) { paint(to); return; }
-    const delay = mode === 'up' ? bounded(attr(el, 'data-tick-delay', 0) + delayOf(el, slide), 100) : 0;
+    const delay = mode === 'up' ? bounded(attr(el, 'data-tick-delay', 0) + delayOf(el, slide), 1500) : 0;
     const live = () => el.isConnected && slide === cur && isOn(slide) && onAt(el, slide, curStep);
     const run = () => {
       el._mTickT = null;
