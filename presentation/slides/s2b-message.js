@@ -9,7 +9,7 @@
   const A = P.alert || { lines: {}, crop: { x: 0, y: 0, w: 3, h: 2 }, route: [], home: [0, 0], shelterPx: [0, 0], shelter: {}, via: [] };
   const L = A.lines || {};
   const W = (P.screenshot && P.screenshot.w) || 1244, H = (P.screenshot && P.screenshot.h) || 894;
-  const MAP_W = 458, K = MAP_W / A.crop.w, MAP_H = Math.round(A.crop.h * K);   // map px -> card px
+  const MAP_W = 440, K = MAP_W / A.crop.w, MAP_H = Math.round(A.crop.h * K);   // map px -> card px
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const dPath = pts => (pts && pts.length > 1 ? 'M' + pts.map(p => `${p[0]} ${p[1]}`).join(' L') : '');
   const px = v => (v / K).toFixed(2);                                              // card px -> map px (stroke widths)
@@ -90,14 +90,14 @@
   const notes = {
     title: 'The message',
     script:
-      'This is what Johan\'s phone shows: one short message, in plain text, and it answers his three questions. ' +
+      'Johan\'s phone shows one plain-text message that answers his three questions. ' +
       `Am I in danger? ${L.danger} ` +
       `How serious is it? ${L.severity} ` +
       (g21 ? `In the model, about ${about(g21.v)} residents were inside that flood` : '') +
-      ((GAUGE.find(g => g.id === 'rp500')) ? `, and a 500-year flood would put about ${about(GAUGE.find(g => g.id === 'rp500').v)} there. ` : '. ') +
+      '. ' +
       (A.street_closed ? 'His own street is closed by the flood. ' : '') +
       `Where should I go? ${L.go} ${L.route} ` +
-      'The route is checked from his street on: it avoids flooded roads. ' +
+      'The route avoids flooded roads. ' +
       'It is a demonstration message, not a real alert.',
     notes: [
       `Plain text, written for Cell Broadcast, which the team describes as working on 2G. Nothing is sent: this is the tool's demo message for ${A.street || 'his street'}.`,

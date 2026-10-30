@@ -20,7 +20,7 @@ The white European editorial theme uses navy text, blue emphasis, original-colou
 
 Opening sequence: Meet Johan, his three questions, the proportion receiving no warning, then two separate shares among warned respondents. The separate dot grids preserve the differing survey denominators.
 
-Slide 5 (`slides/s4-policy.*`) is a guided demo of the policy tool (`policy-tool/`) for Anna in three builds: her question, where the risk is (region view), and who gets a shelter (Schleiden, the map pushes in). The phone alert is slide 3 and the asks are slide 6, so the slide stops at the shelter gap; Anna's answer is spoken. The screens in `assets/tool/` are headless captures of the tool at 1600 × 900, default plan; the Schleiden figures come from `data-analysis/shelter_alert_de_18_summary.json`.
+Slide 5 (`slides/s4-policy.*`) is a guided demo of the policy tool (`policy-tool/`) for Anna in four builds: her question, where the risk is (region view), who gets a shelter (Schleiden, the map pushes in), and her answer with the first step (the tool's "Anna's action" view). The phone alert is slide 3, so this slide shows none. The screens in `assets/tool/` are headless captures of the tool at 1600 × 900, default plan; the Schleiden figures come from `data-analysis/shelter_alert_de_18_summary.json`.
 
 ## Build and review
 

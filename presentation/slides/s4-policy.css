@@ -15,6 +15,7 @@
 #s4 .s4-stat b small { font-size: 0.42em; font-weight: 600; letter-spacing: 0; margin-left: 0.06em; }
 #s4 .s4-stat span { font: 500 30px/1.2 var(--font); color: var(--ink-2); }
 #s4 .s4-stat.slow b { color: var(--s4-warn); }
+#s4 .s4-answer { font: 700 60px/1.08 var(--font); letter-spacing: -0.03em; color: var(--ink); margin-bottom: 30px; }
 
 /* ---------- right: the tool in a browser frame ---------- */
 #s4 .s4-browser {
@@ -36,6 +37,10 @@
 /* step 2: the camera pushes into the map (capture x 380-1262, y 340-837 fills the screen) */
 #s4 .s4-shot.decide { transform-origin: 0 0; }
 #s4.s2 .s4-shot.decide { opacity: 1; transform: scale(1.814) translate3d(-271.7px, -243.1px, 0); }
+#s4.s3 .s4-shot.decide { opacity: 0; }
+/* step 3: view 3, the camera pushes into "the one thing Anna can do first" (capture x 14-840, y 420-885) */
+#s4 .s4-shot.action { transform-origin: 0 0; }
+#s4.s3 .s4-shot.action { opacity: 1; transform: scale(1.937) translate3d(-10px, -299.8px, 0); }
 
 /* step 1: Schleiden on the map and first in the ranking (region capture × 0.715) */
 #s4 .s4-ring {
