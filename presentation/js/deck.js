@@ -6,7 +6,8 @@
   const SPRING = 'cubic-bezier(0.16, 1, 0.3, 1)';
   const params = new URLSearchParams(location.search);
   const STATIC = params.has('static');                       // screenshots: no transitions, final states at once
-  const reduced = STATIC || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const MOTION = params.has('motion') && !STATIC;            // presenting: animate even when the OS asks for reduced motion
+  const reduced = STATIC || (!MOTION && matchMedia('(prefers-reduced-motion: reduce)').matches);
   const TOTAL_S = 300;
   const MAP_NAME = 'visualisation busy roates + flooded areas';  // exact spelling of the team's file
   const defs = [], keyHandlers = new Map();
@@ -236,10 +237,22 @@
     return m ? [parseInt(m[1], 10) - 1, parseInt(m[2] || '0', 10)] : [0, 0];
   }
 
+  /* ?motion: delete the stylesheets' prefers-reduced-motion blocks so the CSS animates like the scripts do. */
+  function dropReducedMotionRules() {
+    for (const sheet of document.styleSheets) {
+      let rules;
+      try { rules = sheet.cssRules; } catch (e) { continue; }   // file:// sheets are unreadable; inline and hosted ones work
+      for (let i = rules.length - 1; i >= 0; i--) {
+        if (rules[i] instanceof CSSMediaRule && /prefers-reduced-motion:\s*reduce/.test(rules[i].media.mediaText)) sheet.deleteRule(i);
+      }
+    }
+  }
+
   function start() {
     stage = document.getElementById('stage');
     notesEl = document.getElementById('notes');
     if (STATIC) document.documentElement.classList.add('static');
+    if (MOTION) dropReducedMotionRules();
     const f = params.get('font');                          // test hook: ?font=arial previews fallback metrics
     if (f) document.documentElement.style.setProperty('--font', f);
     fit();

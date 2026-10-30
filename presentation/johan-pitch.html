@@ -914,7 +914,8 @@ window.PITCH = {"generated":"2026-10-30T12:16Z","source":{"bundle":"bundle.json"
   const SPRING = 'cubic-bezier(0.16, 1, 0.3, 1)';
   const params = new URLSearchParams(location.search);
   const STATIC = params.has('static');                       // screenshots: no transitions, final states at once
-  const reduced = STATIC || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const MOTION = params.has('motion') && !STATIC;            // presenting: animate even when the OS asks for reduced motion
+  const reduced = STATIC || (!MOTION && matchMedia('(prefers-reduced-motion: reduce)').matches);
   const TOTAL_S = 300;
   const MAP_NAME = 'visualisation busy roates + flooded areas';  // exact spelling of the team's file
   const defs = [], keyHandlers = new Map();
@@ -1144,10 +1145,22 @@ window.PITCH = {"generated":"2026-10-30T12:16Z","source":{"bundle":"bundle.json"
     return m ? [parseInt(m[1], 10) - 1, parseInt(m[2] || '0', 10)] : [0, 0];
   }
 
+  /* ?motion: delete the stylesheets' prefers-reduced-motion blocks so the CSS animates like the scripts do. */
+  function dropReducedMotionRules() {
+    for (const sheet of document.styleSheets) {
+      let rules;
+      try { rules = sheet.cssRules; } catch (e) { continue; }   // file:// sheets are unreadable; inline and hosted ones work
+      for (let i = rules.length - 1; i >= 0; i--) {
+        if (rules[i] instanceof CSSMediaRule && /prefers-reduced-motion:\s*reduce/.test(rules[i].media.mediaText)) sheet.deleteRule(i);
+      }
+    }
+  }
+
   function start() {
     stage = document.getElementById('stage');
     notesEl = document.getElementById('notes');
     if (STATIC) document.documentElement.classList.add('static');
+    if (MOTION) dropReducedMotionRules();
     const f = params.get('font');                          // test hook: ?font=arial previews fallback metrics
     if (f) document.documentElement.style.setProperty('--font', f);
     fit();
@@ -2023,9 +2036,10 @@ window.PITCH = {"generated":"2026-10-30T12:16Z","source":{"bundle":"bundle.json"
   if (!D || !host) return;
   const stage = document.getElementById('stage') || host.parentElement;
   const STATIC = new URLSearchParams(location.search).has('static');
+  const MOTION = new URLSearchParams(location.search).has('motion') && !STATIC;
   const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
   // Read the live preference; the engine may have cached its value at page load.
-  const reduced = () => STATIC || motionQuery.matches;
+  const reduced = () => STATIC || (!MOTION && motionQuery.matches);
   const isQuiet = () => reduced() || (stage && stage.classList.contains('instant'));
   const EASE = 'cubic-bezier(0.2, 0, 0.2, 1)';
   if (STATIC) document.documentElement.classList.add('static');

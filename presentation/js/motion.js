@@ -21,9 +21,10 @@
   if (!D || !host) return;
   const stage = document.getElementById('stage') || host.parentElement;
   const STATIC = new URLSearchParams(location.search).has('static');
+  const MOTION = new URLSearchParams(location.search).has('motion') && !STATIC;
   const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
   // Read the live preference; the engine may have cached its value at page load.
-  const reduced = () => STATIC || motionQuery.matches;
+  const reduced = () => STATIC || (!MOTION && motionQuery.matches);
   const isQuiet = () => reduced() || (stage && stage.classList.contains('instant'));
   const EASE = 'cubic-bezier(0.2, 0, 0.2, 1)';
   if (STATIC) document.documentElement.classList.add('static');
