@@ -1,0 +1,45 @@
+{
+  "aoi_id": "de_15",
+  "locality": "Bad Neuenahr-Ahrweiler",
+  "generated": "2026-10-29",
+  "scenario": {
+    "m2_per_person": 3.5,
+    "usable_share": 0.5,
+    "max_distance_m": 5000.0,
+    "walk_distance_m": 2000.0,
+    "flood_buffer_m": 50.0,
+    "exclude_rp500": true,
+    "kinds": [
+      "school",
+      "sports",
+      "community"
+    ]
+  },
+  "homes_in_flood": 6975,
+  "homes_in_flood_height_missing": 0,
+  "homes_in_flood_by_country": {
+    "de": 6975
+  },
+  "residents_in_flood_building_weighted": 20894.9,
+  "residents_in_flood_area_weighted_reference": 15336.5,
+  "residents_unallocated_in_bbox_cells_without_homes": 3436.4,
+  "homes_in_flood_with_rp500_depth": 3345,
+  "homes_in_flood_with_rp100_depth": 2968,
+  "shelters_found": 384,
+  "shelters_eligible": 289,
+  "shelters_eligible_by_country": {
+    "de": 289
+  },
+  "shelter_capacity": 87910,
+  "residents_placed": 11124.0,
+  "residents_placed_within_walk": 6102.4,
+  "residents_unplaced": 9770.8,
+  "median_distance_m": 1638,
+  "vulnerable_sites_in_flood": 31,
+  "osm_retrieved": "2026-10-29",
+  "checks": {
+    "homes_in_flood_vs_reference_residential_event": true,
+    "homes_rp500_vs_reference_rp500_positive_residential": true,
+    "homes_rp100_vs_reference_rp100_positive_residential": true
+  }
+}
