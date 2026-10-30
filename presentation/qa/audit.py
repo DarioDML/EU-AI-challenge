@@ -54,8 +54,8 @@ CHROME = os.environ.get("PITCH_QA_CHROME", r"C:\Program Files\Google\Chrome\Appl
 SCRATCH = Path(r"C:\Users\Louis\AppData\Local\Temp\claude\C--Users-Louis-Desktop-EU-AI-challenge-github"
                r"\69d7543f-97b1-496d-9954-a2f6065e9070\scratchpad")
 W, H = 1920, 1080
-EXPECTED_STEPS = {1: 3, 2: 3, 3: 4, 4: 2, 5: 3}                    # blueprint section 7
-EXPECTED_FAILS = (r"/assets/logos/", r"visualisation(%20| )busy[^\"' ]*\.svg")   # optional files the engine probes
+EXPECTED_STEPS = {1: 4, 2: 3, 3: 4, 4: 2, 5: 3}                    # blueprint section 7
+EXPECTED_FAILS = (r"/assets/logos/", r"visualisation(%20| )busy[^\"' ]*\.svg")  # route-stress-map.svg is the real map now   # optional files the engine probes
 TIER2 = ("overflow", "overlapping", "blank", "image_broken", "chart_empty", "text_truncated")
 
 
@@ -322,7 +322,7 @@ INSPECT_JS = r"""
     faces: [...(document.fonts || [])].filter(f => /Inter|JetBrains/i.test(f.family)).map(f => `${f.family.replace(/["']/g, '')} ${f.weight} ${f.status}`),
     texts: [], pseudo: [], brandTexts: [], hidden: { nobox: 0, visibility: 0, opacity: 0, clipped: 0 },
     overflow: [], parked: [], spill: [], occluded: [], truncated: [], imgs: [], images: [], canvases: [], charts: [],
-    overlays: [], ranges: [], srcBoxes: [], brand: null, visuals: 0, layer: null };
+    overlays: [], brandImgs: [], ranges: [], srcBoxes: [], brand: null, visuals: 0, layer: null };
 
   // html-slides presentation layer
   const deckEl = document.getElementById('deck');
@@ -477,7 +477,7 @@ INSPECT_JS = r"""
     let dec = src; try { dec = decodeURIComponent(src.slice(0, 400)); } catch (e) {}
     R.imgs.push({ src: short(src), complete: img.complete, nw: img.naturalWidth, nh: img.naturalHeight, ow: img.offsetWidth, oh: img.offsetHeight,
       rect: B(r), fit: s.objectFit, pos: s.objectPosition, op: +opac(img).toFixed(3), visible: r.width > 1 && r.height > 1 && shown(img) && !!X(r, S),
-      map: /visualisation/i.test(dec) || (img.naturalWidth === MW && img.naturalHeight === MH), el: path(img) });
+      map: /visualisation|route-stress-map/i.test(dec) || (img.naturalWidth === MW && img.naturalHeight === MH), el: path(img) });
   }
   for (const im of slide.querySelectorAll('image')) {
     const href = (im.href && im.href.baseVal) || im.getAttribute('href') || im.getAttribute('xlink:href') || '', r = im.getBoundingClientRect();
@@ -485,7 +485,7 @@ INSPECT_JS = r"""
       t.onload = () => { clearTimeout(to); res([t.naturalWidth, t.naturalHeight]); }; t.onerror = () => { clearTimeout(to); res([0, 0]); }; t.src = href; });
     let dec = href; try { dec = decodeURIComponent(href.slice(0, 400)); } catch (e) {}
     R.images.push({ src: short(href), nat, rect: B(r), par: im.getAttribute('preserveAspectRatio') || '', visible: r.width > 1 && shown(im) && !!X(r, S),
-      map: /visualisation/i.test(dec) || (!!nat && nat[0] === MW && nat[1] === MH), el: path(im) });
+      map: /visualisation|route-stress-map/i.test(dec) || (!!nat && nat[0] === MW && nat[1] === MH), el: path(im) });
   }
   for (const cv of slide.querySelectorAll('canvas')) { const r = cv.getBoundingClientRect(); if (r.width > 4 && r.height > 4 && shown(cv) && X(r, S)) R.canvases.push({ el: path(cv), rect: B(r) }); }
   const CH = /(^|[-_])(chart|bars?|stacked|graph|plot)([-_]|$)/i, chartEls = [];
@@ -509,6 +509,7 @@ INSPECT_JS = r"""
   for (const e of slide.querySelectorAll('.src')) { const r = e.getBoundingClientRect(); if (r.width > 1 && shown(e)) R.srcBoxes.push(B(r)); }
   const brand = stage.querySelector('.brand');
   if (brand) { const r = brand.getBoundingClientRect(); R.brand = { box: B(r), visible: r.width > 1 && shown(brand) }; if (R.brand.visible) collect(brand, R.brandTexts, stage, false); }
+  R.brandImgs = [...stage.querySelectorAll('.brand img')].map(img => { const r = img.getBoundingClientRect(), s = css(img); return { src: short(img.currentSrc || img.src), complete: img.complete, nw: img.naturalWidth, nh: img.naturalHeight, ow: img.offsetWidth, oh: img.offsetHeight, rect: B(r), fit: s.objectFit, pos: s.objectPosition, visible: r.width > 1 && shown(img), el: path(img) }; });
   R.visuals = [...slide.querySelectorAll('img, svg, canvas, video, image')].filter(e => { const r = e.getBoundingClientRect();
     return r.width * r.height > 0.03 * S.width * S.height && shown(e) && !!X(r, S); }).length;
   return R;
@@ -864,7 +865,7 @@ def analyse_state(st, R, png, args, prev_main):
         add("warn", "small-type", f"{len(small)} text runs under {args.min_font:g} px, e.g. '{small[0]['t'][:40]}' at {small[0]['fs']} px")
 
     # images, the map and its overlay
-    map_img = None
+    map_img, map_vector = None, False
     for im in R["imgs"]:
         if im["complete"] and im["nw"] == 0:
             add("error", "image-broken", f"broken image {im['src']} [{im['el']}]")
@@ -876,13 +877,28 @@ def analyse_state(st, R, png, args, prev_main):
         sx, sy, ox, oy = sc
         if im["map"]:
             map_img = (sx, sy, ox, oy)
+            vector = ".svg" in im["src"].lower() or im["src"].startswith("data:image/svg")
+            map_vector = vector
             ok11 = abs(sx - 1) <= 0.002 and abs(sy - 1) <= 0.002
             stretch = abs(sx / sy - 1) > 0.002
             msg = (f"map {im['nw']}x{im['nh']} drawn at {im['nw'] * sx:.1f}x{im['nh'] * sy:.1f} device px "
-                   f"(scale {sx:.4f} x {sy:.4f}, object-fit {im['fit']})")
-            add("error" if stretch or not ok11 else "info", "map-scale", ("STRETCHED " if stretch else "" if ok11 else "NOT 1:1 ") + msg)
+                   f"(scale {sx:.4f} x {sy:.4f}, object-fit {im['fit']}, {'vector' if vector else 'raster'})")
+            if stretch:
+                add("error", "map-scale", "STRETCHED " + msg)
+            elif not ok11 and not vector:
+                add("error", "map-scale", "NOT 1:1 " + msg)
+            else:
+                add("info", "map-scale", msg)
         elif max(sx, sy) > 1.05:
             add("warn", "upscaled", f"image upscaled x{max(sx, sy):.2f} (soft on a projector): {im['src']}")
+    for im in R["imgs"] + R.get("brandImgs", []):
+        if im["complete"] and im["nw"] and im["visible"] and (im.get("fit") or "fill") in ("fill", "") and im["ow"] and im["oh"]:
+            d = (im["ow"] / im["oh"]) / (im["nw"] / im["nh"]) - 1
+            if abs(d) > 0.01:
+                add("error", "aspect-distorted", f"image {im['src']} natural {im['nw']}x{im['nh']} shown in a {im['ow']}x{im['oh']} box ({d:+.1%} aspect error, object-fit fill) [{im['el']}]")
+    for im in R.get("brandImgs", []):
+        if im["visible"] and im["complete"] and im["nw"] == 0:
+            add("error", "image-broken", f"brand logo broken {im['src']}")
     for im in R["images"]:
         if im["nat"] == [0, 0]:
             add("error", "image-broken", f"broken SVG <image> {im['src']} [{im['el']}]")
@@ -897,7 +913,7 @@ def analyse_state(st, R, png, args, prev_main):
                 add("warn", "upscaled", f"SVG image upscaled x{max(sx, sy):.2f}: {im['src']}")
     if map_img:
         sx, sy, ox, oy = map_img
-        for ov in R["overlays"]:
+        for ov in ([] if map_vector else R["overlays"]):
             if not ov["visible"] or not (900 <= ov["vb"][2] <= 2000):
                 continue
             ex0, ey0 = ox + ov["vb"][0] * sx, oy + ov["vb"][1] * sy
@@ -961,6 +977,10 @@ def analyse_state(st, R, png, args, prev_main):
                         low.append(f"'{t['t'][:36]}' {ratio:.1f}:1 (needs {need:g})")
                     elif worst < 3.0 and t["cat"] == "main":
                         low.append(f"'{t['t'][:36]}' on a busy background, worst {worst:.1f}:1")
+            for t in texts:
+                if t["cat"] != "decor" and re.search(r"rgba?\(255,\s*204,\s*0", t["color"] or "") and t.get("contrast"):
+                    if t["contrast"][0] < 3.0:
+                        add("error", "gold-on-light", f"gold #FFCC00 text fails on its background ({t['contrast'][0]}:1): '{t['t'][:40]}' (use --gold-ink #7A5F00)")
             if low:
                 add("warn", "contrast", f"{len(low)} low-contrast runs: " + "; ".join(low[:4]))
         except Exception as e:

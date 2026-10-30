@@ -7,7 +7,7 @@
 
    Opt-in attributes. Each fires when its element's build is on screen (step >= its data-b, or at once without one):
      data-stagger="100"            container: its [data-b] and [data-stagger-item] descendants get rising delays,
-                                   counted per build step (+ data-stagger-delay="ms" before the first)
+                                   counted per build step (+ data-stagger-delay="ms"; data-stagger-order="row|col|random", default DOM order)
      data-tick="1234.5"            counts up from 0 (data-decimals, data-prefix, data-suffix, data-tick-ms,
                                    data-tick-delay); writing a new data-tick eases to it (data-tick-update-ms)
      data-draw                     SVG shape, or a group of shapes, draws in (data-draw-ms, data-draw-delay,
@@ -16,8 +16,8 @@
      .pulse                        gold halo ring (CSS ::after; an SVG circle.pulse gets a ring circle)
      .flow[data-path="M0 0 H200"]  HTML gold dot along a path, in its positioned parent's px
      path[data-flow]               SVG gold dot along that path (data-flow-ms, data-flow-delay, data-flow-dots, data-flow-r)
-   Moods: data-mood on each slide (s1, s5 cinematic; s2 editorial; s3, s4 pro; a slide may set its own in mount),
-   mirrored on #stage[data-mood] for the background grid (editorial, pro) and the film grain (cinematic).
+   Moods (light theme): data-mood on each slide (s1, s5 cinematic; s2 editorial; s3, s4 pro; a slide may set its own in mount),
+   mirrored on #stage[data-mood] for the faint navy grid (editorial, pro) and a soft spotlight (cinematic).
 
    Builds animate going forward; going back restores final states at once (draws are erased).
    Under Deck.reduced (prefers-reduced-motion or ?static) everything lands in its final state at once. */
@@ -65,14 +65,29 @@
   function stagger(root) {
     root.querySelectorAll('[data-stagger]').forEach(box => {
       const gap = attr(box, 'data-stagger', 100), base = attr(box, 'data-stagger-delay', 0);
-      const slide = box.closest('.slide') || root, count = new Map();
+      const order = box.getAttribute('data-stagger-order') || 'dom';          // dom | row | col | random
+      const slide = box.closest('.slide') || root, groups = new Map();
       box.querySelectorAll('[data-b], [data-stagger-item]').forEach(it => {
         if (it.parentElement.closest('[data-stagger]') !== box) return;            // a nested container owns it
         if (!it.hasAttribute('data-b')) it.setAttribute('data-b', String(range(it.parentElement, slide)[0]));
-        const k = it.getAttribute('data-b'), i = count.get(k) || 0;
-        count.set(k, i + 1);
-        it._mDelay = REDUCED ? 0 : base + i * gap;
-        it.style.setProperty('--m-delay', it._mDelay + 'ms');
+        const k = it.getAttribute('data-b');
+        if (!groups.has(k)) groups.set(k, []);
+        groups.get(k).push(it);
+      });
+      groups.forEach(list => {
+        if (order === 'row' || order === 'col') {
+          const r = new Map(list.map(it => [it, it.getBoundingClientRect()])), y = order === 'row';
+          list.sort((m, n) => (y ? r.get(m).top - r.get(n).top || r.get(m).left - r.get(n).left
+                                 : r.get(m).left - r.get(n).left || r.get(m).top - r.get(n).top));
+        } else if (order === 'random') {                                           // seeded: same sweep every run
+          let seed = 7;
+          const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+          for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
+        }
+        list.forEach((it, i) => {
+          it._mDelay = REDUCED ? 0 : base + i * gap;
+          it.style.setProperty('--m-delay', it._mDelay + 'ms');
+        });
       });
     });
   }

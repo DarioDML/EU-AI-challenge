@@ -36,15 +36,15 @@
 
 #s4 .s4-track {
   position: absolute; left: 0; right: 0; top: 16px; height: 8px; border-radius: 4px; overflow: hidden;
-  background: rgba(245, 247, 251, 0.14); pointer-events: none;
+  background: rgba(0, 51, 153, 0.14); pointer-events: none;
 }
 #s4 .s4-fill {
-  position: absolute; inset: 0; background: rgba(245, 247, 251, 0.5);
+  position: absolute; inset: 0; background: var(--eu-blue);
   transform-origin: 0 50%; transform: scaleX(0); transition: transform 650ms var(--spring);
 }
 #s4 .s4-dots i {
   position: absolute; top: 17px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%;
-  background: rgba(245, 247, 251, 0.92); pointer-events: none;
+  background: var(--surface); box-shadow: 0 0 0 1px rgba(0, 51, 153, 0.3); pointer-events: none;
 }
 #s4 .s4-thumb {
   position: absolute; left: 0; top: 0; width: 40px; height: 40px; pointer-events: none;
@@ -52,22 +52,22 @@
 }
 #s4 .s4-knob {
   width: 100%; height: 100%; border-radius: 50%;
-  background: radial-gradient(circle at 50% 32%, #ffffff 0%, #f3f5f9 52%, #d6dbe4 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -2px 3px rgba(10, 16, 32, 0.12),
-    0 8px 18px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.35);
+  background: radial-gradient(circle at 50% 30%, #ffffff 0%, #f6f8fc 60%, #e3e9f4 100%);
+  box-shadow: inset 0 0 0 4px var(--gold), inset 0 0 0 5px rgba(122, 95, 0, 0.35),
+    0 8px 18px rgba(10, 31, 77, 0.28), 0 2px 4px rgba(10, 31, 77, 0.2);
   transition: transform 260ms var(--spring);
 }
 #s4 .s4-range:hover ~ .s4-thumb .s4-knob { transform: scale(1.06); }
 #s4 .s4-range:active ~ .s4-thumb .s4-knob { transform: scale(0.9); }
 #s4 .s4-range:focus-visible ~ .s4-thumb .s4-knob {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 8px 18px rgba(0, 0, 0, 0.5),
-    0 0 0 4px var(--bg), 0 0 0 7px var(--ink);
+  box-shadow: inset 0 0 0 4px var(--gold), inset 0 0 0 5px rgba(122, 95, 0, 0.35), 0 8px 18px rgba(10, 31, 77, 0.28),
+    0 0 0 4px var(--bg), 0 0 0 7px var(--eu-blue);
 }
 
 #s4 .s4-stops { position: absolute; left: 0; right: 0; top: 52px; height: 26px; pointer-events: none; }
 #s4 .s4-stop {
   position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap;
-  font: 600 24px/1 var(--font); letter-spacing: -0.01em; color: var(--ink); opacity: 0.4;
+  font: 600 24px/1 var(--font); letter-spacing: -0.01em; color: var(--ink); opacity: 0.45;
   transition: opacity 300ms var(--spring);
 }
 #s4 .s4-stop.first { left: 0; transform: none; }
@@ -80,7 +80,7 @@
 }
 #s4 .s4-sub-mapped { position: absolute; left: 0; top: 0; }
 #s4 .s4-sub-model { position: absolute; left: 180px; right: 0; top: 0; display: flex; align-items: center; gap: 12px; }
-#s4 .s4-sub-model i { flex: 1; height: 1px; background: rgba(245, 247, 251, 0.2); }
+#s4 .s4-sub-model i { flex: 1; height: 1px; background: rgba(0, 51, 153, 0.22); }
 #s4 .s4-sub-model b { font-weight: 500; }
 
 /* ---------- KPI ---------- */
@@ -135,7 +135,7 @@
 #s4 .s4-eta-n small { font: 500 22px/1 var(--mono); letter-spacing: 0; color: var(--ink-2); }
 #s4 .s4-eta-sub { margin-top: 12px; font-size: 16px; line-height: 1; letter-spacing: 0.02em; color: var(--ink-3); white-space: nowrap; }
 #s4 .s4-eta-to { display: flex; align-items: center; gap: 10px; margin-top: 18px; font: 600 19px/1.2 var(--font); letter-spacing: -0.01em; color: var(--ink); white-space: nowrap; }
-#s4 .s4-eta-to i { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 4px rgba(255, 204, 0, 0.18); }
+#s4 .s4-eta-to i { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 1.5px var(--gold-ink), 0 0 0 5px rgba(255, 204, 0, 0.3); }
 #s4 .s4-eta.no-route .s4-eta-to i { opacity: 0; }
 
 /* ---------- Johan's iPhone ---------- */
@@ -153,7 +153,7 @@
   position: absolute; inset: 0; border-radius: 66px; padding: 4px;
   background: linear-gradient(150deg, #d3d6da 0%, #8b8f96 12%, #eceef0 27%, #767a81 46%, #b9bdc2 63%, #6c7077 82%, #cfd2d6 100%);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.55),
-    0 60px 110px rgba(0, 0, 0, 0.6), 0 22px 44px rgba(0, 0, 0, 0.4);
+    0 56px 100px rgba(10, 31, 77, 0.34), 0 20px 40px rgba(10, 31, 77, 0.22);
 }
 #s4 .s4-bezel { width: 100%; height: 100%; border-radius: 62px; padding: 10px; background: #030304; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
 #s4 .s4-screen {

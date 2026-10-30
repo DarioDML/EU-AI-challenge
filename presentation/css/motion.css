@@ -75,12 +75,12 @@
   left: calc(50% - var(--pulse-size, 100%) / 2); top: calc(50% - var(--pulse-size, 100%) / 2);
   width: var(--pulse-size, 100%); height: var(--pulse-size, 100%);
   border-radius: 50%; border: 2px solid var(--pulse-color, var(--gold));
-  box-shadow: 0 0 22px 2px color-mix(in srgb, var(--pulse-color, var(--gold)) 45%, transparent);
+  box-shadow: 0 0 0 1px rgba(10, 31, 77, 0.35), 0 4px 14px rgba(10, 31, 77, 0.18);      /* navy hairline: reads on white */
   opacity: 0.4; transform: scale(1.5);                              /* still frame: screenshots, reduced motion */
   animation: m-pulse 2.4s var(--m-ease) infinite;
 }
 .m-pulse-ring {
-  fill: none; stroke: var(--pulse-color, var(--gold)); stroke-width: 2; vector-effect: non-scaling-stroke;
+  fill: none; stroke: var(--pulse-color, var(--gold)); stroke-width: 2.5; filter: drop-shadow(0 0 1px rgba(10, 31, 77, 0.6)); vector-effect: non-scaling-stroke;
   transform-box: fill-box; transform-origin: 50% 50%; pointer-events: none;
   stroke-opacity: 0.4; transform: scale(1.5);
   animation: m-pulse-svg 2.4s var(--m-ease) infinite;
@@ -95,36 +95,21 @@
 .flow {
   width: 10px; height: 10px; translate: -50% -50%; border-radius: 50%; pointer-events: none; opacity: 0;
   background: var(--flow-color, var(--gold));
-  box-shadow: 0 0 14px 3px color-mix(in srgb, var(--flow-color, var(--gold)) 55%, transparent);
+  box-shadow: 0 0 0 1.5px rgba(10, 31, 77, 0.55), 0 3px 10px rgba(10, 31, 77, 0.25);
 }
-.m-flow-dot { fill: var(--flow-color, var(--gold)); opacity: 0; pointer-events: none; }
-.m-flow-glow { opacity: 0.25; }
+.m-flow-dot { fill: var(--flow-color, var(--gold)); stroke: rgba(10, 31, 77, 0.6); stroke-width: 1.5; opacity: 0; pointer-events: none; }
+.m-flow-glow { fill: rgba(10, 31, 77, 0.10); stroke: none; }
 
-/* ---------- vignette utility for picture wrappers (sits between the picture and the text) ---------- */
+/* ---------- soft blue edge for picture wrappers (light theme: no dark vignette) ---------- */
 :where(.m-vignette) { position: relative; }
 .m-vignette::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(130% 120% at 50% 45%, transparent 50%, rgba(3, 5, 12, 0.55) 100%);
+  background: radial-gradient(130% 120% at 50% 45%, transparent 55%, rgba(0, 51, 153, 0.10) 100%);
 }
 
-/* ---------- stage atmosphere: grid on data slides, film grain on cinematic ones ---------- */
-#stage::before, #stage::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0;
-  transition: opacity 900ms var(--m-ease-io);
-}
-#stage::before {                                                    /* 1 px grid, 48 px: under the slides */
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 48px 48px;
-  -webkit-mask-image: radial-gradient(130% 115% at 50% 40%, #000 55%, transparent 100%);
-  mask-image: radial-gradient(130% 115% at 50% 40%, #000 55%, transparent 100%);
-}
-#stage:is([data-mood="editorial"], [data-mood="pro"])::before { opacity: 1; }
-#stage::after {                                                     /* grain (alpha <= 0.05): over the slides, under the lockup */
-  z-index: 10;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.4 -0.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-  background-size: 220px 220px;
+/* ---------- stage atmosphere: grid on data slides, spotlight on cinematic ones ---------- */
+#stage::before, #stage::after {                                                     /* cinematic: a soft warm spotlight, no grain, no black */
+  background: radial-gradient(900px 620px at 62% 52%, rgba(255, 204, 0, 0.10), transparent 70%);
 }
 #stage[data-mood="cinematic"]::after { opacity: 1; }
 #stage.instant::before, #stage.instant::after { transition: none; }
