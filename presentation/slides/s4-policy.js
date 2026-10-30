@@ -390,7 +390,7 @@
   }
 
   Deck.register({
-    id: 's4', order: 4, title: 'Decide before the night', steps: 2, time: [165, 255],
+    id: 's4', order: 4, title: 'Decide before the night', steps: 2, time: [185, 260],
     notes: notes(), html: HTML, mount, enter, step,
   });
 })();

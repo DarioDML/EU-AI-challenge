@@ -29,7 +29,7 @@
   const F = xy(C.flood && C.flood.px), J = xy(C.jam && C.jam.px), Hm = xy(C.home && C.home.px), K = xy(ob.shelter_px);
   const pins = {
     flood: { a: F, e: xy(F, 14, -165), align: 'ur' },
-    jam: { a: J, e: xy(J, 48, 84), align: 'down' },          // down and right of the jam
+    jam: { a: J, e: xy(J, -12, 84), align: 'down' },          // down and right of the jam
     home: { a: Hm, e: xy(Hm, -48, -64), align: 'ul' },       // up and left: Johan's home is ~10 px from the jam
     dest: { a: K, e: xy(K, 56, -62), align: 'ur' },
   };
@@ -132,7 +132,7 @@
   }
 
   Deck.register({
-    id: 's3', order: 3, title: 'The map', steps: 4, time: [90, 165], notes, html,
+    id: 's3', order: 3, title: 'The map', steps: 4, time: [125, 185], notes, html,
 
     mount(el, P2, D) {
       D.mapSrc(el.querySelector('.s3-base'));

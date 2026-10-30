@@ -1,5 +1,22 @@
 # Pitch blueprint: Johan's way out (5 minutes, 5 slides)
 
+## Current visual implementation (30 October 2026)
+
+This section supersedes the original dark-theme layout and delivery notes below.
+
+- White background, navy Segoe UI text, restrained EU-blue emphasis, original-colour FARI/JRC artwork at bottom left, and numbered title tags at top right.
+- Slide 1 has four builds: Johan without the house, his three questions, 29% not warned in Rhineland-Palatinate, then separate 85% and 46% grids among warned respondents across both states. These are independently normalised shares, not inferred overlapping groups of 60 and 33 people.
+- Slide 2 uses open editorial columns with one-time connector/diagram reveals.
+- Slide 3 uses the transparent 1244 by 894 road SVG and its fitted overlay coordinates. Road stress retains its source semantics. Trip times are labelled as free-flow model estimates; the closed-road check concerns the driving network.
+- Slide 4 remains the teammate-owned demo. Its content and interaction logic have not been redesigned.
+- Slide 5 uses restrained artwork, a light Europe map and a flat closing layout. Existing impact estimates retain their team-brief qualification.
+- Motion uses short crossfades and small lifts. Static and reduced-motion modes show completed states without animation.
+- `build_single.py` embeds the exact map named by `pitch-data.js` and both organiser logos. No external fonts or runtime dependencies are needed.
+
+See README.md for build commands, QA_REPORT.md for final checks, and the source files for the current layouts. The sections below retain the original planning and evidence context.
+
+## Original planning record
+
 Checkpoint 1 of the 10-agent build. Wave 1 (agents 1-5: discovery) ran in the main session on 30 Oct 2026; its findings are below. Waves 2-3 (agents 6-10) build against the contract in sections 5-7. Story spine: `powerpoint/Pitch deck.pptx` (Johan). Policy brief: *The Missing Link: Mending the Flood Warning Chain* (team version of 29 Oct, pasted in chat). Not used: `deliverables/` (another deliverable).
 
 ## 1. Johan (agent 1, from `Pitch deck.pptx`)

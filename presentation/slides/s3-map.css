@@ -50,7 +50,8 @@
 #s3 .a-l .s3-row { right: 0; top: -60px; height: 120px; align-items: center; }
 
 #s3 .s3-call {
-  white-space: nowrap; padding: 10px 16px 11px; background: var(--glass); color: var(--ink);
+  white-space: nowrap; padding: 10px 16px 11px; background: rgba(255, 255, 255, 0.94); color: var(--ink);
+  border-color: rgba(0, 51, 153, 0.34); box-shadow: 0 6px 18px rgba(10, 31, 77, 0.16);
   font: 600 22px/1.15 var(--font); letter-spacing: -0.01em;
   opacity: 0; transform: scale(0.9); transition: opacity 450ms var(--spring), transform 700ms var(--spring);
 }

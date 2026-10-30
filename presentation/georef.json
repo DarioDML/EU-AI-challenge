@@ -5,5 +5,45 @@
  "X0": 783707.3939756876,
  "Y0": 6549619.88091634,
  "W": 1244,
- "H": 894
+ "H": 894,
+ "file": "route-stress-map.svg",
+ "map_sha256": "12dcae7dc0d503a662d201c7e7ed9aa544d49f917a55c9fec9c5837ca968a543",
+ "bundle_blob": "92c3d36692b7a17d34fec8c90d9f8c59c728d91c",
+ "alignment": {
+  "method": "unique in-frame vertices to same-class road centre lines, both directions",
+  "units": "native SVG pixels",
+  "frame_inset_px": 2,
+  "p95_limit_px": 2,
+  "max_limit_px": 3,
+  "checks": {
+   "loaded_svg_to_bundle": {
+    "vertices": 2127,
+    "mean_px": 0.6091,
+    "p95_px": 1.251,
+    "max_px": 1.5388,
+    "passed": true
+   },
+   "loaded_bundle_to_svg": {
+    "vertices": 902,
+    "mean_px": 0.601,
+    "p95_px": 1.2689,
+    "max_px": 2.0661,
+    "passed": true
+   },
+   "closed_svg_to_bundle": {
+    "vertices": 902,
+    "mean_px": 0.6123,
+    "p95_px": 1.2718,
+    "max_px": 1.4697,
+    "passed": true
+   },
+   "closed_bundle_to_svg": {
+    "vertices": 1252,
+    "mean_px": 0.6211,
+    "p95_px": 1.3737,
+    "max_px": 2.2338,
+    "passed": true
+   }
+  }
+ }
 }

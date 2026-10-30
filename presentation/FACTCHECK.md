@@ -1,3 +1,5 @@
+> Final style-pass correction: the earlier arithmetic verdict on 60/33 dots below does not validate combining different respondent groups. The final opening uses independent grids for 29%, 85% and 46%, and labels the geographic/response denominators. The 29% RP non-warning share is not used to derive counts for the combined-state warned sample. The source is Thieken et al. (2023), DOI 10.5194/nhess-23-973-2023, abstract. This file otherwise records the earlier content audit, including unresolved team-brief claims.
+
 # Fact-check and timekeeping (30 Oct 2026, 12:45-12:55 local; read-only pass on slides s1-s5 as of that time)
 
 Sources: `pitch-data.js` (bundle generated 2026-10-30T09:46Z), `PITCH_BLUEPRINT.md` s.7-8, `slides/s1..s5.js`. External checks: Thieken abstract (nhess.copernicus.org/articles/23/973/2023/), web search for WMO/JRC.

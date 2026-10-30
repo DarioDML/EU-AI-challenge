@@ -66,7 +66,7 @@
       </figcaption>
     </figure>`;
 
-  const connector = n => `<div class="s2-conn s2-conn-${n}" aria-hidden="true"><span class="s2-rail"></span><i style="--k:0"></i><i style="--k:1"></i><i style="--k:2"></i></div>`;
+  const connector = n => `<div class="s2-conn s2-conn-${n}" aria-hidden="true"><span class="s2-rail"></span></div>`;
 
   // speaker notes (html-slides format, plain text): script = the words said aloud, steps 0-2 in order
   const P = window.PITCH || {}, src = P.source || {}, assume = src.assumptions || {};
@@ -89,7 +89,7 @@
   };
 
   Deck.register({
-    id: 's2', order: 2, title: 'How it works', steps: 3, time: [45, 90],
+    id: 's2', order: 2, title: 'How it works', steps: 3, time: [45, 80],
     notes,
     html: `
       <h2 class="h2 s2-title" data-b="0">From flood map to one clear message.</h2>

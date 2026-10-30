@@ -57,6 +57,8 @@ pitch = json.loads(data_text.split("window.PITCH =", 1)[1].strip().rstrip(";"))
 base_map = HERE / "assets" / pitch["screenshot"]["file"]
 if not base_map.is_file():
     raise FileNotFoundError(f"The georeferenced map is missing: {base_map.name}")
+if base_map.suffix.lower() == ".svg" and re.search(r'<rect width="\d+" height="\d+" fill="#fff(?:fff)?"\s*/>', base_map.read_text(encoding="utf-8")):
+    raise ValueError(f"{base_map.name} still has a white background rect; use the transparent derived assets/route-stress-map.svg")
 logos = {}
 for key, supplied in {"fari": "logo FARI.png", "jrc": "logo JRC.jpg"}.items():
     candidates = [HERE / "assets" / "logos" / supplied]

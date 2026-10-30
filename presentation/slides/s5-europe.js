@@ -13,7 +13,7 @@
   const PIN = { x: 32.96, y: 58.9 };                        // Ahr valley in europe.png, % of the image box (blueprint 4)
 
   Deck.register({
-    id: 's5', order: 5, title: 'Every valley in Europe', steps: 3, time: [255, 300],
+    id: 's5', order: 5, title: 'Every valley in Europe', steps: 3, time: [260, 300],
 
     notes: {
       title: 'Every valley in Europe',
