@@ -721,10 +721,10 @@ body[data-profile=citizen] #citCard { display: flex; flex-direction: column; gap
 .backup { display: flex; gap: 10px; align-items: flex-start; background: #f6f6f6; border-radius: 10px; padding: 8px 10px; font-size: 14px; }
 .areabtns { display: flex; flex-direction: column; gap: 4px; } .areabtns button { text-align: left; background: #f2f7fb; border-color: #c9d3dc; }
 .mapkey { border-top: 1px solid #e1e6eb; padding-top: 6px; } .mapkey .k { display: inline-block; width: 16px; height: 10px; vertical-align: middle; margin-right: 2px; }
-.mapkey .area { background: rgba(140,81,10,.3); border: 1px solid #8C510A; } .mapkey .flood { background: rgba(86,180,233,.35); border: 1px solid #0072B2; } .mapkey .ems { height: 0; border-top: 2px dashed #5E3C99; } .mapkey .route { height: 4px; background: #111; } .mapkey .back { height: 0; border-top: 3px dashed #555; } .mapkey .closed { height: 0; border-top: 2px dashed #111; }
+.mapkey .area { background: rgba(140,81,10,.3); border: 1px solid #8C510A; } .mapkey .flood { background: rgba(86,180,233,.35); border: 1px solid #0072B2; } .mapkey .ems { height: 0; border-top: 2px dashed #5E3C99; } .mapkey .route { height: 4px; background: #111; } .mapkey .back { height: 0; border-top: 3px dashed #555; } .mapkey .closed { height: 0; border-top: 2.5px solid #111; }
 .shclu { border-radius: 50%; background: #C2185B; color: #fff; font: 700 13px/1 system-ui, sans-serif; display: flex; align-items: center; justify-content: center; border: 2px solid #12000A; box-shadow: 0 0 0 2px #fff; }
 .shclu.fl { background: #BDBDBD; color: #111; border-color: #333; }
-.shclu.full { border: 3.5px solid #12000A; }
+.shclu.full { }      /* full is told in the tooltip and panel; one edge for every circle */
 .shclu.off { background: #fff; color: #6b6b6b; border: 2px dashed #6b6b6b; }
 #citResult.fold, #muniResult.fold { animation: foldOpen .55s cubic-bezier(.2,.7,.2,1) .18s both; transform-origin: top; overflow: hidden; }
 #citResult.fold .dest { animation: popIn .45s ease-out .45s both; }
@@ -1140,6 +1140,9 @@ const canvas = map.getRenderer(map);
 // stacking, bottom to top: roads (own canvas pane) < EFAS flood image < [vector canvas: observed flood, closed roads, routes, residents, selection] < shelter badges < labels
 map.createPane('roadsPane').style.zIndex = 340;
 map.createPane('floodImgPane').style.zIndex = 350;
+// closed roads sit UNDER both flood layers (EFAS image and the observed flood fill), so the flooded area stays intact on top of them
+map.createPane('closedPane').style.zIndex = 345; map.getPane('closedPane').style.pointerEvents = 'none';
+const closedCanvas = L.canvas({ pane: 'closedPane', padding: 0.3 });
 const roadCanvas = L.canvas({ pane: 'roadsPane', padding: 0.3 });
 // the working area is the zones' extent (meta.zone_bounds); meta.bounds is the wider data extent
 const fitB = meta.zone_bounds || meta.bounds;
@@ -1193,9 +1196,8 @@ const STRESS = [{ max: 0.5, c: '#009E73', w: 3, label: 'under 0.5' }, { max: 1, 
 function drawRoadResults() {
   ['closed', 'routes', 'stress'].forEach(k => g[k].clearLayers());
   if (!res) return;
-  // closed = blocked: black dashes on a white edge (barrier tape), so it never reads as a stress colour (green-yellow-orange-red)
-  g.closed.addLayer(multi(res.closed || [], { color: '#ffffff', weight: 3.6, opacity: 0.9 }));
-  g.closed.addLayer(multi(res.closed || [], { color: '#111111', weight: 1.8, dashArray: '3 3', lineCap: 'butt', opacity: 1 }));
+  // closed = blocked: a solid black line (never a stress colour), drawn under the flood so the blue area stays whole and shows why it is closed
+  g.closed.addLayer(multi(res.closed || [], { renderer: closedCanvas, color: '#111111', weight: 2.4, opacity: 1 }));
   const loadIds = Object.keys(res.load || {}).map(Number);
   g.routes.addLayer(multi(loadIds, { color: '#0072B2', weight: 2.5, opacity: 0.7 }));
   const buckets = STRESS.map(() => []);
@@ -1698,9 +1700,9 @@ function renderLegend() {
       item(sym(BROWN), 'solid: all placed'), item(sym('#000', '4 3'), 'dashed black: partly placed'), item(sym('#d7191c', '3 3'), 'dashed red: not placed')]));
   }
   if (st.layers.shelters || st.layers.allshelters || st.layers.floodshelters) out.push(grp('Shelter buildings (candidates)', [
-    item(CNT('', 1) + CNT('', 5), 'used in this plan: number = buildings (merged when close; zoom in)'), item(CNT(' full', 1), 'dark ring = full at this capacity'), item(CNT(' fl', 1) + CNT(' fl', 5), 'flooded (not used)'), item(CNT(' off', 1), 'not counted or wet in another map')]));
+    item(CNT('', 1) + CNT('', 5), 'used in this plan: number = buildings (merged when close; zoom in)'), item(CNT(' fl', 1) + CNT(' fl', 5), 'flooded (not used)'), item(CNT(' off', 1), 'not counted or wet in another map')]));
   const other = [];
-  if (st.layers.closed) other.push(item(line('#111', 1.8, '3 3'), 'closed road (blocked)'));
+  if (st.layers.closed) other.push(item(line('#111', 2.4), 'closed road (blocked, under the flood)'));
   if (st.layers.routes) other.push(item(line('#0072B2', 2.5), 'road used by a route'));
   if (st.layers.stress) {
     STRESS.forEach(b => other.push(item(line(b.c, b.w), 'stress ' + b.label)));
@@ -1730,7 +1732,7 @@ function renderLayers() {
     allshelters: sv('<circle cx="13" cy="8" r="5" fill="#fbe3ee" stroke="#C2185B" stroke-width="1.8"/>'),
     floodshelters: '<span class="lic">' + shelterSvg('flooded', 16) + '</span>',
     roads: sv(ln('#9aa0a8', 2)),
-    closed: sv(ln('#111', 1.8, '3 3')),
+    closed: sv(ln('#111', 2.4)),
     routes: sv(ln('#0072B2', 3)),
     stress: sv('<line x1="2" y1="8" x2="9" y2="8" stroke="#009E73" stroke-width="4"/><line x1="9" y1="8" x2="17" y2="8" stroke="#F0E442" stroke-width="4"/><line x1="17" y1="8" x2="24" y2="8" stroke="#d7191c" stroke-width="4"/>'),
     flood: sv('<rect x="3" y="3" width="20" height="10" rx="2" fill="#56B4E9" fill-opacity=".45" stroke="#0072B2" stroke-width="1.5"/>') };
@@ -2570,7 +2572,7 @@ function renderMuni() {
         '<li><b>' + o.closed.toLocaleString('en') + '</b> stretches of road in your areas are closed by the flood; <b>' + o.floodedShelters.toLocaleString('en') + '</b> candidate buildings in your areas are flooded themselves.</li></ul>') +
     '<table class="mtab"><thead><tr><th>Municipality</th><th class="n">Residents in the flood</th><th class="n">With a shelter place</th><th class="n">Without a place</th></tr></thead><tbody>' + rows + '</tbody></table>' +
     '<p class="small muted" style="margin-top:2px">All numbers are modelled estimates of residents, rounded, and minimums.' + (missed.length ? ' * The river model misses this area; inside the July 2021 flood: ' + missed.join(', ') + '.' : '') + '</p>' +
-    '<p class="small"><b>Map key:</b> <span style="color:#C2185B">●</span> building that receives your residents (bigger = more people) · <span style="color:#111">- -</span> road closed by the flood · ' + (modelled ? '<span style="color:#6baed6">■</span> modelled water depth (pale = shallow, dark = deep; no colour = not modelled, not dry)' : '<span style="color:#0072B2">■</span> flood') + ' · <span style="color:' + EMS_COL + '">- -</span> edge of the area mapped in July 2021 · <span style="color:' + BROWN + '">▭</span> your areas.</p>' +
+    '<p class="small"><b>Map key:</b> <span style="color:#C2185B">●</span> building that receives your residents (bigger = more people) · <span style="color:#111">━</span> road closed by the flood · ' + (modelled ? '<span style="color:#6baed6">■</span> modelled water depth (pale = shallow, dark = deep; no colour = not modelled, not dry)' : '<span style="color:#0072B2">■</span> flood') + ' · <span style="color:' + EMS_COL + '">- -</span> edge of the area mapped in July 2021 · <span style="color:' + BROWN + '">▭</span> your areas.</p>' +
     '<p class="small muted">Fixed planning assumptions: residents of 2020, core public buildings only (cautious capacity, the same per building as in the shelter report; but here people may travel up to 1 hour by road, there only 2 km), a road is closed when it touches the flood. Counts are modelled minimums, rounded. Candidate buildings from OpenStreetMap, not designated shelters. Not an evacuation plan. The citizen view uses a separate plan of the July 2021 flood with one building per area.</p>';
   if (el.innerHTML !== html0) { el.classList.remove('fold'); void el.offsetWidth; el.classList.add('fold'); }
   o.sh.forEach((n, sid) => { const s = S.get(sid); if (!s) return;
