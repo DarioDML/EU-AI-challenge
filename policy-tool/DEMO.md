@@ -35,7 +35,7 @@ One presenter drives, one speaks (or one person does both). About 650 spoken wor
 
 **Press →** (step 4, Alert). **Click** a green home near the river.
 
-> "This is what that household receives: not just *danger*, but *go here, this way, a place is reserved for you* — with the walking route street by street, and a warning when part of it flooded in 2021. In German here, and in French or Dutch across the border." *(Click FR, then NL.)*
+> "This is what that household receives: not just *danger*, but *go here, this way, a place is reserved for you* — with the walking route street by street, and a warning when part of it flooded in 2021. Plain text only, because cell broadcast must reach old phones on 2G: no map, no link. In German here, and in French or Dutch across the border." *(Click FR, then NL.)*
 
 **Press →** (step 5, Johan).
 

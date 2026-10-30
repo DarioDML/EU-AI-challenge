@@ -86,35 +86,27 @@ main > *, section > * { min-width: 0; }
 .rank .s { font-size: 12.5px; color: var(--muted); }
 .meter { height: 7px; background: var(--soft-safe); border-radius: 4px; overflow: hidden; margin-top: 5px; }
 .meter span { display: block; height: 100%; background: var(--gap); }
-.phone { width: 270px; height: 540px; border-radius: 38px; background: #10151c; padding: 12px; box-shadow: 0 10px 30px rgba(16,21,28,.25); }
-.screen { width: 100%; height: 100%; border-radius: 28px; background: linear-gradient(#1d2a3a, #2b3f57); overflow: hidden; display: flex; flex-direction: column; color: #fff; }
-.statusbar { display: flex; justify-content: space-between; font-size: 12px; padding: 10px 18px 4px; opacity: .85; }
-.lock { text-align: center; font-size: 48px; font-weight: 300; margin: 6px 0 2px; }
-.msg { flex: 1; min-height: 0; margin: 4px 8px 8px; background: #fff; color: var(--ink); border-radius: 18px; display: flex; flex-direction: column; overflow: hidden; font-size: 12.5px; line-height: 1.4; animation: drop .45s ease-out; }
+.phone { width: 270px; height: 560px; border-radius: 42px; background: #10151c; padding: 10px; box-shadow: 0 10px 30px rgba(16,21,28,.25); }
+.screen { position: relative; width: 100%; height: 100%; border-radius: 33px; background: linear-gradient(170deg, #1f3b5c, #3d5a80 45%, #98a7c2); overflow: hidden; display: flex; flex-direction: column; color: #fff; font-family: -apple-system, "SF Pro Text", "Segoe UI", system-ui, sans-serif; }
+.ios-status { display: flex; justify-content: flex-end; align-items: center; gap: 5px; padding: 12px 22px 0; font-size: 11.5px; font-weight: 600; }
+.ios-status .sig { display: flex; align-items: flex-end; gap: 1.5px; height: 10px; }
+.ios-status .sig i { width: 3px; border-radius: 1px; background: #fff; }
+.ios-status .bat { width: 21px; height: 10px; border: 1.5px solid rgba(255,255,255,.85); border-radius: 3px; padding: 1px; }
+.ios-status .bat span { display: block; width: 80%; height: 100%; background: #fff; border-radius: 1px; }
+.ios-date { margin-top: 18px; text-align: center; font-size: 15px; font-weight: 600; opacity: .92; }
+.ios-time { text-align: center; font-size: 66px; font-weight: 700; line-height: 1; letter-spacing: -1px; margin: 0 0 14px; }
+.notif { display: flex; gap: 10px; min-height: 0; margin: 0 8px; padding: 11px 12px 12px; border-radius: 20px; background: rgba(242,242,247,.95); color: #000; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(0,0,0,.22) transparent; }
+.notif.arrive { animation: drop .45s ease-out; }
 @keyframes drop { from { transform: translateY(-20px) scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
-.msg .top { display: flex; align-items: center; gap: 8px; padding: 10px 12px 8px; border-bottom: 1px solid var(--line); }
-.msg .icon { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--gap); color: #fff; display: grid; place-items: center; font-weight: 900; font-size: 16px; }
-.msg .sys { font-weight: 800; font-size: 13px; line-height: 1.2; }
-.msg .lvl { font-size: 11px; font-weight: 700; color: var(--gap); }
-.msg .now { margin-left: auto; align-self: flex-start; font-size: 11px; color: var(--muted); }
-.msg .body { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 12px 4px; }
-.msg .body p { margin: 0 0 7px; }
-.msg .stamp { font-size: 11px; color: var(--muted); }
-.msg .dest { background: var(--soft-safe); border: 1px solid #bfe6d6; border-radius: 10px; padding: 7px 9px; margin: 0 0 7px; }
-.msg .dest.none { background: var(--soft-gap); border-color: #f2c4c4; }
-.msg .sec { font-weight: 800; margin-top: 10px !important; }
-.msg .steps { list-style: none; margin: 0 0 8px 6px; padding: 0; border-left: 2px solid var(--accent); }
-.msg .steps li { display: flex; gap: 6px; padding: 2px 0 2px 7px; }
-.msg .steps .ar { flex: none; width: 14px; text-align: center; font-weight: 800; color: var(--accent); }
-.msg .steps .ar.start { color: #e05a1c; } .msg .steps .ar.end { color: var(--safe); }
-.msg .steps .m { margin-left: auto; padding-left: 6px; white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; }
-.msg .minimap { height: 130px; margin: 0 0 8px; border-radius: 10px; border: 1px solid var(--line); background: #e9eef3; }
-.msg .minimap .leaflet-control-attribution { font-size: 8px; padding: 0 3px; }
-.msg .wet { background: var(--soft-warn); border-radius: 8px; padding: 6px 8px; color: #8a5a00; font-weight: 600; }
-.msg .muted, .msg .demo { color: var(--muted); }
-.msg .demo { font-size: 10.5px; }
-.msg a { color: var(--accent); font-weight: 700; }
-.msg .ok { border-top: 1px solid var(--line); padding: 9px; text-align: center; font-weight: 800; color: var(--accent); letter-spacing: .04em; }
+.notif .appicon { flex: none; width: 34px; height: 34px; border-radius: 8px; background: #ff3b30; display: grid; place-items: center; }
+.notif .content { flex: 1; min-width: 0; }
+.notif .row { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.notif .title { font-size: 14px; font-weight: 600; }
+.notif .when { font-size: 12px; color: rgba(60,60,67,.6); }
+.notif .text { font-size: 13.5px; line-height: 1.3; white-space: pre-line; overflow-wrap: anywhere; }
+.notif .loading { margin-top: 4px; font-size: 12px; color: rgba(60,60,67,.6); }
+.ios-demo { margin: 6px 0 0; text-align: center; font-size: 10px; opacity: .8; }
+.ios-home { flex: none; width: 96px; height: 4px; margin: auto auto 7px; border-radius: 2px; background: rgba(255,255,255,.85); }
 .waiting { margin: auto; text-align: center; opacity: .7; font-size: 13px; padding: 20px; }
 .langs { display: flex; gap: 4px; }
 .langs button { cursor: pointer; border: 1px solid var(--line); background: var(--card); border-radius: 6px; padding: 3px 8px; font: inherit; font-size: 12px; font-weight: 700; }
@@ -250,7 +242,8 @@ code { font-size: 12px; background: #eef1f5; padding: 1px 4px; border-radius: 4p
  * @typedef {{m2: number, maxKm: number, exclRp500: boolean, kinds: Set<string>}} Plan
  * @typedef {{eligible: number[], cap: number[], used: Float64Array, chosen: Int32Array, dist: Float64Array}} Result
  * @typedef {{placed: number, walk: number, unplaced: number, capacity: number, shelters: number, crossBorder: number}} Stats
- * @typedef {{arrow: string, name: string, distance: number}} RouteStep
+ * @typedef {"depart"|"roundabout"|"uturn"|"sharp right"|"right"|"slight right"|"straight"|"slight left"|"left"|"sharp left"} Turn
+ * @typedef {{turn: Turn, name: string, distance: number}} RouteStep
  * @typedef {{coords: [number, number][], distance: number, duration: number, steps: RouteStep[], wet: number}} Route
  * @typedef {{distance: number, name: string, maneuver: {type: string, modifier?: string}}} OsrmStep
  * @typedef {{code: string, routes: {distance: number, duration: number, geometry: {coordinates: number[][]}, legs: {steps: OsrmStep[]}[]}[]}} OsrmReply
@@ -277,7 +270,7 @@ const SYSTEM = { be: "BE-Alert", nl: "NL-Alert", de: "Cell Broadcast / NINA" };
 const LANG_OF = { be: "fr", nl: "nl", de: "de" };
 const TILES = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 const ROUTER = "https://routing.openstreetmap.de/routed-foot/route/v1/driving/";
-const TURN = { uturn: "↶", "sharp right": "↘", right: "→", "slight right": "↗", straight: "↑", "slight left": "↖", left: "←", "sharp left": "↙" };
+/** @type {Turn[]} */ const MODIFIERS = ["uturn", "sharp right", "right", "slight right", "straight", "slight left", "left", "sharp left"];
 
 const esc = (/** @type {string} */ s) => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] || c);
 const fmt = (/** @type {number} */ n) => Math.round(n).toLocaleString("en-GB");
@@ -507,6 +500,8 @@ function drawLines() {
 }
 
 /** @type {Map<string, Route|null>} */ const routes = new Map();
+/** @type {Map<string, number>} */ const routeFailedAt = new Map();
+const ROUTE_RETRY_MS = 10000;
 /** @type {AbortController|null} */ let routing = null;
 let routingKey = "";
 /** @param {Area} A @param {number} h @param {number} s */
@@ -528,8 +523,8 @@ function compactSteps(raw) {
     const type = s.maneuver.type, prev = out[out.length - 1];
     if (type === "arrive") break;
     if (prev && s.name === prev.name) { prev.distance += s.distance; continue; }
-    const arrow = type === "depart" ? "●" : /roundabout|rotary/.test(type) ? "⟳" : TURN[/** @type {keyof typeof TURN} */ (s.maneuver.modifier)] || "↑";
-    out.push({ arrow, name: s.name, distance: s.distance });
+    const mod = MODIFIERS.find(m => m === s.maneuver.modifier) || "straight";
+    out.push({ turn: type === "depart" ? "depart" : /roundabout|rotary/.test(type) ? "roundabout" : mod, name: s.name, distance: s.distance });
   }
   return out;
 }
@@ -551,7 +546,7 @@ function floodLength(A, coords) {
 /** @param {Area} A @param {number} h @param {number} s */
 async function fetchRoute(A, h, s) {
   const key = routeKey(A, h, s), sh = A.d.shelters[s];
-  if (routes.has(key) || routingKey === key) return;
+  if (routes.get(key) || routingKey === key) return;
   routing?.abort();
   const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 10000);
   routing = ctl; routingKey = key;
@@ -564,7 +559,8 @@ async function fetchRoute(A, h, s) {
     const r = json.routes[0];
     /** @type {[number, number][]} */ const coords = r.geometry.coordinates.map(c => [c[1], c[0]]);
     routes.set(key, { coords, distance: r.distance, duration: r.duration, steps: compactSteps(r.legs.flatMap(l => l.steps)), wet: floodLength(A, coords) });
-  } else routes.set(key, null);
+    routeFailedAt.delete(key);
+  } else { routes.set(key, null); routeFailedAt.set(key, Date.now()); }
   if (view === "area" && current === A && selected === h && A.result.chosen[h] === s) { drawRoute(); renderSide(); }
 }
 
@@ -574,8 +570,9 @@ function drawRoute() {
   if (view !== "area" || step < 3 || !A.N) return;
   const s = A.result.chosen[selected];
   if (s >= 0) {
-    const route = routes.get(routeKey(A, selected, s));
-    if (route === undefined && A.result.dist[selected] <= S.walk_distance_m) void fetchRoute(A, selected, s);
+    const key = routeKey(A, selected, s), route = routes.get(key);
+    const retry = route === undefined || (route === null && Date.now() - (routeFailedAt.get(key) || 0) > ROUTE_RETRY_MS);
+    if (retry && A.result.dist[selected] <= S.walk_distance_m) void fetchRoute(A, selected, s);
     areaLayers.route.addLayer(route
       ? L.polyline(route.coords, { color: "#0b4f8a", weight: 5, opacity: 0.9 })
       : L.polyline([[A.H.lat[selected], A.H.lon[selected]], [A.d.shelters[s].lat, A.d.shelters[s].lon]], { color: "#0b4f8a", weight: 4, dashArray: "8 6" }));
@@ -593,73 +590,91 @@ function selectHome(i) {
 }
 
 const TXT = {
-  en: { level: "Extreme alert", now: "now", stamp: "31/10/2026 06:12", loc: "en-GB", title: (/** @type {string} */ r) => `Extreme flood danger – ${r}`, go: "Leave your home now and go to your shelter:", walk: (/** @type {string} */ km, /** @type {number} */ min) => `${km} km · about ${min} min on foot`,
-    far: (/** @type {string} */ km) => `${km} km · transport will collect you`, res: "A place is reserved for your address.", tips: "Avoid flooded roads and bridges. Take medicines, ID and a charger. Help neighbours who cannot leave alone.",
-    none: "Leave your home now and go to higher ground.", nonelbl: "No shelter named", demo: "Demo message",
-    route: "Your route on foot:", loading: "Loading your route…", noroute: "Route not available right now. Use the map link below.", unnamed: "path", map: "Open the route on a map",
-    wet: (/** @type {string} */ m) => `⚠ ${m} m of this route was under water in 2021. Leave now, before the water rises.` },
-  fr: { level: "Alerte extrême", now: "maintenant", stamp: "31/10/2026 06:12", loc: "fr-BE", title: (/** @type {string} */ r) => `Danger d'inondation extrême – ${r}`, go: "Quittez votre domicile maintenant et rendez-vous à votre abri :", walk: (/** @type {string} */ km, /** @type {number} */ min) => `${km} km · environ ${min} min à pied`,
-    far: (/** @type {string} */ km) => `${km} km · un transport viendra vous chercher`, res: "Une place est réservée pour votre adresse.", tips: "Évitez les routes et ponts inondés. Emportez médicaments, pièce d'identité et chargeur. Aidez les voisins qui ne peuvent pas partir seuls.",
-    none: "Quittez votre domicile maintenant et rejoignez un endroit en hauteur.", nonelbl: "Aucun abri indiqué", demo: "Message de démonstration",
-    route: "Votre itinéraire à pied :", loading: "Chargement de l'itinéraire…", noroute: "Itinéraire indisponible pour l'instant. Utilisez le lien ci-dessous.", unnamed: "chemin", map: "Ouvrir l'itinéraire sur une carte",
-    wet: (/** @type {string} */ m) => `⚠ ${m} m de cet itinéraire étaient sous eau en 2021. Partez maintenant, avant que l'eau ne monte.` },
-  nl: { level: "Extreme waarschuwing", now: "nu", stamp: "31-10-2026 06:12", loc: "nl-NL", title: (/** @type {string} */ r) => `Extreem overstromingsgevaar – ${r}`, go: "Verlaat nu uw woning en ga naar uw opvanglocatie:", walk: (/** @type {string} */ km, /** @type {number} */ min) => `${km} km · ongeveer ${min} min te voet`,
-    far: (/** @type {string} */ km) => `${km} km · u wordt opgehaald`, res: "Er is een plaats gereserveerd voor uw adres.", tips: "Vermijd overstroomde wegen en bruggen. Neem medicijnen, identiteitsbewijs en oplader mee. Help buren die niet alleen weg kunnen.",
-    none: "Verlaat nu uw woning en ga naar hoger gelegen grond.", nonelbl: "Geen opvanglocatie genoemd", demo: "Demobericht",
-    route: "Uw looproute:", loading: "Route wordt geladen…", noroute: "Route nu niet beschikbaar. Gebruik de kaartlink hieronder.", unnamed: "pad", map: "Open de route op een kaart",
-    wet: (/** @type {string} */ m) => `⚠ ${m} m van deze route stond in 2021 onder water. Vertrek nu, voordat het water stijgt.` },
-  de: { level: "Extreme Gefahr", now: "jetzt", stamp: "31.10.2026 06:12", loc: "de-DE", title: (/** @type {string} */ r) => `Extreme Hochwassergefahr – ${r}`, go: "Verlassen Sie jetzt Ihr Haus und gehen Sie zu Ihrer Notunterkunft:", walk: (/** @type {string} */ km, /** @type {number} */ min) => `${km} km · ca. ${min} Min. zu Fuß`,
-    far: (/** @type {string} */ km) => `${km} km · Sie werden abgeholt`, res: "Für Ihre Adresse ist ein Platz reserviert.", tips: "Meiden Sie überflutete Straßen und Brücken. Nehmen Sie Medikamente, Ausweis und Ladegerät mit. Helfen Sie Nachbarn, die nicht allein gehen können.",
-    none: "Verlassen Sie jetzt Ihr Haus und suchen Sie höher gelegene Orte auf.", nonelbl: "Keine Unterkunft genannt", demo: "Demo-Nachricht",
-    route: "Ihr Fußweg:", loading: "Route wird geladen…", noroute: "Route gerade nicht verfügbar. Nutzen Sie den Kartenlink unten.", unnamed: "Weg", map: "Route auf der Karte öffnen",
-    wet: (/** @type {string} */ m) => `⚠ ${m} m dieses Weges standen 2021 unter Wasser. Gehen Sie jetzt los, bevor das Wasser steigt.` },
+  en: { day: "Saturday 31 October", now: "now", stamp: "31/10/2026 06:12", loc: "en-GB", title: (/** @type {string} */ r) => `Extreme flood danger (${r})`, go: "Leave your home now and go to your shelter:", walk: (/** @type {string} */ km, /** @type {number} */ min) => `${km} km, about ${min} min on foot`,
+    far: (/** @type {string} */ km) => `${km} km, transport will collect you`, res: "A place is reserved for your address.", tips: "Avoid flooded roads and bridges. Take medicines, ID and a charger. Help neighbours who cannot leave alone.",
+    none: "Leave your home now and go to higher ground.", demo: "Demo message, not a real alert", route: "Your route on foot:", loading: "Loading the walking route...", unnamed: "path",
+    turns: { depart: "Start", arrive: "Arrive", roundabout: "Roundabout", uturn: "Turn around", "sharp right": "Sharp right", right: "Right", "slight right": "Bear right", straight: "Straight on", "slight left": "Bear left", left: "Left", "sharp left": "Sharp left" },
+    wet: (/** @type {string} */ m) => `Warning: ${m} of this route was under water in 2021. Leave now, before the water rises.` },
+  fr: { day: "samedi 31 octobre", now: "maintenant", stamp: "31/10/2026 06:12", loc: "fr-BE", title: (/** @type {string} */ r) => `Danger grave d'inondation (${r})`, go: "Quittez votre domicile maintenant et rendez-vous à votre abri :", walk: (/** @type {string} */ km, /** @type {number} */ min) => `${km} km, environ ${min} min à pied`,
+    far: (/** @type {string} */ km) => `${km} km, un transport viendra vous chercher`, res: "Une place est réservée pour votre adresse.", tips: "Évitez les routes et ponts inondés. Emportez médicaments, pièce d'identité et chargeur. Aidez les voisins qui ne peuvent pas partir seuls.",
+    none: "Quittez votre domicile maintenant et rejoignez un endroit en hauteur.", demo: "Message de démonstration, pas une vraie alerte", route: "Votre itinéraire à pied :", loading: "Chargement de l'itinéraire...", unnamed: "chemin",
+    turns: { depart: "départ", arrive: "arrivée", roundabout: "rond-point", uturn: "demi-tour", "sharp right": "à droite", right: "à droite", "slight right": "légèrement à droite", straight: "tout droit", "slight left": "légèrement à gauche", left: "à gauche", "sharp left": "à gauche" },
+    wet: (/** @type {string} */ m) => `Attention : ${m} de cet itinéraire étaient sous eau en 2021. Partez maintenant, avant que l'eau ne monte.` },
+  nl: { day: "zaterdag 31 oktober", now: "nu", stamp: "31-10-2026 06:12", loc: "nl-NL", title: (/** @type {string} */ r) => `Extreem overstromingsgevaar (${r})`, go: "Verlaat nu uw woning en ga naar uw opvanglocatie:", walk: (/** @type {string} */ km, /** @type {number} */ min) => `${km} km, ongeveer ${min} min te voet`,
+    far: (/** @type {string} */ km) => `${km} km, u wordt opgehaald`, res: "Er is een plaats gereserveerd voor uw adres.", tips: "Vermijd overstroomde wegen en bruggen. Neem medicijnen, identiteitsbewijs en oplader mee. Help buren die niet alleen weg kunnen.",
+    none: "Verlaat nu uw woning en ga naar hoger gelegen grond.", demo: "Demobericht, geen echte waarschuwing", route: "Uw looproute:", loading: "Looproute wordt geladen...", unnamed: "pad",
+    turns: { depart: "Start", arrive: "Aankomst", roundabout: "Rotonde", uturn: "Keer om", "sharp right": "Scherp rechtsaf", right: "Rechtsaf", "slight right": "Rechts aanhouden", straight: "Rechtdoor", "slight left": "Links aanhouden", left: "Linksaf", "sharp left": "Scherp linksaf" },
+    wet: (/** @type {string} */ m) => `Let op: ${m} van deze route stond in 2021 onder water. Vertrek nu, voordat het water stijgt.` },
+  de: { day: "Samstag, 31. Oktober", now: "jetzt", stamp: "31.10.2026 06:12", loc: "de-DE", title: (/** @type {string} */ r) => `Extreme Hochwassergefahr (${r})`, go: "Verlassen Sie jetzt Ihr Haus und gehen Sie zu Ihrer Notunterkunft:", walk: (/** @type {string} */ km, /** @type {number} */ min) => `${km} km, ca. ${min} Min. zu Fuß`,
+    far: (/** @type {string} */ km) => `${km} km, Sie werden abgeholt`, res: "Für Ihre Adresse ist ein Platz reserviert.", tips: "Meiden Sie überflutete Straßen und Brücken. Nehmen Sie Medikamente, Ausweis und Ladegerät mit. Helfen Sie Nachbarn, die nicht allein gehen können.",
+    none: "Verlassen Sie jetzt Ihr Haus und suchen Sie höher gelegene Orte auf.", demo: "Demo-Nachricht, keine echte Warnung", route: "Ihr Fußweg:", loading: "Fußweg wird geladen...", unnamed: "Weg",
+    turns: { depart: "Start", arrive: "Ziel", roundabout: "Kreisverkehr", uturn: "Wenden", "sharp right": "Scharf rechts", right: "Rechts", "slight right": "Halbrechts", straight: "Geradeaus", "slight left": "Halblinks", left: "Links", "sharp left": "Scharf links" },
+    wet: (/** @type {string} */ m) => `Achtung: ${m} dieses Weges standen 2021 unter Wasser. Gehen Sie jetzt los, bevor das Wasser steigt.` },
 };
 /** @typedef {typeof TXT.en} Txt */
+const IOS_TITLE = { be: "BE-Alert", nl: "NL-Alert", de: "Notfallalarm" };
+const GSM7 = "@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !\"#¤%&'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà";
+const GSM7_EXT = "^{}\\[~]|€";
+const CB_PAGE = 93, CB_PAGES = 15;
 
 /** @param {Txt} t @param {number} m */
 const kmText = (t, m) => (m / 1000).toLocaleString(t.loc, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 /** @param {Txt} t @param {number} m */
 const stepLen = (t, m) => m < 1000 ? `${Math.max(10, Math.round(m / 10) * 10)} m` : `${kmText(t, m)} km`;
-/** @param {Area} A @param {number} h @param {Shelter} sh */
-const osmRouteUrl = (A, h, sh) => `https://www.openstreetmap.org/directions?engine=fossgis_osrm_foot&route=${A.H.lat[h].toFixed(5)},${A.H.lon[h].toFixed(5)};${sh.lat.toFixed(5)},${sh.lon.toFixed(5)}`;
-
-/** @param {Txt} t @param {Route|null|undefined} route @param {Shelter} sh */
-function routeHtml(t, route, sh) {
-  if (route === undefined) return `<p class="muted">${t.loading}</p>`;
-  if (route === null) return `<p class="muted">${t.noroute}</p>`;
-  const wet = Math.round(route.wet / 10) * 10;
-  return `<ol class="steps">${route.steps.map((s, i) => `<li><span class="ar${i === 0 ? " start" : ""}">${s.arrow}</span><span>${esc(s.name || t.unnamed)}</span><span class="m">${stepLen(t, s.distance)}</span></li>`).join("")}` +
-    `<li><span class="ar end">⚑</span><b>${esc(sh.name)}</b></li></ol><div class="minimap" id="msgmap"></div>` +
-    (wet >= 10 ? `<p class="wet">${t.wet(wet.toLocaleString(t.loc))}</p>` : "");
+/** @param {string} text @returns {{chars: number, bad: string[]}} */
+function gsmLength(text) {
+  let chars = 0;
+  /** @type {string[]} */ const bad = [];
+  for (const c of text) {
+    if (GSM7.includes(c)) chars += 1;
+    else if (GSM7_EXT.includes(c)) chars += 2;
+    else { chars += 1; if (!bad.includes(c)) bad.push(c); }
+  }
+  return { chars, bad };
 }
+/** @param {string} text */
+function lengthNote(text) {
+  const g = gsmLength(text), pages = Math.ceil(g.chars / CB_PAGE);
+  if (g.bad.length) return ` Plain text, ${fmt(g.chars)} characters, but "${g.bad.join(" ")}" is outside the GSM 7-bit alphabet, so the network must send it in UCS-2, which fits less than half as much text per page.`;
+  return ` Plain GSM text for 2G cell broadcast: ${fmt(g.chars)} characters, ${pages} of ${CB_PAGES} pages (${CB_PAGE} characters each)${pages > CB_PAGES ? " — too long, shorten the route" : ""}.`;
+}
+/** @param {Txt} t @param {Route} route @param {string} shelter */
+const routeLines = (t, route, shelter) => [t.route,
+  ...route.steps.map((s, i) => `${i + 1}. ${t.turns[s.turn]}: ${s.name || t.unnamed}, ${stepLen(t, s.distance)}`),
+  `${route.steps.length + 1}. ${t.turns.arrive}: ${shelter}`].join("\n");
 
-/** @returns {{html: string, note: string, gap: boolean, route: Route|null}} */
+const IOS_ICON = `<svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path d="M12 3.5 2.5 20.5h19z" fill="#fff" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 9.5v5M12 17.4v.2" stroke="#ff3b30" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+
+/** @returns {{html: string, note: string, gap: boolean}} */
 function phoneHtml() {
   const A = current, t = TXT[/** @type {keyof typeof TXT} */ (lang)];
-  const lock = `<div class="statusbar"><span>Sat 31 Oct 2026</span><span>▮▮▮ 5G</span></div><div class="lock">06:12</div>`;
-  if (!A.N) return { html: `${lock}<div class="waiting">No homes mapped in this area.</div>`, note: "", gap: false, route: null };
-  const country = /** @type {keyof typeof SYSTEM} */ (homeCountry(A, selected));
-  if (step < 3) return { html: `${lock}<div class="waiting">${step < 2 ? "No alert yet. The forecast is travelling through the chain." : "Zone defined. The crisis centre is matching homes to shelters…"}</div>`, note: "In 2021, warnings mostly said danger, not where to go. (verify with Q2 desk research)", gap: false, route: null };
-  const msg = (/** @type {string} */ body) => `<div class="statusbar"><span>06:12</span><span>▮▮▮ 5G</span></div><div class="msg">` +
-    `<div class="top"><div class="icon" aria-hidden="true">!</div><div><div class="sys">${SYSTEM[country]}</div><div class="lvl">${t.level}</div></div><div class="now">${t.now}</div></div>` +
-    `<div class="body"><p class="stamp">${t.stamp}</p><p><b>${esc(t.title(info(A.id).rivers))}.</b> ${body}<p class="demo">${t.demo}</p></div><div class="ok" aria-hidden="true">OK</div></div>`;
+  const lock = (/** @type {string} */ inner) => `<div class="ios-status"><span class="sig" aria-hidden="true"><i style="height:4px"></i><i style="height:6px"></i><i style="height:8px"></i><i style="height:10px;opacity:.35"></i></span><span>2G</span><span class="bat"><span></span></span></div>` +
+    `<div class="ios-date">${t.day}</div><div class="ios-time">06:12</div>${inner}<div class="ios-home"></div>`;
+  if (!A.N) return { html: lock(`<div class="waiting">No homes mapped in this area.</div>`), note: "", gap: false };
+  const country = /** @type {keyof typeof IOS_TITLE} */ (homeCountry(A, selected));
+  if (step < 3) return { html: lock(`<div class="waiting">${step < 2 ? "No alert yet. The forecast is travelling through the chain." : "Zone defined. The crisis centre is matching homes to shelters…"}</div>`), note: "In 2021, warnings mostly said danger, not where to go. (verify with Q2 desk research)", gap: false };
+  const notif = (/** @type {string} */ text, /** @type {string} */ extra) => lock(`<div class="notif"><div class="appicon">${IOS_ICON}</div><div class="content">` +
+    `<div class="row"><span class="title">${IOS_TITLE[country] || "Emergency Alert"}</span><span class="when">${t.now}</span></div><div class="text">${esc(text)}</div>${extra}</div></div><div class="ios-demo">${t.demo}</div>`);
+  const head = `${t.stamp}: ${t.title(info(A.id).rivers)}.`;
   const s = A.result.chosen[selected];
   const who = selected === A.johan ? `Johan's family, ${A.johanPlace}` : `Home in ${A.d.places[A.H.place[selected]].name}, ≈${Math.max(1, Math.round(A.H.res[selected]))} residents`;
-  if (s < 0) return {
-    html: msg(`${t.none}</p><div class="dest none"><b>${t.nonelbl}</b></div><p>${t.tips}</p>`),
-    note: `${who}: no safe shelter place within ${plan.maxKm} km. This household gets a generic warning — like in 2021. This is the gap Anna must close.`, gap: true, route: null };
+  if (s < 0) {
+    const text = `${head} ${t.none}\n${t.tips}`;
+    return { html: notif(text, ""), note: `${who}: no safe shelter place within ${plan.maxKm} km. This household gets a generic warning — like in 2021. This is the gap Anna must close.`, gap: true };
+  }
   const sh = A.d.shelters[s], dist = A.result.dist[selected], walk = dist <= S.walk_distance_m;
   const route = walk ? routes.get(routeKey(A, selected, s)) : null;
   const how = !walk ? t.far(kmText(t, dist)) : route ? t.walk(kmText(t, route.distance), Math.round(route.duration / 60)) : t.walk(kmText(t, dist), Math.round(dist * DETOUR / WALK_M_PER_MIN));
-  const where = [sh.street, shelterCountry(A, sh) !== country ? countryCode(shelterCountry(A, sh)) : ""].filter(Boolean).map(esc).join(" · ");
-  const body = `${t.go}</p><div class="dest"><b>${esc(sh.name)}</b>${where ? `<br>${where}` : ""}<br>${how}</div><p>${t.res}</p>` +
-    (walk ? `<p class="sec">${t.route}</p>${routeHtml(t, route, sh)}` : "") +
-    `<p>${t.tips}</p>${walk ? `<p><a href="${esc(osmRouteUrl(A, selected, sh))}" target="_blank" rel="noopener">${t.map} ›</a></p>` : ""}`;
-  const routeNote = route ? ` Walking route: ${(route.distance / 1000).toFixed(1)} km on OpenStreetMap streets (straight line ${(dist / 1000).toFixed(1)} km)${route.wet >= 10 ? `; ${fmt(route.wet)} m of it inside the 2021 flood` : ""}.` : "";
+  const dest = [sh.name, sh.street, shelterCountry(A, sh) !== country ? countryCode(shelterCountry(A, sh)) : ""].filter(Boolean).join(", ");
+  const wet = route ? Math.round(route.wet / 10) * 10 : 0;
+  const text = `${head} ${t.go} ${dest} (${how}). ${t.res}` + (route ? `\n${routeLines(t, route, sh.name)}` : "") + (wet >= 10 ? `\n${t.wet(stepLen(t, wet))}` : "") + `\n${t.tips}`;
+  const loading = walk && route === undefined;
+  const routeNote = route ? ` Walking route: ${(route.distance / 1000).toFixed(1)} km on OpenStreetMap streets (straight line ${(dist / 1000).toFixed(1)} km)${route.wet >= 10 ? `; ${fmt(route.wet)} m of it inside the 2021 flood` : ""}.`
+    : walk && route === null ? " The walking route could not be loaded (routing service unreachable), so this message has no route." : "";
   return {
-    html: msg(body),
-    note: (selected === A.johan ? `${who}. His parents and his school get the same destination, so the family meets there.` : `${who}. Click any home on the map to see its message.`) + routeNote,
-    gap: false, route: route || null };
+    html: notif(text, loading ? `<div class="loading">${t.loading}</div>` : ""),
+    note: (selected === A.johan ? `${who}. His parents and his school get the same destination, so the family meets there.` : `${who}. Click any home on the map to see its message.`) + routeNote + (loading ? "" : lengthNote(text)),
+    gap: false };
 }
 
 const STEPS = [
@@ -682,7 +697,8 @@ const STEPS = [
       <div class="note"><b>${A.vuln.length} schools and care sites</b> (purple) touch the mapped flood. They cannot be shelters and need their own evacuation plan.</div>`; } },
   { name: "Alert", who: "BE-Alert · NL-Alert · Cell Broadcast / NINA", kicker: "4 · Hours → minutes",
     title: () => "One alert, a personal destination",
-    body: () => `<p>The alert does not just say <i>danger</i>; it says <b>where to go</b> and <b>how to get there</b>: the walking route from the door to the shelter. Click any home to see its message, in the language of the region.</p>
+    body: () => `<p>The alert does not just say <i>danger</i>; it says <b>where to go</b> and <b>how to get there</b>: the walking route from the door to the shelter, street by street. Click any home to see its message, in the language of the region.</p>
+      <p><span class="tag assume">2G</span> Cell broadcast reaches every phone, even on 2G, but only as plain text: no map, no link, no images. So the route is written out in words, within 15 pages of 93 characters.</p>
       <p><span class="tag assume">how</span> Cell broadcast reaches every phone in an area, so the zone is split into sectors with one shelter each. Registered addresses and the alert apps can carry the exact assignment.</p>
       <div class="note"><b>2021 gap:</b> warnings were late, unclear or not received. <span class="tag verify">verify: Q2 sources</span></div>` },
   { name: "Johan", who: "Residents · school · neighbours", kicker: "5 · Minutes",
@@ -743,23 +759,9 @@ function renderStory() {
   if (pool) pool.onclick = () => { plan.maxKm = 10; recompute(); };
 }
 
-/** @type {L.Map|null} */ let miniMap = null;
-
-/** @param {Route} route */
-function drawMiniMap(route) {
-  const box = document.getElementById("msgmap");
-  if (!box) return;
-  miniMap = L.map(box, { zoomControl: false, dragging: false, scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false, keyboard: false, touchZoom: false });
-  miniMap.attributionControl.setPrefix(false);
-  L.tileLayer(TILES, { attribution: "© OpenStreetMap", maxZoom: 19 }).addTo(miniMap);
-  L.polyline(route.coords, { color: "#0b4f8a", weight: 4 }).addTo(miniMap);
-  L.circleMarker(route.coords[0], { radius: 5, color: "#fff", weight: 2, fillColor: "#e05a1c", fillOpacity: 1 }).addTo(miniMap);
-  L.circleMarker(route.coords[route.coords.length - 1], { radius: 6, color: "#fff", weight: 2, fillColor: "#14936a", fillOpacity: 1 }).addTo(miniMap);
-  miniMap.fitBounds(L.latLngBounds(route.coords), { padding: [14, 14] });
-}
+let shownAlert = "";
 
 function renderSide() {
-  if (miniMap) { miniMap.remove(); miniMap = null; }
   if (view === "region") {
     $("side").innerHTML = `<div class="kicker" style="align-self:flex-start">Q4 · Residents who cannot walk to a shelter</div><div class="rank">` +
       ranked().map((A, i) => `<button data-area="${A.id}"><div class="t"><span>${i + 1}. ${esc(info(A.id).name)} · ${countryCode(A.d.meta.country)}</span><span>${fmt(noWalk(A))}</span></div>` +
@@ -773,7 +775,9 @@ function renderSide() {
   $("side").innerHTML = `<div class="langs" id="langs">${Object.keys(TXT).map(k => `<button data-lang="${k}" class="${k === lang ? "on" : ""}">${k.toUpperCase()}</button>`).join("")}</div>
     <div class="phone"><div class="screen">${p.html}</div></div><div class="phonenote ${p.gap ? "gapnote" : ""}" id="phonenote"></div>`;
   $("phonenote").textContent = p.note;
-  if (p.route) drawMiniMap(p.route);
+  const alertKey = `${current.id}:${selected}`, notif = document.querySelector("#side .notif");
+  if (notif && alertKey !== shownAlert) { notif.classList.add("arrive"); shownAlert = alertKey; }
+  if (!notif) shownAlert = "";
   $("langs").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { lang = b.dataset.lang || "en"; renderSide(); }));
 }
 
@@ -883,6 +887,7 @@ function renderEvidence() {
     `Safe shelter = more than ${S.flood_buffer_m} m from the 2021 flood${plan.exclRp500 ? " and no EFAS 500-year depth" : ""}.`,
     `Nearest shelter with room first (greedy matching); straight-line distance, across borders; walking time = distance × ${DETOUR} at 4.5 km/h.`,
     `The 2021 mapped flood is used as if it had been forecast perfectly.`,
+    `The alert is plain text sent by cell broadcast, which also works on 2G: at most 15 pages of 93 GSM 7-bit characters (1,395 characters, 3GPP TS 23.041). The phone shows how an iPhone would display it.`,
   ]);
   list("limits", [
     `Only the areas Copernicus mapped are covered; outside them is unknown, not dry. The Belgian Vesdre is strongly under-measured (radar, building undercount).`,

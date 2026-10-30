@@ -5,7 +5,7 @@ Interactive assessment for Anna, cross-border crisis coordinator for the Belgian
 | View | Answers |
 |---|---|
 | 1 · Region | Q1 homes and residents in the mapped flood, Q2 status of measures since 2021, Q3 shelter coverage, Q4 ranking of the most exposed areas |
-| 2 · Zoom in | One area along the warning chain Detect → Interpret → Decide → Alert → Johan, with live shelter matching and the alert on a phone, including the walking route from the home to its shelter |
+| 2 · Zoom in | One area along the warning chain Detect → Interpret → Decide → Alert → Johan, with live shelter matching and the alert on a phone, including the walking route from the home to its shelter, as plain cell-broadcast text that also reaches phones on 2G |
 | 3 · Anna's action | The recommendation, the ranking and the full Q2 evidence grid |
 
 ## Open it
