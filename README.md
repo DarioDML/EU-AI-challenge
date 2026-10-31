@@ -42,7 +42,7 @@ AI (Claude, Gemini, ChatGPT, Perplexity, NotebookLM) let us build the tools in t
 
 ## Team
 
-Team 1, European AI Challenge 2026: Dario De Mol, Maryam Mirashrafi, Nahed Lakjaa, Yasser Chamaoui, Yuna Yang and Louis Claes.
+Team 1, European AI Challenge 2026: Dario Demol, Maryam Mirashrafi, Nahed Lakjaa, Yasser Chamaoui, Yuna Yang and Louis Claes.
 
 Thanks to FARI, the JRC, the jury and the mentors.
 
