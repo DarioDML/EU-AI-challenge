@@ -1,0 +1,57 @@
+/* Slide 6 · Thank you (agent 6). Johan is the hero; everything that moves uses only transform and opacity. */
+#s6 .s6-left { position: absolute; left: var(--margin); top: 318px; width: 800px; }
+#s6 .s6-left > * { margin: 0; }
+#s6 .s6-rule { display: block; width: 56px; height: 4px; border-radius: 2px; background: var(--eu-blue); margin-bottom: 40px; }
+#s6 .s6-title { color: var(--ink); }
+#s6 .s6-tag { margin-top: 34px; font-size: 34px; color: var(--ink); }
+#s6 .s6-team { margin-top: 56px; font: 500 18px/1.3 var(--mono); letter-spacing: 0.04em; color: var(--ink-2); }
+
+#s6 .s6-scene, #s6 .s6-confetti { position: absolute; inset: 0; width: 1920px; height: 1080px; pointer-events: none; }
+#s6 .s6-rain line { stroke: var(--ink); stroke-width: 3; stroke-linecap: round; opacity: 0.28; }
+#s6 .s6-rain { transition: opacity 700ms var(--spring), transform 900ms var(--spring); }
+#s6.s1 .s6-rain { opacity: 0; transform: translate3d(0, 40px, 0); }
+#s6 .s6-route-case { fill: none; stroke: var(--ink); stroke-width: 12; stroke-linecap: round; }
+#s6 .s6-route { fill: none; stroke: var(--gold); stroke-width: 6; stroke-linecap: round; }
+#s6 .s6-pin path, #s6 .s6-pin circle { fill: var(--eu-blue); }
+#s6 .s6-pin circle { fill: #fff; }
+#s6 .s6-pin-in { opacity: 0; transform: translate3d(0, -26px, 0) scale(0.6); transform-box: fill-box; transform-origin: 50% 100%;
+  transition: opacity 500ms var(--spring), transform 800ms var(--spring); }
+#s6.s1 .s6-pin-in { opacity: 1; transform: none; transition-delay: 1700ms; }
+
+/* confetti: the outer piece floats up into place (transition), the inner one drifts gently (loop) */
+#s6 .cf { position: absolute; width: var(--s); height: var(--s); opacity: 0; transform: translate3d(0, 56px, 0) rotate(var(--rot));
+  transition: opacity 700ms var(--spring), transform 1400ms var(--spring); }
+#s6.s1 .cf { opacity: 0.95; transform: none; transition-delay: var(--d); }
+#s6 .cf b { display: block; width: 100%; height: 100%; border-radius: 3px; animation: s6-float var(--f) ease-in-out var(--fd) infinite alternate; }
+#s6 .cf b.r { border-radius: 50%; }
+#s6 .cf b.g { background: var(--gold); }
+#s6 .cf b.b { background: var(--eu-blue); }
+@keyframes s6-float { from { transform: translate3d(0, 8px, 0) rotate(-8deg); } to { transform: translate3d(0, -14px, 0) rotate(10deg); } }
+
+/* Johan: bounce in with squash and stretch, then a small happy hop every 2.4 s */
+#s6 .s6-johan { position: absolute; margin: 0; left: 986px; top: 276px; width: 288px; height: 620px; transform-origin: 50% 100%; }
+#s6 .s6-johan img { display: block; width: 100%; height: 100%; }
+#s6 .s6-shadow { position: absolute; left: 1010px; top: 884px; width: 240px; height: 26px; transform-origin: 50% 50%;
+  background: radial-gradient(ellipse at center, rgba(10, 31, 77, 0.2), rgba(10, 31, 77, 0) 70%); }
+#s6.is-active .s6-johan { animation: s6-in 1100ms var(--spring) both, s6-hop 2400ms ease-in-out 1500ms infinite; }
+#s6.is-active .s6-shadow { animation: s6-shadow 2400ms ease-in-out 1500ms infinite; }
+@keyframes s6-in {
+  0% { opacity: 0; transform: translate3d(0, -560px, 0) scale(0.88, 1.14); }
+  45% { opacity: 1; transform: translate3d(0, 0, 0) scale(1.12, 0.86); }
+  62% { transform: translate3d(0, -52px, 0) scale(0.95, 1.07); }
+  80% { transform: translate3d(0, 0, 0) scale(1.05, 0.95); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes s6-hop {
+  0%, 55% { transform: none; }
+  62% { transform: scale(1.05, 0.94); }
+  74% { transform: translate3d(0, -30px, 0) scale(0.97, 1.04); }
+  86% { transform: scale(1.04, 0.95); }
+  93% { transform: scale(0.99, 1.01); }
+  100% { transform: none; }
+}
+@keyframes s6-shadow { 0%, 55%, 100% { transform: none; opacity: 1; } 74% { transform: scale(0.78, 0.9); opacity: 0.6; } 86% { transform: scale(1.06, 1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  #s6.is-active .s6-johan, #s6.is-active .s6-shadow, #s6 .cf b { animation: none; }
+}

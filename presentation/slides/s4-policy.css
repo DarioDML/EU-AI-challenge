@@ -1,0 +1,91 @@
+/* Slide 5 (s4) · How it helps Anna. Left: one caption per step, crossfaded in place. Right: the tool in a browser frame
+   (1144 × 644 screen = the 1600 × 900 captures × 0.715). */
+#s4 { --s4-warn: #B45309; }
+#s4 p { margin: 0; }
+
+/* ---------- left: title and the per-step caption ---------- */
+#s4 .s4-title { position: absolute; left: var(--margin); top: 150px; white-space: nowrap; }
+#s4 .s4-say { position: absolute; left: var(--margin); top: 290px; width: 540px; }
+#s4 .s4-say .kicker { margin-bottom: 26px; }
+#s4 .s4-who { line-height: 1.55; }
+#s4 .s4-quote { font: 600 46px/1.18 var(--font); letter-spacing: -0.02em; color: var(--ink); }
+#s4 .s4-big { font: 700 160px/1 var(--font); letter-spacing: -0.045em; color: var(--eu-blue); margin: 14px 0 40px; }
+#s4 .s4-stat { display: flex; align-items: baseline; gap: 24px; margin-bottom: 18px; }
+#s4 .s4-stat b { font: 700 128px/1 var(--font); letter-spacing: -0.045em; color: var(--eu-blue); min-width: 236px; }
+#s4 .s4-stat b small { font-size: 0.42em; font-weight: 600; letter-spacing: 0; margin-left: 0.06em; }
+#s4 .s4-stat span { font: 500 30px/1.2 var(--font); color: var(--ink-2); }
+#s4 .s4-stat.slow b { color: var(--s4-warn); }
+#s4 .s4-answer { font: 700 60px/1.08 var(--font); letter-spacing: -0.03em; color: var(--ink); margin-bottom: 30px; }
+
+/* ---------- right: the tool in a browser frame ---------- */
+#s4 .s4-browser {
+  position: absolute; left: var(--bl, 680px); top: 150px; width: var(--bw, 1144px); margin: 0; overflow: hidden;
+  transition: left 700ms var(--spring), width 700ms var(--spring), opacity 600ms var(--spring), transform 900ms var(--spring);
+  border: 1px solid var(--glass-line); border-radius: 12px; background: var(--surface);
+  box-shadow: 0 24px 60px rgba(19, 43, 80, 0.14), 0 4px 12px rgba(19, 43, 80, 0.06);
+}
+#s4 .s4-bar { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 16px; background: #F3F5F9; border-bottom: 1px solid var(--glass-line); }
+#s4 .s4-bar i { width: 11px; height: 11px; border-radius: 50%; background: #C9D1DD; }
+#s4 .s4-bar span { margin-left: 18px; padding: 5px 16px; border-radius: 6px; background: #fff; font: 500 15px/1 var(--mono); color: var(--ink-3); }
+#s4 .s4-screen { position: relative; height: var(--sh, 644px); overflow: hidden; transition: height 700ms var(--spring); }
+/* the window takes the aspect of each screen: region 16:9, map crop 1246 x 802, action box 1172 x 554 (1144 px wide) */
+#s4.s2 { --sh: 736px; }
+#s4.s3 { --sh: 541px; }
+
+#s4 .s4-shot {
+  position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; opacity: 0;
+  transition: opacity 450ms var(--spring) 120ms;
+}
+#s4 .s4-shot.region { opacity: 1; }
+#s4.s2 .s4-shot.region { opacity: 0; }
+/* steps 2 and 3: purpose-cropped captures, crossfaded in place (no live zoom: a scaled screenshot drifted and cut panels) */
+#s4 .s4-shot.decide, #s4 .s4-shot.action { object-fit: cover; object-position: center; }
+#s4.s2 .s4-shot.decide { opacity: 1; }
+#s4.s3 .s4-shot.decide { opacity: 0; }
+#s4.s3 .s4-shot.action { opacity: 1; }
+
+/* the caption swap: the old caption leaves first (fast), the new one arrives after it, so numbers never overlap */
+#s4 .s4-say { transition: opacity 600ms var(--spring) 220ms, transform 900ms var(--spring) 220ms; }
+#s4.s1 .s4-say[data-b-out="1"], #s4.s2 .s4-say[data-b-out="2"], #s4.s3 .s4-say[data-b-out="3"] { transition: opacity 160ms linear, transform 160ms linear; }
+
+/* step 1: Schleiden on the map and first in the ranking (region capture × 0.715) */
+#s4 .s4-ring {
+  position: absolute; border: 4px solid var(--gold); box-shadow: 0 0 0 6px rgba(255, 204, 0, 0.28);
+  opacity: 0; transform: scale(1.15); transition: opacity 300ms linear, transform 700ms var(--spring); pointer-events: none;
+}
+#s4 .s4-ring.map { left: 562px; top: 312px; width: 84px; height: 84px; border-radius: 50%; }
+#s4 .s4-ring.rank { left: 904px; top: 104px; width: 230px; height: 78px; border-radius: 10px; }
+#s4.s1:not(.s2) .s4-ring { opacity: 1; transform: none; transition-delay: 250ms; }
+
+/* the rings belong to the region view: they leave at once when the map crop arrives */
+#s4.s2 .s4-ring { opacity: 0; transition: opacity 90ms linear; transition-delay: 0s; }
+
+/* step 3: Anna's next actions, big and plain; the tool window gives way to them */
+#s4.s3 .s4-browser { opacity: 0; transform: translate3d(40px, 0, 0); pointer-events: none; }
+#s4 .s4-act { width: 1500px; top: 330px; }
+#s4 .s4-steps { list-style: none; margin: 0; padding: 0; }
+#s4 .s4-steps li {
+  display: flex; align-items: baseline; gap: 36px; margin-bottom: 38px;
+  font: 700 76px/1.08 var(--font); letter-spacing: -0.03em; color: var(--ink);
+  opacity: 0; transform: translate3d(0, 28px, 0);
+  transition: opacity 500ms var(--spring), transform 800ms var(--spring);
+}
+#s4 .s4-steps .n { flex: none; width: 56px; font: 600 34px/1 var(--mono); letter-spacing: 0; color: var(--eu-blue); }
+#s4.s3 .s4-steps li { opacity: 1; transform: none; }
+#s4.s3 .s4-steps li:nth-child(1) { transition-delay: 380ms; }
+#s4.s3 .s4-steps li:nth-child(2) { transition-delay: 620ms; }
+#s4.s3 .s4-steps li:nth-child(3) { transition-delay: 860ms; }
+#s4 .s4-steps li:nth-child(3) .n { color: var(--gold-ink); }
+
+/* step 1: the window narrows to the ranking bars on the right (a 3x capture of the tool's Q4 panel, 978 x 1164) */
+#s4 .s4-shot.rank { object-fit: cover; object-position: top; }
+#s4.s1:not(.s2) { --bl: 1224px; --bw: 600px; --sh: 714px; }
+#s4.s1:not(.s2) .s4-shot.region { opacity: 0; }
+#s4.s1:not(.s2) .s4-shot.rank { opacity: 1; }
+#s4 .s4-ring.bar { left: 18px; top: 86px; width: 564px; height: 176px; border-radius: 16px; }
+#s4 .s4-ring.map, #s4 .s4-ring.rank { display: none; }
+
+/* images keep their own pixel size while the window morphs: the frame crops them, it never rescales them */
+#s4 .s4-shot { width: 1144px; height: 644px; max-width: none; }
+#s4 .s4-shot.rank { width: 600px; height: 714px; }
+#s4 .s4-shot.decide { width: 1144px; height: 736px; }

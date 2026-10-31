@@ -1,0 +1,79 @@
+/* Motion layer. Loads last; slide layout and the 1920 x 1080 stage belong to the deck.
+   One quiet rhythm throughout: crossfade slides, lift builds 12px, briefly reveal useful paths. */
+:root {
+  --m-ease: cubic-bezier(0.16, 1, 0.3, 1);   /* arrivals: quick start, long soft landing */
+  --m-fade: cubic-bezier(0.4, 0, 0.2, 1);    /* fades and departures */
+}
+
+/* Slides crossfade: the outgoing one leaves first, the incoming one follows 140 ms later, so two layers of text never
+   share the screen at half strength. Pure opacity: no scale, no travel. */
+.slide {
+  --m-b-rise: 16px;
+  will-change: opacity;
+  transform: none;
+  transition: opacity 360ms var(--m-fade) , visibility 0s linear 360ms;
+}
+.slide.is-active {
+  z-index: 2; transform: none;
+  transition: opacity 640ms var(--m-fade) 140ms, visibility 0s;
+}
+.slide.m-out { z-index: 1; transform: none; }
+
+/* Builds: opacity 520 ms + a 16 px lift on the spring (700 ms). Staggers come from --m-delay (data-stagger) or from a
+   slide's own transition-delay rules; neither is overridden here. */
+.slide [data-b] {
+  transform: translate3d(0, var(--m-b-rise), 0);
+  transition: opacity 260ms var(--m-fade), transform 360ms var(--m-fade);
+}
+.slide.is-active [data-b="0"],
+.slide.s1 [data-b="1"], .slide.s2 [data-b="2"], .slide.s3 [data-b="3"],
+.slide.s4 [data-b="4"], .slide.s5 [data-b="5"], .slide.s6 [data-b="6"],
+.slide.s7 [data-b="7"], .slide.s8 [data-b="8"], .slide.s9 [data-b="9"] {
+  opacity: 1; transform: none;
+  transition: opacity 520ms var(--m-fade) var(--m-delay, 0ms), transform 700ms var(--m-ease) var(--m-delay, 0ms);
+}
+.slide.s1 [data-b-out="1"], .slide.s2 [data-b-out="2"], .slide.s3 [data-b-out="3"],
+.slide.s4 [data-b-out="4"], .slide.s5 [data-b-out="5"], .slide.s6 [data-b-out="6"],
+.slide.s7 [data-b-out="7"], .slide.s8 [data-b-out="8"], .slide.s9 [data-b-out="9"] {
+  opacity: 0 !important; transform: translate3d(0, -12px, 0) !important;
+  transition: opacity 260ms var(--m-fade), transform 360ms var(--m-fade) !important; pointer-events: none;
+}
+.slide [data-draw][data-b], .slide [data-stagger][data-b] { transform: none; }
+/* The outgoing slide retains its first build until the crossfade finishes. */
+.slide.m-out [data-b="0"] { opacity: 1; transform: none; }
+/* Going back: no delays, settle quickly. */
+.slide.m-back [data-b] { transition-delay: 0ms; }
+
+[data-tick] { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+
+/* .pulse: a soft halo ring for HTML pins (gold ring, navy hairline; scale + opacity only, active slide only) */
+:where(.pulse) { position: relative; }
+.pulse::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none; box-sizing: border-box;
+  border: 2px solid var(--gold); box-shadow: 0 0 0 1px rgba(10, 31, 77, 0.4), 0 4px 14px rgba(10, 31, 77, 0.2);
+  opacity: 0.45; transform: scale(1.8);
+}
+.slide.is-active .pulse::after { animation: m-pulse 2.4s var(--m-ease) infinite; }
+@keyframes m-pulse { 0% { opacity: 0.9; transform: scale(0.9); } 100% { opacity: 0; transform: scale(2.8); } }
+
+/* data-draw-lead: gold dot, navy hairline, soft navy shadow instead of a glow (light theme) */
+.m-lead { pointer-events: none; }
+.m-lead-halo { fill: rgba(255, 204, 0, 0.34); }
+.m-lead-core { fill: var(--gold); stroke: var(--ink); stroke-width: 2.5; }
+
+/* kept off on the legacy hooks */
+.flow, .m-flow-track, .m-flow-dot, .m-flow-clone, .m-pulse-ring { display: none; animation: none; }
+
+/* Use none rather than a near-zero duration: screenshots and reduced motion have no delayed work. */
+html.static *, html.static *::before, html.static *::after,
+#stage.motion-reduced, #stage.motion-reduced *,
+#stage.motion-reduced::before, #stage.motion-reduced::after,
+#stage.motion-reduced *::before, #stage.motion-reduced *::after,
+#stage.instant *, #stage.instant *::before, #stage.instant *::after {
+  transition: none !important; animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  #stage, #stage *, #stage::before, #stage::after, #stage *::before, #stage *::after {
+    transition: none !important; animation: none !important;
+  }
+}

@@ -1,0 +1,69 @@
+/* Slide 1 · Meet Johan: character, questions, then one crowd of 100 person figures whose state changes. */
+#s1 .s1-art { position: absolute; inset: 0; pointer-events: none; }
+#s1 .s1-fig { position: absolute; margin: 0; opacity: 0; transition: opacity 400ms ease; }
+#s1 .s1-fig img { display: block; width: 100%; height: 100%; object-fit: contain; }
+#s1 .s1-solo { left: 1330px; top: 320px; width: 190px; height: 525px; }
+#s1 .s1-think { left: 1330px; top: 300px; width: 190px; height: 567px; }
+#s1[data-step="0"] .s1-solo, #s1[data-step="1"] .s1-think { opacity: 1; }
+#s1 .s1-intro { position: absolute; left: 96px; top: 340px; }
+#s1 .s1-intro .kicker { margin: 0 0 38px; }
+#s1 .s1-intro .lead { margin-top: 32px; }
+#s1 .s1-micro { font: 400 19px/1.3 var(--font); color: var(--ink-3); margin-top: 48px; }
+#s1 .s1-qs { position: absolute; left: 96px; top: 310px; margin: 0; padding: 0; list-style: none; }
+#s1 .s1-qs li { display: flex; align-items: baseline; gap: 32px; padding: 24px 0; }
+#s1 .s1-qs li > span { font: 500 24px/1 var(--mono); color: var(--ink-3); width: 50px; }
+#s1 .s1-qs h2 { font: 600 78px/1.08 var(--font); letter-spacing: -.035em; margin: 0; }
+#s1 .s1-qs li:last-child h2, #s1 .s1-qs li:last-child > span { color: var(--eu-blue); }
+
+/* steps 2-4: left column = title + one number at a time; right = the crowd (right 55 % of the stage).
+   Layers per figure: base (warned, navy), nw (hollow, dashed, no-message badge), a (EU blue, "!"), b (gold, "?"). */
+#s1 .s1-title { position: absolute; left: 96px; top: 226px; color: var(--ink); }
+#s1 .s1-stat { position: absolute; left: 96px; top: 430px; width: 760px; }
+#s1 .s1-num { display: block; font: 500 200px/1 var(--mono); letter-spacing: -0.05em; color: var(--ink); white-space: nowrap; margin-left: -8px; }
+#s1 .s1-pct { font-size: 0.42em; letter-spacing: 0; margin-left: 0.08em; color: var(--ink-2); }
+#s1 .s1-blue { color: var(--eu-blue); }
+#s1 .s1-goldink { color: var(--gold-ink); }
+#s1 .s1-lbl { display: block; margin-top: 18px; font: 500 36px/1.2 var(--font); letter-spacing: -0.015em; color: var(--ink); max-width: 700px; }
+
+#s1 .s1-per { position: absolute; left: 948px; top: 124px; margin: 0; font: 500 17px/1 var(--mono); letter-spacing: 0.04em; color: var(--ink-3); }
+#s1 .s1-crowd { position: absolute; inset: 0; pointer-events: none; }
+#s1 .pf { position: absolute; width: 56px; height: 72px; opacity: 0; transform: translate3d(0, 24px, 0) scale(0.9);
+  transition: opacity 600ms var(--spring), transform 900ms var(--spring); }
+#s1 .pf svg { display: block; overflow: visible; }
+#s1.s2 .pf { opacity: 1; transform: none; transition-delay: calc(var(--r) * 55ms + var(--c) * 10ms + 150ms); }   /* pop-in: about 1.2 s in all */
+
+#s1 .L { opacity: 0; transition: opacity 500ms var(--spring); }
+#s1 .L.base { opacity: 1; transition: opacity 0s; }   /* base stays under an overlay until the overlay is opaque */
+#s1 .base .hd, #s1 .base .bd { fill: var(--ink); }   /* every non-highlighted figure = the colour of the body text */
+#s1 .johan .base .hd { fill: #F2C9A5; }
+#s1 .johan .base .bd { fill: var(--gold); }
+#s1 .nw .hd, #s1 .nw .bd, #s1 .sw-nw .hd, #s1 .sw-nw .bd { fill: #AEB7C7; stroke: #5D6B86; stroke-width: 2.2; stroke-dasharray: 4 3; stroke-linejoin: round; }
+#s1 .a .hd, #s1 .a .bd, #s1 .sw-a .hd, #s1 .sw-a .bd { fill: #003399; }
+#s1 .b .hd, #s1 .b .bd, #s1 .sw-b .hd, #s1 .sw-b .bd { fill: var(--gold); stroke: var(--ink); stroke-width: 1.6; stroke-linejoin: round; }
+#s1 .bdg circle { fill: #fff; stroke-width: 2.5; }
+#s1 .bdg text { font: 800 15px var(--font); }
+#s1 .bdg-nw circle { stroke: #5D6B86; }
+#s1 .bdg-nw rect { fill: none; stroke: #5D6B86; stroke-width: 1.8; }
+#s1 .bdg-nw path { fill: none; stroke: var(--none); stroke-width: 2; stroke-linecap: round; }
+#s1 .bdg-a circle { stroke: #003399; } #s1 .bdg-a text { fill: #003399; }
+#s1 .bdg-b circle { stroke: var(--ink); } #s1 .bdg-b text { fill: var(--ink); }
+
+/* row-staggered sweeps (rows 90 ms apart, columns 12 ms); only one highlighted measure on the crowd at a time */
+#s1.s2 .g-nw .L.nw { opacity: 1; transition-delay: calc(1500ms + var(--r) * 90ms + var(--c) * 12ms); }
+#s1.s2 .g-nw .L.base { opacity: 0; transition: opacity 0s linear calc(1500ms + 520ms + var(--r) * 90ms + var(--c) * 12ms); }
+#s1[data-step="3"] .g-a .L.a { opacity: 1; transition-delay: calc(450ms + var(--r) * 90ms + var(--c) * 12ms); }
+#s1[data-step="3"] .g-a .L.base { opacity: 0; transition: opacity 0s linear calc(450ms + 520ms + var(--r) * 90ms + var(--c) * 12ms); }
+#s1[data-step="4"] .g-b .L.b { opacity: 1; transition-delay: calc(800ms + var(--r) * 90ms + var(--c) * 12ms); }
+#s1[data-step="4"] .g-b .L.base { opacity: 0; transition: opacity 0s linear calc(800ms + 520ms + var(--r) * 90ms + var(--c) * 12ms); }
+
+#s1 .s1-legend { position: absolute; left: 948px; top: 968px; margin: 0; padding: 0; list-style: none; display: flex; gap: 40px; }
+#s1 .s1-legend li, #s1 .lg-slot span { display: flex; align-items: center; gap: 10px; font: 500 20px/1 var(--font); color: var(--ink-2); white-space: nowrap; }
+#s1 .lg-slot { position: relative; width: 220px; }
+#s1 .lg-slot span { position: absolute; left: 0; top: 0; }
+#s1 .s1-src { font: 400 15px/1.4 var(--mono); }
+
+/* staggered text builds, only while entering a step */
+#s1.s2:not(.s3) .s1-title { transition-delay: 150ms; }
+#s1.s2:not(.s3) .s1-st-29 { transition-delay: 1300ms; }
+#s1.s3:not(.s4) .s1-st-85 { transition-delay: 300ms; }
+#s1.s4 .s1-st-46 { transition-delay: 600ms; }
